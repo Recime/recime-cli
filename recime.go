@@ -80,7 +80,7 @@ func main() {
     args := os.Args
 
     if len(args) == 1 {
-        fmt.Println("Usage: recime create | deploy")
+        fmt.Println("Usage: recime-cli create")
         return
     }
 
