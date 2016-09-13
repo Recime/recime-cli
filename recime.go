@@ -10,7 +10,8 @@ import "io/ioutil"
 import "encoding/json"
 import "bufio"
 import "strings"
-// import "regexp"
+import "regexp"
+import "crypto/md5"
 
 func setValue(data map[string]interface{}, key string, value string) {
     if len(value) > 1 {
@@ -26,11 +27,9 @@ func ProcesssInput(in io.Reader) (data map[string]interface{} ){
 
     check(json.Unmarshal(asset, &data))
 
-    fmt.Printf("Name (%s):", data["name"])
+    fmt.Printf("Title (%s):", data["title"])
 
-    name, _ := reader.ReadString('\n')
-
-    name = strings.Replace(name, " ", "_", -1)
+    title, _ := reader.ReadString('\n')
 
     fmt.Printf("Description (%s):", data["description"])
 
@@ -62,8 +61,8 @@ func ProcesssInput(in io.Reader) (data map[string]interface{} ){
 
     data["author"] =  strings.TrimRight(author, "\n") + " " + "<" + strings.TrimRight(email, "\n") + ">"
 
-    setValue(data, "name", name)
-    setValue(data, "name", desc)
+    setValue(data, "title", title)
+    setValue(data, "description", desc)
     setValue(data, "license", license)
 
     return data
@@ -95,7 +94,36 @@ func main() {
 
       data := ProcesssInput(os.Stdin)
 
-      name := data["name"].(string)
+
+      name := data["title"].(string)
+
+      r, _ := regexp.Compile("[\\s?.$#,()^!&]+")
+
+      name = r.ReplaceAllString(name, "-")
+      name = strings.ToLower(name)
+      name = strings.TrimLeft(name, "_")
+
+      data["name"] = name
+
+      r, _ = regexp.Compile("[^<>]+")
+
+      author := r.FindAllString(data["author"].(string), -1)
+
+      r, _ = regexp.Compile("[\\s]+")
+
+      _author := author[1]
+      _author = r.ReplaceAllString(_author, "")
+      _author = strings.ToLower(_author)
+
+      uid := _author + ";" + name
+
+      // fmt.Println(uid)
+
+      _data := []byte(uid)
+
+      uid = fmt.Sprintf("%x", md5.Sum(_data))
+
+      data["uid"] = uid
 
       path := wd + "/" + name
 

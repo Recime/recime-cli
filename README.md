@@ -28,7 +28,7 @@ Once **Go** is installed, you can need to add the following lines your $HOME/.ba
 The following commands are currently available in the `Recime Command Line Tool`:
 
 ```bash
-  create      Create the bot template from interactive wizard.
+  create      Creates the bot template from interactive wizard.
   deploy      Deploys the bot to Recime cloud.
 
 ```

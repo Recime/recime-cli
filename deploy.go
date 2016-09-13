@@ -2,14 +2,26 @@ package main
 
 import "fmt"
 import "os"
-// import "net/url"
+
+// import "bufio"
+
+import "bytes"
+
+import "io"
 import "io/ioutil"
+
 import "encoding/json"
 // import "net/http"
-import "strings"
+// import "strings"
 import "os/exec"
 
+import "net/http"
+import "mime/multipart"
+import fs "path/filepath"
+
+
 func Deploy() {
+
   wd, err := os.Getwd()
 
   var data map[string]interface{}
@@ -22,26 +34,11 @@ func Deploy() {
     panic(err)
   }
 
-  fmt.Println("Preparing.")
-
-  // resp, err := http.PostForm("http://localhost:8081/module/deploy", v)
-  //
-  // check(err)
-  //
-  // defer resp.Body.Close()
-
   name := data["name"].(string)
 
-  _name := strings.ToLower(name)
-  _name = strings.Replace(_name, " ", "-", -1)
+  uid := data["uid"].(string)
 
-  // temp, err :=  ioutil.TempDir("", _name)
-  //
-  // check(err)
-  //
-  // err = CopyDir(wd, temp)
-  //
-  // check(err)
+  fmt.Println("Installing modules")
 
   cmd := exec.Command("npm", "install")
 
@@ -54,15 +51,13 @@ func Deploy() {
 
   check(err)
 
-  fmt.Println("Creating Archive.")
-  //
+  fmt.Println("Compressing")
 
-
-  temp, err :=  ioutil.TempDir("", _name)
+  temp, err :=  ioutil.TempDir("", name)
 
   check(err)
 
-  dest := temp + "/.recime"
+  dest := temp + "/" + uid
 
   err = os.Mkdir(dest, os.ModePerm)
 
@@ -70,15 +65,59 @@ func Deploy() {
 
   err = CopyDir(wd, dest)
 
-  // fmt.Println(temp)
+  filePath := temp + "/" + name + ".zip"
 
-  Archive(dest, temp+ "/" + name + ".zip")
+  Archive(dest, filePath)
 
-  // os.RemoveAll(dest + "/")
+  file, err := os.Open(filePath)
 
-  fmt.Println("Done.")
+  defer file.Close()
 
-  // body, err := ioutil.ReadAll(resp.Body)
+  body := &bytes.Buffer{}
 
-  // fmt.Println(string(body))
+  writer := multipart.NewWriter(body)
+
+  params := map[string]string {
+      "uid" : uid,
+  }
+
+  part, err := writer.CreateFormFile("file", fs.Base(filePath))
+
+  check(err)
+
+  _, err = io.Copy(part, file)
+
+  for key, val := range params {
+      _ = writer.WriteField(key, val)
+  }
+  err = writer.Close()
+
+  check(err)
+
+  fmt.Println("Preparing to Upload")
+
+  req, err := http.NewRequest("POST", "http://localhost:8081/module/deploy/" + name, body)
+
+  req.Header.Set("Content-Type", writer.FormDataContentType())
+
+  check(err)
+
+  resp, err := http.DefaultClient.Do(req)
+
+  check(err)
+
+  dat, err := ioutil.ReadAll(resp.Body)
+
+  // for {
+  //     line, err := reader.ReadBytes('\n')
+  //     line = bytes.TrimSpace(line)
+  //
+  //     if err != nil {
+  //       break
+  //     }
+  //
+      fmt.Println(string(dat))
+  // }
+
+  defer resp.Body.Close()
 }

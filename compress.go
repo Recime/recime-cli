@@ -40,8 +40,8 @@ func Archive(source, target string) error {
 		}
 
 		if baseDir != "" {
-    	header.Name = strings.TrimPrefix(path, source)
-  	}
+			header.Name = filepath.Join(baseDir, strings.TrimPrefix(path, source))
+		}
 
 		if info.IsDir() {
 			header.Name += "/"
@@ -50,6 +50,7 @@ func Archive(source, target string) error {
 		}
 
 		writer, err := archive.CreateHeader(header)
+
 		if err != nil {
 			return err
 		}
