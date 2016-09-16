@@ -1,16 +1,13 @@
 package main
 
-import (
-	"io"
-  "bytes"
-)
-
+import "io"
+import "bytes"
 import "gopkg.in/cheggaaa/pb.v1"
 
 // It's proxy reader, implement io.Reader
 type Reader struct {
-	Reader *io.SectionReader
-	bar *pb.ProgressBar
+  Reader *io.SectionReader
+  bar *pb.ProgressBar
   offset int64
 }
 
@@ -30,5 +27,5 @@ func (r *Reader) Read(p []byte) (n int, err error) {
   r.bar.Add(n)
   r.offset += int64(n)
 
-	return n, err
+  return n, err
 }
