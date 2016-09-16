@@ -3,7 +3,6 @@ package main
 import "fmt"
 import "os"
 
-import "bufio"
 import "bytes"
 
 import "io"
@@ -18,7 +17,7 @@ import "gopkg.in/cheggaaa/pb.v1"
 import "github.com/briandowns/spinner"
 import "time"
 
-const BASE_URL = "http://recimedev-env.us-west-1.elasticbeanstalk.com"
+const BASE_URL = "https://recime.ai"
 
 type Bot struct{
     Id string `json:"uid"`
@@ -165,20 +164,25 @@ func Deploy() {
 
   check(err)
 
-  reader := bufio.NewReader(resp.Body)
-
-  for {
-      line, err := reader.ReadBytes('\n')
-      line = bytes.TrimSpace(line)
-
-      fmt.Println(string(line))
-
-      if err == io.EOF {
-        fmt.Println("For any questions and feedbacks, please reach us at hello@recime.ai.")
-        s.Stop()
-        break
-      }
+  var result struct {
+      Name string `json:"name"`
+      Id string `json:"uid"`
   }
+
+  bytes, err := ioutil.ReadAll(resp.Body)
+
+  check(err)
+
+  json.Unmarshal(bytes, &result)
+
+  s.Stop()
+
+  time.Sleep(time.Millisecond * 10)
+
+  fmt.Println("=> " + BASE_URL + "/bot/" + result.Name)
+  fmt.Println("INFO: Publish Successful")
+  fmt.Println("For any questions and feedbacks, please reach us at hello@recime.ai.")
+
 
   defer resp.Body.Close()
 
