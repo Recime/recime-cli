@@ -4,25 +4,21 @@ import "fmt"
 import "os"
 
 import "bufio"
-
 import "bytes"
 
 import "io"
 import "io/ioutil"
 
 import "encoding/json"
-// import "net/http"
-// import "strings"
 import "os/exec"
 
 import "net/http"
 
-// import "mime/multipart"
-// import fs "path/filepath"
-
-// import "gopkg.in/cheggaaa/pb.v1"
+import "gopkg.in/cheggaaa/pb.v1"
 import "github.com/briandowns/spinner"
 import "time"
+
+const BASE_URL = "http://recimedev-env.us-west-1.elasticbeanstalk.com"
 
 type Bot struct{
     Id string `json:"uid"`
@@ -51,7 +47,6 @@ func SendRequest(url string, body io.Reader) (string){
 
 
 func Deploy() {
-
   wd, err := os.Getwd()
 
   var data map[string]interface{}
@@ -103,29 +98,6 @@ func Deploy() {
 
   defer file.Close()
 
-  // body := &bytes.Buffer{}
-  //
-  // writer := multipart.NewWriter(body)
-  //
-  // params := map[string]string {
-  //     "uid" : uid,
-  // }
-  //
-  // part, err := writer.CreateFormFile("file", fs.Base(filePath))
-  //
-  // check(err)
-  //
-  // _, err = io.Copy(part, file)
-  //
-  // for key, val := range params {
-  //     _ = writer.WriteField(key, val)
-  // }
-  // err = writer.Close()
-  //
-  // check(err)
-
-  //read file content to buffer
-
   fileInfo, _ := file.Stat()
 
   var size = fileInfo.Size()
@@ -137,7 +109,7 @@ func Deploy() {
 
   fmt.Println("INFO: Preparing to upload.")
 
-  url := "http://recimedev-env.us-west-1.elasticbeanstalk.com/signed-url"
+  url := BASE_URL + "/signed-url"
 
   fileType := http.DetectContentType(buffer)
 
@@ -149,29 +121,17 @@ func Deploy() {
 
   signedUrl := SendRequest(url, bytes.NewBuffer(jsonBody))
 
-  // fmt.Println(signedUrl)
+  bar := pb.New(len(buffer)).SetUnits(pb.U_BYTES)
 
-  // url = "http://localhost:8081/module/deploy/" + name
+  bar.Format("[## ]")
 
-  fileReader := bytes.NewReader(buffer)
+  bar.Start()
 
-  // bar := pb.New(int(size)).SetUnits(pb.U_BYTES)
-  //
-  // bar.Start()
+  proxy := NewReader(buffer, bar)
 
-  // _ = bar.NewProxyReader(fileReader)
+  req, err := http.NewRequest("PUT", signedUrl, proxy)
 
-
-  // proxy := &ioprogress.Reader{
-  //   Reader: fileReader,
-  //   Size:   size,
-  // }
-
-  req, err := http.NewRequest("PUT", signedUrl, fileReader)
-
-  s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)  // Build our new spinner
-
-  s.Start()
+  req.ContentLength = size
 
   check(err)
 
@@ -185,20 +145,23 @@ func Deploy() {
 
   dat, err := ioutil.ReadAll(resp.Body)
 
-  s.Stop()
+  check(err)
+
+  fmt.Println(string(dat))
 
   if len(dat) == 0 {
     fmt.Println("INFO: Finalizing.")
   }
 
+  url = BASE_URL + "/module/deploy/" + name
 
-  //bar.Finish()
-
-  url = "http://recimedev-env.us-west-1.elasticbeanstalk.com/module/deploy/" + name
+  s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)  // Build our new spinner
 
   s.Start()
 
-  resp, err = http.Post(url, "application/json; charset=utf-8", bytes.NewBuffer(jsonBody))
+  r := bytes.NewBuffer(jsonBody)
+
+  resp, err = http.Post(url, "application/json; charset=utf-8", r)
 
   check(err)
 
@@ -211,6 +174,7 @@ func Deploy() {
       fmt.Println(string(line))
 
       if err == io.EOF {
+        fmt.Println("For any questions and feedbacks, please reach us at hello@recime.ai.")
         s.Stop()
         break
       }
