@@ -17,7 +17,6 @@ import "gopkg.in/cheggaaa/pb.v1"
 import "github.com/briandowns/spinner"
 import "time"
 
-const BASE_URL = "https://recime.ai"
 
 type Bot struct{
     Id string `json:"uid"`
