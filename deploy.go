@@ -167,7 +167,10 @@ func Deploy() {
   var result struct {
       Name string `json:"name"`
       Id string `json:"uid"`
+      Message string `json:message`
   }
+
+  defer resp.Body.Close()
 
   bytes, err := ioutil.ReadAll(resp.Body)
 
@@ -179,11 +182,11 @@ func Deploy() {
 
   time.Sleep(time.Millisecond * 10)
 
-  fmt.Println("=> " + BASE_URL + "/bot/" + result.Name)
-  fmt.Println("INFO: Publish Successful")
-  fmt.Println("For any questions and feedbacks, please reach us at hello@recime.ai.")
-
-
-  defer resp.Body.Close()
-
+  if len(result.Name) > 0 {
+    fmt.Println("=> " + BASE_URL + "/bot/" + result.Name)
+    fmt.Println("INFO: Publish Successful")
+    fmt.Println("For any questions and feedbacks, please reach us at hello@recime.ai.")
+    return
+  }
+  fmt.Println("\x1b[31;1mFatal: Publish Failed!!!\x1b[0m")
 }
