@@ -78,6 +78,8 @@ func main() {
 
     args := os.Args
 
+    fmt.Printf("\r\nRecime Command Line Tool %s \r\n\r\n", VERSION)
+
     if len(args) == 1 {
         fmt.Println("Usage: recime-cli create")
         return
@@ -99,11 +101,11 @@ func main() {
 
       r, _ := regexp.Compile("[\\s?.$#,()^!&]+")
 
-      name = r.ReplaceAllString(name, "-")
-      name = strings.ToLower(name)
-      name = strings.TrimLeft(name, "_")
+      normalizedName := r.ReplaceAllString(name, "-")
+      normalizedName = strings.ToLower(normalizedName)
+      normalizedName = strings.TrimLeft(normalizedName, "_")
 
-      data["name"] = name
+      data["name"] = normalizedName
 
       r, _ = regexp.Compile("[^<>]+")
 
@@ -115,7 +117,7 @@ func main() {
       _author = r.ReplaceAllString(_author, "")
       _author = strings.ToLower(_author)
 
-      uid := _author + ";" + name
+      uid := _author + ";" + normalizedName
 
       // fmt.Println(uid)
 

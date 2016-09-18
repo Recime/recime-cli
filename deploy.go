@@ -21,6 +21,7 @@ import "time"
 type Bot struct{
     Id string `json:"uid"`
     Type string `json:"fileType"`
+    Version string `json:"version"`
 }
 
 func SendRequest(url string, body io.Reader) (string){
@@ -111,7 +112,7 @@ func Deploy() {
 
   fileType := http.DetectContentType(buffer)
 
-  bot := Bot { Id : uid, Type : fileType, }
+  bot := Bot { Id : uid, Type : fileType, Version: VERSION, }
 
   jsonBody, err := json.Marshal(bot)
 
@@ -182,9 +183,9 @@ func Deploy() {
   time.Sleep(time.Millisecond * 10)
 
   if len(result.Name) > 0 {
-    fmt.Println("=> " + BASE_URL + "/bot/" + result.Name)
+    fmt.Println("\r\n=> " + BASE_URL + "/bot/" + result.Name +"\r\n")
     fmt.Println("INFO: Publish Successful")
-    fmt.Println("For any questions and feedbacks, please reach us at hello@recime.ai.")
+    fmt.Println("\r\nFor any questions and feedbacks, please reach us at hello@recime.ai. \r\n")
     return
   }
   fmt.Println("\x1b[31;1mFatal: Publish Failed!!!\x1b[0m")
