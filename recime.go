@@ -8,8 +8,6 @@ import "os/signal"
 import "io"
 import "io/ioutil"
 
-import "path/filepath"
-
 import "encoding/json"
 import "bufio"
 import "strings"
@@ -17,14 +15,13 @@ import "regexp"
 import "crypto/md5"
 
 func setValue(data map[string]interface{}, key string, value string) {
-    if len(value) > 1 {
+    if len(value) > 0 {
         data[key] = strings.TrimRight(value, "\n")
     }
 }
 
 func ProcesssInput(in io.Reader) (data map[string]interface{} ){
-
-    reader := bufio.NewReader(in)
+    scanner := bufio.NewScanner(in)
 
     asset := MustAsset("data/package.json")
 
@@ -32,37 +29,55 @@ func ProcesssInput(in io.Reader) (data map[string]interface{} ){
 
     fmt.Printf("Title (%s):", data["title"])
 
-    title, _ := reader.ReadString('\n')
+    scanner.Scan()
+
+    title := scanner.Text()
 
     fmt.Printf("Description (%s):", data["description"])
 
-    desc, _ := reader.ReadString('\n')
+    scanner.Scan()
+
+    desc := scanner.Text()
 
     author := "Recime Inc."
 
     fmt.Printf("Author (%s):", author)
 
-    a, _ := reader.ReadString('\n')
+    scanner.Scan()
+
+    _author := scanner.Text()
+
+    if (len(_author) > 0) {
+      author = scanner.Text()
+    }
 
     email := "hello@recime.ai"
 
     fmt.Printf("Email (%s):", email)
 
-    e, _ := reader.ReadString('\n')
+    scanner.Scan()
+
+    _email := scanner.Text()
+
+    if (len(_email) > 0) {
+      email = scanner.Text()
+    }
 
     fmt.Printf("License (%s):", data["license"])
 
-    license, _ := reader.ReadString('\n')
+    scanner.Scan()
 
-    if len(a) > 1{
-        author = a
-    }
+    license := scanner.Text()
 
-    if len(e) > 1{
-        email = e
-    }
+    r, _ := regexp.Compile("[\\s]+")
 
-    data["author"] =  strings.TrimRight(author, "\n") + " " + "<" + strings.TrimRight(email, "\n") + ">"
+    author = strings.Trim(author, " ")
+
+    email = r.ReplaceAllString(email, "")
+
+    data["author"] =  author + " " + "<" + email + ">"
+
+    fmt.Println(data["author"])
 
     setValue(data, "title", title)
     setValue(data, "description", desc)
@@ -70,6 +85,7 @@ func ProcesssInput(in io.Reader) (data map[string]interface{} ){
 
     return data
 }
+
 
 func main() {
     interrupt := make(chan os.Signal, 1)
@@ -129,13 +145,11 @@ func main() {
 
       data["uid"] = uid
 
-      separator := string(os.PathSeparator)
-
-      dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+      dir, err := os.Getwd()
 
       check(err)
 
-      path := dir + separator + name
+      path := dir + "/" + name
 
       if _, err := os.Stat(path); os.IsNotExist(err) {
         si, err := os.Stat(wd)
@@ -166,7 +180,7 @@ func main() {
             asset = bytes.Replace(asset, []byte("\\u0026"), []byte("&"), -1)
           }
 
-          filePath := path + string(os.PathSeparator) + entry
+          filePath := path + "/" + entry
 
           err = ioutil.WriteFile(filePath, asset, os.ModePerm)
 
