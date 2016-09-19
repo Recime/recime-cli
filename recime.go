@@ -7,6 +7,9 @@ import "os/signal"
 // import "net/url"
 import "io"
 import "io/ioutil"
+
+import "path/filepath"
+
 import "encoding/json"
 import "bufio"
 import "strings"
@@ -96,7 +99,6 @@ func main() {
 
       data := ProcesssInput(os.Stdin)
 
-
       name := data["title"].(string)
 
       r, _ := regexp.Compile("[\\s?.$#,()^!&]+")
@@ -127,7 +129,15 @@ func main() {
 
       data["uid"] = uid
 
-      path := wd + "/" + name
+      separator := string(os.PathSeparator)
+
+      dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+
+      check(err)
+
+      path := dir + separator + name
+
+      fmt.Println(path)
 
       if _, err := os.Stat(path); os.IsNotExist(err) {
         si, err := os.Stat(wd)
@@ -151,18 +161,19 @@ func main() {
           if entry == "package.json" {
             asset, err = json.MarshalIndent(data, "", "\t")
 
-            check(err)
+            check(err)they c
 
             asset = bytes.Replace(asset, []byte("\\u003c"), []byte("<"), -1)
             asset = bytes.Replace(asset, []byte("\\u003e"), []byte(">"), -1)
             asset = bytes.Replace(asset, []byte("\\u0026"), []byte("&"), -1)
           }
 
-          filePath := path + "/" + entry
+          filePath := path + string(os.PathSeparator) + entry
 
           err = ioutil.WriteFile(filePath, asset, os.ModePerm)
 
           check(err)
       }
     }
+    fmt.Println("\r\nFor any questions and feedbacks, please reach us at hello@recime.ai. \r\n")
 }
