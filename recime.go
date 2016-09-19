@@ -161,7 +161,7 @@ func main() {
           if entry == "package.json" {
             asset, err = json.MarshalIndent(data, "", "\t")
 
-            check(err)they c
+            check(err)
 
             asset = bytes.Replace(asset, []byte("\\u003c"), []byte("<"), -1)
             asset = bytes.Replace(asset, []byte("\\u003e"), []byte(">"), -1)
