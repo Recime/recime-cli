@@ -137,8 +137,6 @@ func main() {
 
       path := dir + separator + name
 
-      fmt.Println(path)
-
       if _, err := os.Stat(path); os.IsNotExist(err) {
         si, err := os.Stat(wd)
 
