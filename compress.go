@@ -40,14 +40,19 @@ func Archive(source, target string) error {
 		}
 
 		if baseDir != "" {
+			path = filepath.ToSlash(path)
+			source = filepath.ToSlash(source)
+
 			header.Name = filepath.Join(baseDir, strings.TrimPrefix(path, source))
-		}
+  	}
 
 		if info.IsDir() {
 			header.Name += "/"
 		} else {
 			header.Method = zip.Deflate
 		}
+
+		header.Name = filepath.ToSlash(header.Name)
 
 		writer, err := archive.CreateHeader(header)
 

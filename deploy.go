@@ -17,6 +17,7 @@ import "gopkg.in/cheggaaa/pb.v1"
 import "github.com/briandowns/spinner"
 import "time"
 
+import fp "path/filepath"
 
 type Bot struct{
     Id string `json:"uid"`
@@ -81,7 +82,7 @@ func Deploy() {
 
   check(err)
 
-  dest := temp + "/" + uid
+  dest := fp.ToSlash(temp) + "/" + uid
 
   err = os.Mkdir(dest, os.ModePerm)
 
@@ -185,7 +186,6 @@ func Deploy() {
   if len(result.Name) > 0 {
     fmt.Println("\r\n=> " + BASE_URL + "/bot/" + result.Name +"\r\n")
     fmt.Println("INFO: Publish Successful")
-    fmt.Println("\r\nFor any questions and feedbacks, please reach us at hello@recime.ai. \r\n")
     return
   }
   fmt.Println("\x1b[31;1mFatal: Publish Failed!!!\x1b[0m")
