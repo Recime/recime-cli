@@ -1,4 +1,4 @@
 package main
 
-const BASE_URL = "http://localhost:8081"
+const BASE_URL = "https://recime.ai"
 const VERSION = "1.0.1"
