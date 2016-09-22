@@ -73,7 +73,7 @@ func (fi bindataFileInfo) Sys() interface{} {
 	return nil
 }
 
-var _dataBotJade = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\x2c\xca\xbd\x0d\xc4\x20\x0c\x05\xe0\xde\x53\xbc\x05\x4e\x2c\x71\x55\xb6\x70\xf0\x93\x40\x32\x3f\x0a\x6e\xbc\x7d\x9a\xf4\x9f\xad\x1a\xb9\x89\x16\xc3\x45\x1a\xd5\x04\x28\xe5\x87\x3f\xab\xeb\x43\xf4\xe9\x7d\x12\x27\xd2\x79\x20\x72\x2f\xcb\x8f\x5c\x6a\x44\x70\x6c\xd7\xa0\xbc\x01\x00\x00\xff\xff\x67\x2a\x5b\x14\x4a\x00\x00\x00")
+var _dataBotJade = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\xd2\xd7\xd7\x55\xc8\x28\x29\x29\x28\xb6\xd2\xd7\xcf\x4b\xcc\x29\x49\x2c\xc9\x2c\xd6\x4b\xcf\x2c\xc9\x28\x4d\xd2\xcb\xcc\xd7\xcf\x4a\x4c\x49\xd5\x2d\xae\xcc\x2b\x49\xac\xd0\x4d\xc9\x4f\x2e\xd6\xe7\x02\x04\x00\x00\xff\xff\xee\x00\x5d\x70\x31\x00\x00\x00")
 
 func dataBotJadeBytes() ([]byte, error) {
 	return bindataRead(
@@ -88,7 +88,7 @@ func dataBotJade() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/bot.jade", size: 74, mode: os.FileMode(420), modTime: time.Unix(1473536508, 0)}
+	info := bindataFileInfo{name: "data/bot.jade", size: 49, mode: os.FileMode(436), modTime: time.Unix(1474521111, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -108,7 +108,7 @@ func dataIconPng() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/icon.png", size: 1193, mode: os.FileMode(420), modTime: time.Unix(1473536508, 0)}
+	info := bindataFileInfo{name: "data/icon.png", size: 1193, mode: os.FileMode(436), modTime: time.Unix(1473536508, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -128,7 +128,7 @@ func dataMainJs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/main.js", size: 240, mode: os.FileMode(420), modTime: time.Unix(1473536508, 0)}
+	info := bindataFileInfo{name: "data/main.js", size: 240, mode: os.FileMode(436), modTime: time.Unix(1473536508, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -148,7 +148,7 @@ func dataMainTs() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/main.ts", size: 201, mode: os.FileMode(420), modTime: time.Unix(1473536508, 0)}
+	info := bindataFileInfo{name: "data/main.ts", size: 201, mode: os.FileMode(436), modTime: time.Unix(1473536508, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -168,7 +168,7 @@ func dataPackageJson() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/package.json", size: 329, mode: os.FileMode(420), modTime: time.Unix(1473723807, 0)}
+	info := bindataFileInfo{name: "data/package.json", size: 329, mode: os.FileMode(436), modTime: time.Unix(1473723807, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -188,7 +188,7 @@ func dataTsconfigJson() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "data/tsconfig.json", size: 102, mode: os.FileMode(420), modTime: time.Unix(1473536508, 0)}
+	info := bindataFileInfo{name: "data/tsconfig.json", size: 102, mode: os.FileMode(436), modTime: time.Unix(1473536508, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
