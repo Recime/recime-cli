@@ -181,7 +181,7 @@ func Deploy() {
 
   s.Stop()
 
-  time.Sleep(time.Millisecond * 10)
+  // time.Sleep(time.Millisecond * 10)
 
   if len(result.Name) > 0 {
     fmt.Println("\r\n=> " + BASE_URL + "/bot/" + result.Name +"\r\n")
