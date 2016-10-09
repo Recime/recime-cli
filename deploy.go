@@ -1,23 +1,24 @@
 package main
 
+import "bytes"
+import "crypto/md5"
+import "encoding/json"
+
 import "fmt"
 import "os"
 
-import "bytes"
-
 import "io"
 import "io/ioutil"
-
-import "encoding/json"
 import "os/exec"
 
 import "net/http"
 
-import "gopkg.in/cheggaaa/pb.v1"
-import "github.com/briandowns/spinner"
+import fp "path/filepath"
+
 import "time"
 
-import fp "path/filepath"
+import "gopkg.in/cheggaaa/pb.v1"
+import "github.com/briandowns/spinner"
 
 type Bot struct{
     Id string `json:"uid"`
@@ -46,7 +47,7 @@ func SendRequest(url string, body io.Reader) (string){
 }
 
 
-func Deploy() {
+func Deploy(user User) {
   wd, err := os.Getwd()
 
   var data map[string]interface{}
@@ -61,7 +62,7 @@ func Deploy() {
 
   name := data["name"].(string)
 
-  uid := data["uid"].(string)
+  uid := CreateUID(name, user.Email)
 
   fmt.Println("INFO: Installing modules.")
 
@@ -189,4 +190,14 @@ func Deploy() {
     return
   }
   fmt.Println("\x1b[31;1mFatal: Publish Failed!!!\x1b[0m")
+}
+
+func CreateUID(name string, author string) (string){
+  uid := author + ";" + name
+
+  _data := []byte(uid)
+
+  uid = fmt.Sprintf("%x", md5.Sum(_data))
+
+  return uid
 }

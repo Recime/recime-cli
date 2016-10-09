@@ -10,8 +10,6 @@ import "encoding/json"
 import "bufio"
 import "strings"
 import "regexp"
-import "crypto/md5"
-
 
 func SetValue(data map[string]interface{}, key string, value string) {
     if len(value) > 0 {
@@ -22,7 +20,9 @@ func SetValue(data map[string]interface{}, key string, value string) {
 func ProcesssInput(in io.Reader) (data map[string]interface{} ){
     scanner := bufio.NewScanner(in)
 
-    asset := MustAsset("data/package.json")
+    res := &Resource{}
+
+    asset := res.Get("data/package.json")
 
     check(json.Unmarshal(asset, &data))
 
@@ -38,45 +38,11 @@ func ProcesssInput(in io.Reader) (data map[string]interface{} ){
 
     desc := scanner.Text()
 
-    author := "Recime Inc."
-
-    fmt.Printf("Author (%s):", author)
-
-    scanner.Scan()
-
-    _author := scanner.Text()
-
-    if (len(_author) > 0) {
-      author = scanner.Text()
-    }
-
-    email := "hello@recime.ai"
-
-    fmt.Printf("Email (%s):", email)
-
-    scanner.Scan()
-
-    _email := scanner.Text()
-
-    if (len(_email) > 0) {
-      email = scanner.Text()
-    }
-
     fmt.Printf("License (%s):", data["license"])
 
     scanner.Scan()
 
     license := scanner.Text()
-
-    r, _ := regexp.Compile("[\\s]+")
-
-    author = strings.Trim(author, " ")
-
-    email = r.ReplaceAllString(email, "")
-
-    data["author"] =  author + " " + "<" + email + ">"
-
-    fmt.Println(data["author"])
 
     SetValue(data, "title", title)
     SetValue(data, "description", desc)
@@ -86,10 +52,12 @@ func ProcesssInput(in io.Reader) (data map[string]interface{} ){
 }
 
 
-func Create(){
+func Create(user User){
   wd, err := os.Getwd()
 
   data := ProcesssInput(os.Stdin)
+
+  data["author"] =  fmt.Sprintf("%s <%s>", user.Company, user.Email)
 
   name := data["title"].(string)
 
@@ -100,26 +68,6 @@ func Create(){
   normalizedName = strings.TrimLeft(normalizedName, "_")
 
   data["name"] = normalizedName
-
-  r, _ = regexp.Compile("[^<>]+")
-
-  author := r.FindAllString(data["author"].(string), -1)
-
-  r, _ = regexp.Compile("[\\s]+")
-
-  _author := author[1]
-  _author = r.ReplaceAllString(_author, "")
-  _author = strings.ToLower(_author)
-
-  uid := _author + ";" + normalizedName
-
-  // fmt.Println(uid)
-
-  _data := []byte(uid)
-
-  uid = fmt.Sprintf("%x", md5.Sum(_data))
-
-  data["uid"] = uid
 
   dir, err := os.Getwd()
 
@@ -137,14 +85,17 @@ func Create(){
     check(err)
   }
 
-  resources, err := AssetDir("data")
+  res := &Resource{}
+
+  resources, err := res.GetDir("data")
 
   check(err)
+
 
   for key := range resources{
       entry := resources[key]
 
-      asset := MustAsset("data/" + entry)
+      asset := res.Get("data/" + entry)
 
       if entry == "package.json" {
         asset, err = json.MarshalIndent(data, "", "\t")
