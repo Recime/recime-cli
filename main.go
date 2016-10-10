@@ -5,8 +5,7 @@ import "os"
 import "os/signal"
 import "time"
 
-import c "./cmd"
-
+import c "github.com/Recime/recime-cli/cmd"
 import  "github.com/spf13/cobra"
 
 func main() {
