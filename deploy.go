@@ -24,6 +24,7 @@ type Bot struct{
     Id string `json:"uid"`
     Type string `json:"fileType"`
     Version string `json:"version"`
+    Owner string `json:"owner"`
 }
 
 func SendRequest(url string, body io.Reader) (string){
@@ -114,7 +115,7 @@ func Deploy(user User) {
 
   fileType := http.DetectContentType(buffer)
 
-  bot := Bot { Id : uid, Type : fileType, Version: VERSION, }
+  bot := Bot { Id : uid, Type : fileType, Version: VERSION, Owner: user.Email }
 
   jsonBody, err := json.Marshal(bot)
 
