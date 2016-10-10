@@ -143,11 +143,11 @@ func Deploy(user User) {
 
   check(err)
 
-  defer resp.Body.Close()
-
   dat, err := ioutil.ReadAll(resp.Body)
 
   check(err)
+
+  defer resp.Body.Close()
 
   fmt.Println(string(dat))
 
@@ -173,11 +173,11 @@ func Deploy(user User) {
       Message string `json:message`
   }
 
-  defer resp.Body.Close()
-
   bytes, err := ioutil.ReadAll(resp.Body)
 
   check(err)
+
+  defer resp.Body.Close()
 
   json.Unmarshal(bytes, &result)
 
