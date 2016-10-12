@@ -173,17 +173,15 @@ func Deploy(user User) {
       Message string `json:message`
   }
 
+  defer resp.Body.Close()
+
   bytes, err := ioutil.ReadAll(resp.Body)
 
   check(err)
 
-  // defer resp.Body.Close()
-
   json.Unmarshal(bytes, &result)
 
   s.Stop()
-
-  // time.Sleep(time.Millisecond * 10)
 
   if len(result.Name) > 0 {
     fmt.Println("\r\n=> " + BASE_URL + "/bot/" + result.Name +"\r\n")
