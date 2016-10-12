@@ -177,7 +177,7 @@ func Deploy(user User) {
 
   check(err)
 
-  defer resp.Body.Close()
+  // defer resp.Body.Close()
 
   json.Unmarshal(bytes, &result)
 
