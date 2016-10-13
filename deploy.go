@@ -9,7 +9,6 @@ import "os"
 
 import "io"
 import "io/ioutil"
-import "os/exec"
 
 import "net/http"
 
@@ -64,19 +63,6 @@ func Deploy(user User) {
   name := data["name"].(string)
 
   uid := CreateUID(name, user.Email)
-
-  fmt.Println("INFO: Installing modules.")
-
-  cmd := exec.Command("npm", "install")
-
-  cmd.Dir = wd
-
-  cmd.Stdout = os.Stdout
-  cmd.Stderr = os.Stderr
-
-  err = cmd.Run()
-
-  check(err)
 
   fmt.Println("INFO: Compressing.")
 

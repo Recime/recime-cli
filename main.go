@@ -5,7 +5,7 @@ import "os"
 import "os/signal"
 import "time"
 
-import c "github.com/Recime/recime-cli/cmd"
+import c "./cmd"
 import  "github.com/spf13/cobra"
 
 func main() {
@@ -43,8 +43,29 @@ func main() {
       Short: "Deploys the bot to Recime cloud",
       Long : "Prepares and deploys to bot to Recime cloud. Installs the node modules defined in package.json, validates provides the endpoint to test the bot",
       Run : func (cmd *cobra.Command, args []string){
-        Deploy(ValidateUser())
+        if c.Install() == nil && c.Build() == nil{
+            user := ValidateUser()
+            Deploy(user)
+        }
       },
+    }
+
+    var cmdInstall = &cobra.Command {
+        Use : "install",
+        Short: "Installs the dependencies",
+        Long : "Installs the requried dependencies for the bot to work in Recime cloud",
+        Run : func (cmd *cobra.Command, args []string){
+          c.Install()
+        },
+    }
+
+    var cmdBuild = &cobra.Command {
+        Use : "build",
+        Short: "Builds the bot module",
+        Long : "Builds the bot module. Uses the build script from pacakge.json",
+        Run : func (cmd *cobra.Command, args []string){
+          c.Build()
+        },
     }
 
     var rootCmd = &cobra.Command{
@@ -58,6 +79,8 @@ https://recime.ai`,
       ),
     }
 
+    rootCmd.AddCommand(cmdInstall)
+    rootCmd.AddCommand(cmdBuild)
     rootCmd.AddCommand(cmdInit)
     rootCmd.AddCommand(cmdCreate)
     rootCmd.AddCommand(cmdDeploy)

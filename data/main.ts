@@ -1,3 +1,5 @@
+/// <reference path="node.d.ts" />
+
 import util = require('util')
 
 export class Bot {
@@ -9,6 +11,6 @@ export class Bot {
   }
 
   execute(cb:any){
-    throw new TypeError("Nothing Implemented");
+    throw "Nothing Implemented";
   }
 }

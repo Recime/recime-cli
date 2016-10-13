@@ -4,7 +4,7 @@ var Bot = (function () {
         this.args = args;
     }
     Bot.prototype.execute = function (cb) {
-        throw new TypeError("Nothing Implemented");
+        throw "Nothing Implemented";
     };
     return Bot;
 }());
