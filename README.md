@@ -28,10 +28,11 @@ Once **Go** is installed, you can need to add the following lines your $HOME/.ba
 The following commands are currently available in the `Recime Command Line Tool`:
 
 ```bash
+    build       Builds the bot module
     create      Scaffolds the bot from an interactive prompt
     deploy      Deploys the bot to Recime cloud
     init        Initializes your Recime account
-
+    install     Installs the dependencies
 ```
 
 Recime template uses [TypeScript](https://www.typescriptlang.org/docs/tutorial.html), you can combine that with [atom-typescript](https://atom.io/packages/atom-typescript)  to generate javascript files for you and take advantage of auto-complete features.
