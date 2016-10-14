@@ -24,13 +24,14 @@ func Archive(source, target string) error {
 	}
 
 	var baseDir string
+
 	if info.IsDir() {
 		baseDir = filepath.Base(source)
 	}
 
 	filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
 
-    if err != nil {
+		if err != nil {
 			return err
 		}
 
@@ -44,7 +45,7 @@ func Archive(source, target string) error {
 			source = filepath.ToSlash(source)
 
 			header.Name = filepath.Join(baseDir, strings.TrimPrefix(path, source))
-  	}
+		}
 
 		if info.IsDir() {
 			header.Name += "/"

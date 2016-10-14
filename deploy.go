@@ -19,170 +19,170 @@ import "time"
 import "gopkg.in/cheggaaa/pb.v1"
 import "github.com/briandowns/spinner"
 
-type Bot struct{
-    Id string `json:"uid"`
-    Type string `json:"fileType"`
-    Version string `json:"version"`
-    Owner string `json:"owner"`
+type Bot struct {
+	Id      string `json:"uid"`
+	Type    string `json:"fileType"`
+	Version string `json:"version"`
+	Owner   string `json:"owner"`
 }
 
-func SendRequest(url string, body io.Reader) (string){
-    res, err := http.Post(url, "application/json; charset=utf-8", body)
+func SendRequest(url string, body io.Reader) string {
+	res, err := http.Post(url, "application/json; charset=utf-8", body)
 
-    check(err)
+	check(err)
 
-    var result struct {
-        Url string `json:"url"`
-    }
+	var result struct {
+		Url string `json:"url"`
+	}
 
-    bytes, err := ioutil.ReadAll(res.Body)
+	bytes, err := ioutil.ReadAll(res.Body)
 
-    json.Unmarshal(bytes, &result)
+	json.Unmarshal(bytes, &result)
 
-    defer res.Body.Close()
+	defer res.Body.Close()
 
-    // fmt.Println(string(res.Body))
+	// fmt.Println(string(res.Body))
 
-    return result.Url
+	return result.Url
 }
-
 
 func Deploy(user User) {
-  wd, err := os.Getwd()
+	wd, err := os.Getwd()
 
-  var data map[string]interface{}
+	var data map[string]interface{}
 
-  buff, err := ioutil.ReadFile(wd + "/package.json")
+	buff, err := ioutil.ReadFile(wd + "/package.json")
 
-  check(err)
+	check(err)
 
-  if err := json.Unmarshal(buff, &data); err != nil {
-    panic(err)
-  }
+	if err := json.Unmarshal(buff, &data); err != nil {
+		panic(err)
+	}
 
-  name := data["name"].(string)
+	name := data["name"].(string)
 
-  uid := CreateUID(name, user.Email)
+	uid := CreateUID(name, user.Email)
 
-  fmt.Println("INFO: Compressing.")
+	fmt.Println("INFO: Compressing.")
 
-  temp, err :=  ioutil.TempDir("", name)
+	temp, err := ioutil.TempDir("", name)
 
-  check(err)
+	check(err)
 
-  dest := fp.ToSlash(temp) + "/" + uid
+	dest := fp.ToSlash(temp) + "/" + uid
 
-  err = os.Mkdir(dest, os.ModePerm)
+	err = os.Mkdir(dest, os.ModePerm)
 
-  check(err)
+	check(err)
 
-  err = CopyDir(wd, dest)
+	err = CopyDir(wd, dest)
 
-  filePath := temp + "/" + name + ".zip"
+	filePath := temp + "/" + name + ".zip"
 
-  Archive(dest, filePath)
+	Archive(dest, filePath)
 
-  file, err := os.Open(filePath)
+	file, err := os.Open(filePath)
 
-  defer file.Close()
+	defer file.Close()
 
-  fileInfo, _ := file.Stat()
+	fileInfo, _ := file.Stat()
 
-  var size = fileInfo.Size()
+	var size = fileInfo.Size()
 
-  buffer := make([]byte, size)
+	buffer := make([]byte, size)
 
-  // read file content to buffer
-  file.Read(buffer)
+	// read file content to buffer
+	file.Read(buffer)
 
-  fmt.Println("INFO: Preparing to upload.")
+	fmt.Println("INFO: Preparing to upload.")
 
-  url := BASE_URL + "/signed-url"
+	url := BASE_URL + "/signed-url"
 
-  fileType := http.DetectContentType(buffer)
+	fileType := http.DetectContentType(buffer)
 
-  bot := Bot { Id : uid, Type : fileType, Version: VERSION, Owner: user.Email }
+	bot := Bot{Id: uid, Type: fileType, Version: VERSION, Owner: user.Email}
 
-  jsonBody, err := json.Marshal(bot)
+	jsonBody, err := json.Marshal(bot)
 
-  check(err)
+	check(err)
 
-  signedUrl := SendRequest(url, bytes.NewBuffer(jsonBody))
+	signedUrl := SendRequest(url, bytes.NewBuffer(jsonBody))
 
-  bar := pb.New(len(buffer)).SetUnits(pb.U_BYTES)
+	bar := pb.New(len(buffer)).SetUnits(pb.U_BYTES)
 
-  bar.Format("[## ]")
+	bar.Format("[## ]")
 
-  bar.Start()
+	bar.Start()
 
-  proxy := NewReader(buffer, bar)
+	proxy := NewReader(buffer, bar)
 
-  req, err := http.NewRequest("PUT", signedUrl, proxy)
+	req, err := http.NewRequest("PUT", signedUrl, proxy)
 
-  req.ContentLength = size
+	req.ContentLength = size
 
-  check(err)
+	check(err)
 
-  // bar.Finish()
+	// bar.Finish()
 
-  resp, err := http.DefaultClient.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 
-  check(err)
+	check(err)
 
-  dat, err := ioutil.ReadAll(resp.Body)
+	dat, err := ioutil.ReadAll(resp.Body)
 
-  check(err)
+	check(err)
 
-  defer resp.Body.Close()
+	defer resp.Body.Close()
 
-  fmt.Println(string(dat))
+	fmt.Println(string(dat))
 
-  if len(dat) == 0 {
-    fmt.Println("INFO: Finalizing.")
-  }
+	if len(dat) == 0 {
+		fmt.Println("INFO: Finalizing.")
+	}
 
-  url = BASE_URL + "/module/deploy/" + name
+	url = BASE_URL + "/module/deploy/" + name
 
-  s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)  // Build our new spinner
+	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
 
-  s.Start()
+	s.Start()
 
-  r := bytes.NewBuffer(jsonBody)
+	r := bytes.NewBuffer(jsonBody)
 
-  resp, err = http.Post(url, "application/json; charset=utf-8", r)
+	resp, err = http.Post(url, "application/json; charset=utf-8", r)
 
-  check(err)
+	check(err)
 
-  var result struct {
-      Name string `json:"name"`
-      Id string `json:"uid"`
-      Message string `json:message`
-  }
+	var result struct {
+		Name    string `json:"name"`
+		Id      string `json:"uid"`
+		Message string `json:message`
+	}
 
-  defer resp.Body.Close()
+	defer resp.Body.Close()
 
-  bytes, err := ioutil.ReadAll(resp.Body)
+	bytes, err := ioutil.ReadAll(resp.Body)
 
-  check(err)
+	check(err)
 
-  json.Unmarshal(bytes, &result)
+	json.Unmarshal(bytes, &result)
 
-  s.Stop()
+	s.Stop()
 
-  if len(result.Name) > 0 {
-    fmt.Println("\r\n=> " + BASE_URL + "/bot/" + result.Name +"\r\n")
-    fmt.Println("INFO: Publish Successful")
-    return
-  }
-  fmt.Println("\x1b[31;1mFatal: Publish Failed!!!\x1b[0m")
+	if len(result.Name) > 0 {
+		fmt.Println("\r\n=> " + BASE_URL + "/bot/" + result.Name + "\r\n")
+		fmt.Println("INFO: Publish Successful")
+		return
+	}
+
+	fmt.Println("\x1b[31;1mFatal: Publish Failed!!!\x1b[0m")
 }
 
-func CreateUID(name string, author string) (string){
-  uid := author + ";" + name
+func CreateUID(name string, author string) string {
+	uid := author + ";" + name
 
-  _data := []byte(uid)
+	_data := []byte(uid)
 
-  uid = fmt.Sprintf("%x", md5.Sum(_data))
+	uid = fmt.Sprintf("%x", md5.Sum(_data))
 
-  return uid
+	return uid
 }

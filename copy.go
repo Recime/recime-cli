@@ -24,7 +24,6 @@ func CopyFile(source string, dest string) (err error) {
         if err != nil {
             err = os.Chmod(dest, si.Mode())
         }
-
     }
 
     return

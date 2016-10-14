@@ -17,13 +17,11 @@ if you are running OSX you can use [Homebrew](http://brew.sh/) to install go, yo
     brew install go
 
 
-Once **Go** is installed, you can need to add the following lines your $HOME/.bashrc file to ensure that PATH values.
+Once **Go** is installed, you can need to add the following lines your $HOME/.bash_profile file to ensure that PATH values. In my case, I have created a go folder under /users/recime and added the following lines:
 
-    export GOPATH=$HOME/golang
-    export GOROOT=/usr/local/opt/go/libexec
-    export PATH=$PATH:$GOPATH/bin
-    export PATH=$PATH:$GOROOT/bin
-
+    export GOPATH=/users/recime/go
+    export PATH=/users/recime/go/bin:$PATH
+    
 
 The following commands are currently available in the `Recime Command Line Tool`:
 
