@@ -1,6 +1,5 @@
 package main
 
-import "bytes"
 import "fmt"
 import "os"
 import "io"
@@ -11,107 +10,105 @@ import "bufio"
 import "strings"
 import "regexp"
 
+import "github.com/Recime/recime-cli/cmd"
+
 func SetValue(data map[string]interface{}, key string, value string) {
-    if len(value) > 0 {
-        data[key] = strings.TrimRight(value, "\n")
-    }
+	if len(value) > 0 {
+		data[key] = strings.TrimRight(value, "\n")
+	}
 }
 
-func ProcesssInput(in io.Reader) (data map[string]interface{} ){
-    scanner := bufio.NewScanner(in)
+func ProcesssInput(in io.Reader) (data map[string]interface{}) {
+	scanner := bufio.NewScanner(in)
 
-    res := &Resource{}
+	res := &Resource{}
 
-    asset := res.Get("data/package.json")
+	asset := res.Get("data/package.json")
 
-    check(json.Unmarshal(asset, &data))
+	check(json.Unmarshal(asset, &data))
 
-    fmt.Printf("Title (%s):", data["title"])
+	fmt.Printf("Title (%s):", data["title"])
 
-    scanner.Scan()
+	scanner.Scan()
 
-    title := scanner.Text()
+	title := scanner.Text()
 
-    fmt.Printf("Description (%s):", data["description"])
+	fmt.Printf("Description (%s):", data["description"])
 
-    scanner.Scan()
+	scanner.Scan()
 
-    desc := scanner.Text()
+	desc := scanner.Text()
 
-    fmt.Printf("License (%s):", data["license"])
+	fmt.Printf("License (%s):", data["license"])
 
-    scanner.Scan()
+	scanner.Scan()
 
-    license := scanner.Text()
+	license := scanner.Text()
 
-    SetValue(data, "title", title)
-    SetValue(data, "description", desc)
-    SetValue(data, "license", license)
+	SetValue(data, "title", title)
+	SetValue(data, "description", desc)
+	SetValue(data, "license", license)
 
-    return data
+	return data
 }
 
+func Create() {
+	user, err := cmd.GetStoredUser()
 
-func Create(user User){
-  wd, err := os.Getwd()
+	cmd.Guard(user)
 
-  data := ProcesssInput(os.Stdin)
+	wd, err := os.Getwd()
 
-  data["author"] =  fmt.Sprintf("%s <%s>", user.Company, user.Email)
+	data := ProcesssInput(os.Stdin)
 
-  name := data["title"].(string)
+	data["author"] = fmt.Sprintf("%s <%s>", user.Company, user.Email)
 
-  r, _ := regexp.Compile("[\\s?.$#,()^!&]+")
+	name := data["title"].(string)
 
-  normalizedName := r.ReplaceAllString(name, "-")
-  normalizedName = strings.ToLower(normalizedName)
-  normalizedName = strings.TrimLeft(normalizedName, "_")
+	r, _ := regexp.Compile("[\\s?.$#,()^!&]+")
 
-  data["name"] = normalizedName
+	normalizedName := r.ReplaceAllString(name, "-")
+	normalizedName = strings.ToLower(normalizedName)
+	normalizedName = strings.TrimLeft(normalizedName, "_")
 
-  dir, err := os.Getwd()
+	data["name"] = normalizedName
 
-  check(err)
+	dir, err := os.Getwd()
 
-  path := dir + "/" + name
+	check(err)
 
-  if _, err := os.Stat(path); os.IsNotExist(err) {
-    si, err := os.Stat(wd)
+	path := dir + "/" + name
 
-    check(err)
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		si, err := os.Stat(wd)
 
-    err = os.Mkdir(path, si.Mode())
+		check(err)
 
-    check(err)
-  }
+		err = os.Mkdir(path, si.Mode())
 
-  res := &Resource{}
+		check(err)
+	}
 
-  resources, err := res.GetDir("data")
+	res := &Resource{}
 
-  check(err)
+	resources, err := res.GetDir("data")
 
+	check(err)
 
-  for key := range resources{
-      entry := resources[key]
+	for key := range resources {
+		entry := resources[key]
 
-      asset := res.Get("data/" + entry)
+		asset := res.Get("data/" + entry)
 
-      if entry == "package.json" {
-        asset, err = json.MarshalIndent(data, "", "\t")
+		if entry == "package.json" {
+			asset = cmd.MarshalIndent(data)
+		}
 
-        check(err)
+		filePath := path + "/" + entry
 
-        asset = bytes.Replace(asset, []byte("\\u003c"), []byte("<"), -1)
-        asset = bytes.Replace(asset, []byte("\\u003e"), []byte(">"), -1)
-        asset = bytes.Replace(asset, []byte("\\u0026"), []byte("&"), -1)
-      }
+		err = ioutil.WriteFile(filePath, asset, os.ModePerm)
 
-      filePath := path + "/" + entry
-
-      err = ioutil.WriteFile(filePath, asset, os.ModePerm)
-
-      check(err)
-  }
+		check(err)
+	}
 
 }

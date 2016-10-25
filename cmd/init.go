@@ -27,103 +27,98 @@ import "golang.org/x/crypto/ssh/terminal"
 import "github.com/briandowns/spinner"
 import "github.com/mitchellh/go-homedir"
 
-type User struct{
-    Email string `json:"email"`
-    Password string `json:"password"`
+func Init(options map[string]interface{}) {
+	scanner := bufio.NewScanner(options["in"].(io.Reader))
+
+	fmt.Printf("Email:")
+
+	scanner.Scan()
+
+	email := scanner.Text()
+	email = strings.TrimSpace(email)
+
+	fmt.Printf("Password:")
+
+	bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
+
+	password := string(bytePassword)
+	password = strings.TrimSpace(password)
+
+	user := User{Email: email, Password: password}
+
+	jsonBody, err := json.Marshal(user)
+
+	check(err)
+
+	url := options["base"].(string) + "/api/login"
+
+	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
+
+	s.Start()
+
+	r := bytes.NewBuffer(jsonBody)
+
+	resp, err := http.Post(url, "application/json; charset=utf-8", r)
+
+	check(err)
+
+	var result struct {
+		User    map[string]interface{} `json:"user"`
+		Message string                 `json:message`
+	}
+
+	defer resp.Body.Close()
+
+	bytes, err := ioutil.ReadAll(resp.Body)
+
+	check(err)
+
+	json.Unmarshal(bytes, &result)
+
+	s.Stop()
+
+	if result.User != nil {
+		verified := result.User["verified"].(bool)
+
+		if !verified {
+			fmt.Println("\x1b[31;1mYou must verify your account in order to continue. Please look for the verification email that is sent to you when you signed up for the service.\x1b[0m")
+			os.Exit(1)
+		}
+
+		SaveUser(result.User)
+	} else {
+		fmt.Printf("\x1b[31;1m\r\n%s\x1b[0m", result.Message)
+	}
 }
 
-func Init(options map[string]interface{}){
-  scanner := bufio.NewScanner(options["in"].(io.Reader))
+func SaveUser(user map[string]interface{}) {
+	homeDir, err := homedir.Dir()
 
-  fmt.Printf("Email:")
+	check(err)
 
-  scanner.Scan()
+	filePath := filepath.Join(".recime", "netrc")
 
-  email := scanner.Text()
-  email = strings.TrimSpace(email)
+	location := filepath.Join(homeDir, filePath)
 
-  fmt.Printf("Password:")
+	err = os.MkdirAll(filepath.Dir(location), 0755)
 
-  bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
+	check(err)
 
-  password := string(bytePassword)
-  password = strings.TrimSpace(password)
+	file, err := os.OpenFile(location, os.O_RDONLY|os.O_CREATE, 0600)
 
-  user := User { Email : email, Password : password, }
+	check(err)
 
-  jsonBody, err := json.Marshal(user)
+	file, err = os.OpenFile(location, os.O_WRONLY|os.O_TRUNC, 0600)
 
-  check(err)
+	jsonBody, err := json.Marshal(user)
 
-  url := options["base"].(string) + "/api/login"
+	file.Write(jsonBody)
 
-  s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)  // Build our new spinner
-
-  s.Start()
-
-  r := bytes.NewBuffer(jsonBody)
-
-  resp, err := http.Post(url, "application/json; charset=utf-8", r)
-
-  check(err)
-
-  var result struct {
-      User map[string]interface{} `json:"user"`
-      Message string `json:message`
-  }
-
-  defer resp.Body.Close()
-
-  bytes, err := ioutil.ReadAll(resp.Body)
-
-  check(err)
-
-  json.Unmarshal(bytes, &result)
-
-  s.Stop()
-
-  if result.User != nil {
-      verified := result.User["verified"].(bool)
-
-      if !verified {
-          fmt.Println("\x1b[31;1mYou must verify your account in order to continue. Please look for the verification email that is sent to you when you signed up for the service.\x1b[0m")
-          os.Exit(1)
-      }
-
-      SaveUser(result.User)
-  } else {
-    fmt.Printf("\x1b[31;1m\r\n%s\x1b[0m", result.Message)
-  }
-}
-
-func SaveUser(user map[string]interface{}){
-    homeDir, err := homedir.Dir()
-
-    check(err)
-
-    filePath := filepath.Join(".recime", "netrc")
-
-    location := filepath.Join(homeDir, filePath)
-
-    err = os.MkdirAll(filepath.Dir(location), 0755)
-
-    check(err)
-
-    file, err := os.OpenFile(location, os.O_RDONLY|os.O_CREATE, 0600)
-
-    check(err)
-
-    file, err = os.OpenFile(location, os.O_WRONLY|os.O_TRUNC, 0600)
-
-    jsonBody, err := json.Marshal(user)
-
-    file.Write(jsonBody)
-
-    fmt.Printf("\n\rUser verification successful\n\r")
+	fmt.Printf("\n\rUser verification successful\n\r")
 }
 
 func check(e error) {
-  if e != nil {
-      panic(e)
-  }
+	if e != nil {
+		panic(e)
+	}
 }

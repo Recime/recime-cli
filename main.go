@@ -1,12 +1,27 @@
+// Copyright 2016 The Recime Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package main
 
-import "fmt"
-import "os"
-import "os/signal"
-import "time"
+import (
+	"fmt"
+	"os"
+	"os/signal"
+	"time"
 
-import c "github.com/Recime/recime-cli/cmd"
-import "github.com/spf13/cobra"
+	"github.com/Recime/recime-cli/cmd"
+	"github.com/spf13/cobra"
+)
 
 func main() {
 	interrupt := make(chan os.Signal, 1)
@@ -20,12 +35,12 @@ func main() {
 		Use:   "init",
 		Short: "Initializes your Recime account",
 		Long:  `Initializes the CLI with your Recime account. You need to create and verify your account from https://recime.ai in order to get started.`,
-		Run: func(cmd *cobra.Command, args []string) {
+		Run: func(_ *cobra.Command, args []string) {
 			options := map[string]interface{}{
 				"in":   os.Stdin,
 				"base": BASE_URL,
 			}
-			c.Init(options)
+			cmd.Init(options)
 		},
 	}
 
@@ -34,7 +49,7 @@ func main() {
 		Short: "Scaffolds the bot from an interactive prompt",
 		Long:  `Scaffolds the necessary files required for the bot to work correctly in Recime cloud from an interactive prompt`,
 		Run: func(cmd *cobra.Command, args []string) {
-			Create(ValidateUser())
+			Create()
 		},
 	}
 
@@ -42,11 +57,16 @@ func main() {
 		Use:   "deploy",
 		Short: "Deploys the bot to Recime cloud",
 		Long:  "Prepares and deploys to bot to Recime cloud. Installs the node modules defined in package.json, validates provides the endpoint to test the bot",
-		Run: func(cmd *cobra.Command, args []string) {
-			if c.Install() == nil && c.Build() == nil {
-				user := ValidateUser()
-				Deploy(user)
-			}
+		Run: func(_ *cobra.Command, args []string) {
+			// install any dependencies
+			cmd.Install()
+
+			cmd.Prepare()
+
+			// execute run command
+			cmd.Build()
+
+			Deploy()
 		},
 	}
 
@@ -54,8 +74,17 @@ func main() {
 		Use:   "install",
 		Short: "Installs the dependencies",
 		Long:  "Installs the requried dependencies for the bot to work in Recime cloud",
-		Run: func(cmd *cobra.Command, args []string) {
-			c.Install()
+		Run: func(_ *cobra.Command, args []string) {
+			cmd.Install()
+		},
+	}
+
+	var cmdPrepare = &cobra.Command{
+		Use:   "prepare",
+		Short: "Prepares the bot",
+		Long:  "Prepares the bot to deploy",
+		Run: func(_ *cobra.Command, args []string) {
+			cmd.Prepare()
 		},
 	}
 
@@ -63,8 +92,8 @@ func main() {
 		Use:   "build",
 		Short: "Builds the bot module",
 		Long:  "Builds the bot module. Uses the build script from pacakge.json",
-		Run: func(cmd *cobra.Command, args []string) {
-			c.Build()
+		Run: func(_ *cobra.Command, args []string) {
+			cmd.Build()
 		},
 	}
 
@@ -80,6 +109,7 @@ https://recime.ai`,
 	}
 
 	rootCmd.AddCommand(cmdInstall)
+	rootCmd.AddCommand(cmdPrepare)
 	rootCmd.AddCommand(cmdBuild)
 	rootCmd.AddCommand(cmdInit)
 	rootCmd.AddCommand(cmdCreate)
@@ -90,15 +120,4 @@ https://recime.ai`,
 	fmt.Println("")
 	fmt.Println("For any questions and feedback, please reach us at hello@recime.ai.")
 	fmt.Println("")
-}
-
-// ValidateUser validates the account against recime cloud
-func ValidateUser() User {
-	user, err := GetStoredUser()
-
-	if err != nil {
-		fmt.Println("\x1b[31;1mInvalid account. Please run \"recime-cli init\" to get started.\x1b[0m")
-		os.Exit(1)
-	}
-	return user
 }

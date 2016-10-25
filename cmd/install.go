@@ -4,20 +4,18 @@ import "fmt"
 import "os"
 import "os/exec"
 
+func Install() {
+	fmt.Println("INFO: Installing package dependencies")
 
-func Install() (error){
-  fmt.Println("INFO: Installing package dependencies")
+	wd, err := os.Getwd()
 
-  wd, err := os.Getwd()
+	check(err)
 
-  check(err)
+	cmd := exec.Command("npm", "install")
 
-  cmd := exec.Command("npm", "install")
+	cmd.Dir = wd
 
-  cmd.Dir = wd
+	cmd.Stdout = os.Stdout
 
-  cmd.Stdout = os.Stdout
-  cmd.Stderr = os.Stderr
-
-  return cmd.Run()
+	cmd.Run()
 }

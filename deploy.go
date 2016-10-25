@@ -1,7 +1,6 @@
 package main
 
 import "bytes"
-import "crypto/md5"
 import "encoding/json"
 
 import "fmt"
@@ -18,6 +17,8 @@ import "time"
 
 import "gopkg.in/cheggaaa/pb.v1"
 import "github.com/briandowns/spinner"
+
+import "github.com/Recime/recime-cli/cmd"
 
 type Bot struct {
 	Id      string `json:"uid"`
@@ -46,7 +47,8 @@ func SendRequest(url string, body io.Reader) string {
 	return result.Url
 }
 
-func Deploy(user User) {
+func Deploy() {
+
 	wd, err := os.Getwd()
 
 	var data map[string]interface{}
@@ -60,8 +62,7 @@ func Deploy(user User) {
 	}
 
 	name := data["name"].(string)
-
-	uid := CreateUID(name, user.Email)
+	uid := data["uid"].(string)
 
 	fmt.Println("INFO: Compressing.")
 
@@ -99,6 +100,8 @@ func Deploy(user User) {
 	url := BASE_URL + "/signed-url"
 
 	fileType := http.DetectContentType(buffer)
+
+	user, err := cmd.GetStoredUser()
 
 	bot := Bot{Id: uid, Type: fileType, Version: VERSION, Owner: user.Email}
 
@@ -175,14 +178,4 @@ func Deploy(user User) {
 	}
 
 	fmt.Println("\x1b[31;1mFatal: Publish Failed!!!\x1b[0m")
-}
-
-func CreateUID(name string, author string) string {
-	uid := author + ";" + name
-
-	_data := []byte(uid)
-
-	uid = fmt.Sprintf("%x", md5.Sum(_data))
-
-	return uid
 }

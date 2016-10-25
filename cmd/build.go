@@ -3,7 +3,7 @@ package cmd
 import "os"
 import "os/exec"
 
-func Build() error {
+func Build() {
 	wd, err := os.Getwd()
 
 	check(err)
@@ -14,6 +14,6 @@ func Build() error {
 
 	cmd.Stdout = os.Stdout
 
-	return cmd.Run()
+	cmd.Run()
 
 }
