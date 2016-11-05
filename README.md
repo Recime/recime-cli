@@ -31,8 +31,9 @@ The following commands are currently available in the `Recime Command Line Tool`
     deploy      Deploys the bot to Recime cloud
     init        Initializes your Recime account
     install     Installs the dependencies
+    prepare     Prepares the bot
 ```
 
 ## License
 
-Copyright 2016 Recime Inc.
+Copyright © 2016 Recime Inc.
