@@ -53,21 +53,12 @@ func main() {
 		Long:  `Scaffolds the necessary files required for the bot to work correctly in Recime cloud from an interactive prompt`,
 		Run: func(cmd *cobra.Command, args []string) {
 			folder := "."
-			if len(args) == 0 {
-				fmt.Println("")
-				fmt.Println("USAGE: recime-cli create [folder]")
-				return
+			if len(args) > 0 {
+				folder = strings.Join(args, " ")
 			}
-
-			folder = strings.Join(args, "-")
-
 			Create(folder)
 		},
 	}
-
-	folderPath := "."
-
-	cmdCreate.PersistentFlags().StringVar(&folderPath, "folder", ".", "folder path")
 
 	var cmdDeploy = &cobra.Command{
 		Use:   "deploy",

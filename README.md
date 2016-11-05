@@ -33,4 +33,4 @@ The following commands are currently available in the `Recime Command Line Tool`
     install     Installs the dependencies
 ```
 
-Recime template uses [TypeScript](https://www.typescriptlang.org/docs/tutorial.html), you can combine that with [atom-typescript](https://atom.io/packages/atom-typescript)  to generate javascript files for you and take advantage of auto-complete features.
+Recime template uses [TypeScript](https://www.typescriptlang.org/docs/tutorial.html).
