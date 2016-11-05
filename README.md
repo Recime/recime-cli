@@ -33,4 +33,6 @@ The following commands are currently available in the `Recime Command Line Tool`
     install     Installs the dependencies
 ```
 
-Recime template uses [TypeScript](https://www.typescriptlang.org/docs/tutorial.html).
+## License
+
+Copyright 2016 Recime Inc.
