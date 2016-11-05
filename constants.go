@@ -1,4 +1,7 @@
 package main
 
-const BASE_URL = "https://recime.ai"
-const VERSION = "1.0.3"
+// BaseUrl Recime cloud
+const BaseUrl = "https://recime.ai"
+
+// Version 1.0.4
+const Version = "1.0.4"

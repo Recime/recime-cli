@@ -19,6 +19,8 @@ import (
 	"os/signal"
 	"time"
 
+	"strings"
+
 	"github.com/Recime/recime-cli/cmd"
 	"github.com/spf13/cobra"
 )
@@ -28,6 +30,7 @@ func main() {
 	signal.Notify(interrupt, os.Interrupt)
 	go func() {
 		<-interrupt
+		fmt.Println("")
 		os.Exit(1)
 	}()
 
@@ -38,7 +41,7 @@ func main() {
 		Run: func(_ *cobra.Command, args []string) {
 			options := map[string]interface{}{
 				"in":   os.Stdin,
-				"base": BASE_URL,
+				"base": BaseUrl,
 			}
 			cmd.Init(options)
 		},
@@ -49,9 +52,22 @@ func main() {
 		Short: "Scaffolds the bot from an interactive prompt",
 		Long:  `Scaffolds the necessary files required for the bot to work correctly in Recime cloud from an interactive prompt`,
 		Run: func(cmd *cobra.Command, args []string) {
-			Create()
+			folder := "."
+			if len(args) == 0 {
+				fmt.Println("")
+				fmt.Println("USAGE: recime-cli create [folder]")
+				return
+			}
+
+			folder = strings.Join(args, "-")
+
+			Create(folder)
 		},
 	}
+
+	folderPath := "."
+
+	cmdCreate.PersistentFlags().StringVar(&folderPath, "folder", ".", "folder path")
 
 	var cmdDeploy = &cobra.Command{
 		Use:   "deploy",
@@ -103,7 +119,7 @@ func main() {
 Version %v
 Copyright %d Recime, Inc.
 https://recime.ai`,
-			VERSION,
+			Version,
 			time.Now().Year(),
 		),
 	}

@@ -11,6 +11,7 @@ import "strings"
 import "regexp"
 
 import "github.com/Recime/recime-cli/cmd"
+import "path/filepath"
 
 func SetValue(data map[string]interface{}, key string, value string) {
 	if len(value) > 0 {
@@ -52,7 +53,8 @@ func ProcesssInput(in io.Reader) (data map[string]interface{}) {
 	return data
 }
 
-func Create() {
+// Create Generates the bot
+func Create(folder string) {
 	user, err := cmd.GetStoredUser()
 
 	cmd.Guard(user)
@@ -73,11 +75,9 @@ func Create() {
 
 	data["name"] = normalizedName
 
-	dir, err := os.Getwd()
-
 	check(err)
 
-	path := dir + "/" + name
+	path := filepath.Join(wd, folder)
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		si, err := os.Stat(wd)
@@ -110,5 +110,7 @@ func Create() {
 
 		check(err)
 	}
+
+	fmt.Println("Bot Created Successfully.")
 
 }
