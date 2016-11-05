@@ -77,7 +77,11 @@ func Create(folder string) {
 
 	check(err)
 
-	path := filepath.Join(wd, folder)
+	path := filepath.ToSlash(folder)
+
+	if !filepath.IsAbs(path) {
+		path = filepath.Join(wd, path)
+	}
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		si, err := os.Stat(wd)
