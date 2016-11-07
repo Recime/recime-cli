@@ -10,7 +10,7 @@ import (
 )
 
 //Prepare prepares the bot to deploy.
-func Prepare() {
+func Prepare() string {
 	wd, err := os.Getwd()
 
 	var data map[string]interface{}
@@ -31,7 +31,8 @@ func Prepare() {
 
 	uid := CreateUID(name, user.Email)
 
-	data["uid"] = uid
+	// update the author
+	data["author"] = fmt.Sprintf("%s <%s>", user.Company, user.Email)
 
 	fmt.Println("INFO: Preparing.")
 
@@ -42,6 +43,8 @@ func Prepare() {
 	err = ioutil.WriteFile(writePath, asset, os.ModePerm)
 
 	check(err)
+
+	return uid
 }
 
 //CreateUID creates md5 hash with bot name and author

@@ -68,12 +68,13 @@ func main() {
 			// install any dependencies
 			cmd.Install()
 
-			cmd.Prepare()
+			// execute run Command
 
-			// execute run command
 			cmd.Build()
 
-			Deploy()
+			uid := cmd.Prepare()
+
+			Deploy(uid)
 		},
 	}
 
@@ -83,15 +84,6 @@ func main() {
 		Long:  "Installs the requried dependencies for the bot to work in Recime cloud",
 		Run: func(_ *cobra.Command, args []string) {
 			cmd.Install()
-		},
-	}
-
-	var cmdPrepare = &cobra.Command{
-		Use:   "prepare",
-		Short: "Prepares the bot",
-		Long:  "Prepares the bot to deploy",
-		Run: func(_ *cobra.Command, args []string) {
-			cmd.Prepare()
 		},
 	}
 
@@ -116,7 +108,6 @@ https://recime.ai`,
 	}
 
 	rootCmd.AddCommand(cmdInstall)
-	rootCmd.AddCommand(cmdPrepare)
 	rootCmd.AddCommand(cmdBuild)
 	rootCmd.AddCommand(cmdInit)
 	rootCmd.AddCommand(cmdCreate)

@@ -47,8 +47,8 @@ func SendRequest(url string, body io.Reader) string {
 	return result.Url
 }
 
-func Deploy() {
-
+// Deploy deploys the bot with the given uid
+func Deploy(uid string) {
 	wd, err := os.Getwd()
 
 	var data map[string]interface{}
@@ -62,7 +62,6 @@ func Deploy() {
 	}
 
 	name := data["name"].(string)
-	uid := data["uid"].(string)
 
 	fmt.Println("INFO: Compressing.")
 
@@ -143,7 +142,7 @@ func Deploy() {
 		fmt.Println("INFO: Finalizing.")
 	}
 
-	url = BaseUrl + "/module/deploy/" + name
+	url = BaseUrl + "/module/deploy/" + uid
 
 	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
 
@@ -173,7 +172,7 @@ func Deploy() {
 
 	if len(result.Name) > 0 {
 		fmt.Println("\r\n=> " + BaseUrl + "/bot/" + result.Name + "\r\n")
-		fmt.Println("INFO: Publish Successful")
+		fmt.Println("INFO: Bot publish successful.")
 		return
 	}
 

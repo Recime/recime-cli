@@ -5,7 +5,7 @@ import "os"
 import "os/exec"
 
 func Install() {
-	fmt.Println("INFO: Installing package dependencies")
+	fmt.Println("INFO: Installing dependencies.")
 
 	wd, err := os.Getwd()
 
