@@ -96,7 +96,7 @@ func Deploy(uid string) {
 
 	fmt.Println("INFO: Preparing to upload.")
 
-	url := BaseUrl + "/signed-url"
+	url := BaseURL + "/signed-url"
 
 	fileType := http.DetectContentType(buffer)
 
@@ -142,7 +142,7 @@ func Deploy(uid string) {
 		fmt.Println("INFO: Finalizing.")
 	}
 
-	url = BaseUrl + "/module/deploy/" + uid
+	url = BaseURL + "/module/deploy/" + uid
 
 	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
 
@@ -171,7 +171,7 @@ func Deploy(uid string) {
 	s.Stop()
 
 	if len(result.Name) > 0 {
-		fmt.Println("\r\n=> " + BaseUrl + "/bot/" + result.Name + "\r\n")
+		fmt.Println("\r\n=> " + BaseURL + "/bot/" + result.Name + "\r\n")
 		fmt.Println("INFO: Bot publish successful.")
 		return
 	}

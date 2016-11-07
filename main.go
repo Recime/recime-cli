@@ -41,7 +41,7 @@ func main() {
 		Run: func(_ *cobra.Command, args []string) {
 			options := map[string]interface{}{
 				"in":   os.Stdin,
-				"base": BaseUrl,
+				"base": BaseURL,
 			}
 			cmd.Init(options)
 		},
