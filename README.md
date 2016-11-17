@@ -20,7 +20,7 @@ This will install all the dependencies, configure path and install the CLI acces
 
 ## Windows
 
-Recime Command Line Tool is available via [Chocolatey](https://chocolatey.org/). Choco is the package manager for Windows. 
+`Recime Command Line Tool` is available via [Chocolatey](https://chocolatey.org/). Choco is the package manager for Windows. 
 
 
 You can install chocolatey by typing the following command (Powershell V3+):
