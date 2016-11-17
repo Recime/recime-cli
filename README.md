@@ -39,11 +39,11 @@ This will install all the dependencies, configure path and install the CLI acces
 The following commands are currently available in the `Recime Command Line Tool`:
 
 ```bash
-    build       Builds the bot module
-    create      Scaffolds the bot from an interactive prompt
-    deploy      Deploys the bot to Recime cloud
-    init        Initializes your Recime account
-    install     Installs the dependencies
+build       Builds the bot module
+create      Scaffolds the bot from an interactive prompt
+deploy      Deploys the bot to Recime cloud
+init        Initializes your Recime account
+install     Installs the dependencies
 ```
 
 ## License
