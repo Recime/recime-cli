@@ -98,8 +98,8 @@ func main() {
 
 	var cmdRun = &cobra.Command{
 		Use:   "run",
-		Short: "Runs the bot in a local node server",
-		Long:  "Runs the bot in a local node server",
+		Short: "Runs the bot locally",
+		Long:  "Runs the bot locally",
 		Run: func(_ *cobra.Command, args []string) {
 			options := map[string]interface{}{
 				"url": AppTemplateURL,

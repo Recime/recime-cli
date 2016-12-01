@@ -44,6 +44,7 @@ create      Scaffolds the bot from an interactive prompt
 deploy      Deploys the bot to Recime cloud
 init        Initializes your Recime account
 install     Installs the dependencies
+run         Runs the bot locally
 ```
 
 ## License
