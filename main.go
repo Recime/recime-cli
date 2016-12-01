@@ -21,7 +21,7 @@ import (
 
 	"strings"
 
-	"./cmd"
+	"github.com/Recime/recime-cli/cmd"
 	"github.com/spf13/cobra"
 )
 
