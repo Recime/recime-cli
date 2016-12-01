@@ -19,6 +19,7 @@ import "gopkg.in/cheggaaa/pb.v1"
 import "github.com/briandowns/spinner"
 
 import "github.com/Recime/recime-cli/cmd"
+import "github.com/Recime/recime-cli/util"
 
 type Bot struct {
 	Id      string `json:"uid"`
@@ -75,7 +76,7 @@ func Deploy(uid string) {
 
 	check(err)
 
-	err = CopyDir(wd, dest)
+	err = util.CopyDir(wd, dest)
 
 	filePath := temp + "/" + name + ".zip"
 

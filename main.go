@@ -96,6 +96,19 @@ func main() {
 		},
 	}
 
+	var cmdRun = &cobra.Command{
+		Use:   "run",
+		Short: "Runs the bot in a local node server",
+		Long:  "Runs the bot in a local node server",
+		Run: func(_ *cobra.Command, args []string) {
+			options := map[string]interface{}{
+				"url": AppTemplateURL,
+				"uid": cmd.Prepare(),
+			}
+			cmd.Run(options)
+		},
+	}
+
 	var rootCmd = &cobra.Command{
 		Use: "recime-cli",
 		Long: fmt.Sprintf(`Recime Command Line Interface
@@ -112,6 +125,7 @@ https://recime.ai`,
 	rootCmd.AddCommand(cmdInit)
 	rootCmd.AddCommand(cmdCreate)
 	rootCmd.AddCommand(cmdDeploy)
+	rootCmd.AddCommand(cmdRun)
 
 	rootCmd.Execute()
 
