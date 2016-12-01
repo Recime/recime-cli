@@ -21,7 +21,7 @@ import (
 
 	"strings"
 
-	"github.com/Recime/recime-cli/cmd"
+	"./cmd"
 	"github.com/spf13/cobra"
 )
 
@@ -52,11 +52,12 @@ func main() {
 		Short: "Scaffolds the bot from an interactive prompt",
 		Long:  `Scaffolds the necessary files required for the bot to work correctly in Recime cloud from an interactive prompt`,
 		Run: func(cmd *cobra.Command, args []string) {
-			folder := "."
 			if len(args) > 0 {
-				folder = strings.Join(args, " ")
+				folder := strings.Join(args, " ")
+				Create(folder)
+			} else {
+				fmt.Println("\n\rUSAGE: recime-cli create [folderName]\n\r")
 			}
-			Create(folder)
 		},
 	}
 
@@ -101,6 +102,13 @@ func main() {
 		Short: "Runs the bot locally",
 		Long:  "Runs the bot locally",
 		Run: func(_ *cobra.Command, args []string) {
+			// install any dependencies
+			cmd.Install()
+
+			// execute run Command
+
+			cmd.Build()
+
 			options := map[string]interface{}{
 				"url": AppTemplateURL,
 				"uid": cmd.Prepare(),

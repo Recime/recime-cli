@@ -58,6 +58,14 @@ func Run(options map[string]interface{}) {
 
 	fileName = fmt.Sprintf("%s/recime-%s.zip", homedir, version)
 
+	_, err := os.Stat(homedir)
+
+	if os.IsNotExist(err) {
+		err = os.Mkdir(homedir, os.ModePerm)
+
+		check(err)
+	}
+
 	Download(url, fileName)
 
 	target := homedir
