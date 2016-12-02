@@ -1,25 +1,22 @@
 package main
 
-import "bytes"
-import "encoding/json"
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"time"
 
-import "fmt"
-import "os"
+	"path/filepath"
 
-import "io"
-import "io/ioutil"
-
-import "net/http"
-
-import fp "path/filepath"
-
-import "time"
-
-import "gopkg.in/cheggaaa/pb.v1"
-import "github.com/briandowns/spinner"
-
-import "github.com/Recime/recime-cli/cmd"
-import "github.com/Recime/recime-cli/util"
+	"github.com/Recime/recime-cli/cmd"
+	"github.com/Recime/recime-cli/util"
+	"github.com/briandowns/spinner"
+	pb "gopkg.in/cheggaaa/pb.v1"
+)
 
 type Bot struct {
 	Id      string `json:"uid"`
@@ -70,7 +67,7 @@ func Deploy(uid string) {
 
 	check(err)
 
-	dest := fp.ToSlash(temp) + "/" + uid
+	dest := filepath.ToSlash(temp) + "/" + uid
 
 	err = os.Mkdir(dest, os.ModePerm)
 
