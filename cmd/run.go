@@ -8,21 +8,27 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/Recime/recime-cli/util"
+	"github.com/howeyc/fsnotify"
+	"github.com/mitchellh/go-homedir"
 )
 
 // ExecuteInDir executes command in a given directory
-func ExecuteInDir(args []string, wd string) {
+func ExecuteInDir(args []string, wd string, config []Config) {
 	cmd := exec.Command(args[0], args[1])
 
 	cmd.Dir = wd
 
-	if len(args) == 3 {
+	if config != nil {
+
 		env := os.Environ()
-		env = append(env, fmt.Sprintf("BOT_UNIQUE_ID=%s", args[2]))
+
+		for _, c := range config {
+			env = append(env, fmt.Sprintf("%s=%s", c.Key, c.Value))
+		}
+
 		cmd.Env = env
 	}
 
@@ -32,43 +38,70 @@ func ExecuteInDir(args []string, wd string) {
 	cmd.Run()
 }
 
-// UserHomeDir returns user home directory
-func UserHomeDir() string {
-	if runtime.GOOS == "windows" {
-		home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
-		if home == "" {
-			home = os.Getenv("USERPROFILE")
+//WatchForChanges watch file for changes
+func WatchForChanges(dir string, targetDir string) {
+	watcher, err := fsnotify.NewWatcher()
+
+	check(err)
+
+	// Process events
+	go func() {
+		last := dir
+		for {
+			select {
+			case ev := <-watcher.Event:
+				if last != ev.Name {
+					fmt.Println("INFO: File change event.")
+
+					util.CopyDir(dir, targetDir)
+
+					Build(targetDir)
+
+					fmt.Println("INFO: Build Successful.")
+
+					last = ev.Name
+				}
+			case err := <-watcher.Error:
+				fmt.Println("error:", err)
+			}
 		}
-		return home
-	}
-	return os.Getenv("HOME")
+	}()
+
+	err = watcher.Watch(dir)
+
+	check(err)
 }
 
 //Run runs the bot in a local node server.
 func Run(options map[string]interface{}) {
 	url := options["url"].(string)
 	uid := options["uid"].(string)
+	watch := options["watch"].(bool)
 
 	tokens := strings.Split(url, "/")
 	fileName := tokens[len(tokens)-1]
 
 	version := strings.TrimSuffix(fileName, filepath.Ext(fileName))
 
-	homedir := filepath.ToSlash(UserHomeDir()) + "/recime-app"
+	home, err := homedir.Dir()
 
-	fileName = fmt.Sprintf("%s/recime-%s.zip", homedir, version)
+	check(err)
 
-	_, err := os.Stat(homedir)
+	home = filepath.ToSlash(home) + "/recime-app"
+
+	fileName = fmt.Sprintf("%s/recime-%s.zip", home, version)
+
+	_, err = os.Stat(home)
 
 	if os.IsNotExist(err) {
-		err = os.Mkdir(homedir, os.ModePerm)
+		err = os.Mkdir(home, os.ModePerm)
 
 		check(err)
 	}
 
 	Download(url, fileName)
 
-	target := homedir
+	target := home
 
 	check(Unzip(fileName, target))
 
@@ -76,23 +109,35 @@ func Run(options map[string]interface{}) {
 
 	templateDir := target + "/recime-template-" + version
 
-	fmt.Println(templateDir)
-
 	wd, err := os.Getwd()
-
-	check(err)
 
 	botDir := templateDir + "/" + uid
 
-	util.CopyDir(filepath.ToSlash(wd), botDir)
+	check(err)
 
 	fmt.Println("INFO: Deploying Bot.")
 
-	ExecuteInDir([]string{"npm", "install"}, templateDir)
+	ExecuteInDir([]string{"npm", "install"}, templateDir, nil)
 
 	fmt.Println("INFO: Starting.")
 
-	ExecuteInDir([]string{"npm", "start", uid}, templateDir)
+	Build(wd)
+
+	util.CopyDir(filepath.ToSlash(wd), botDir)
+
+	if watch {
+		WatchForChanges(filepath.ToSlash(wd), botDir)
+	}
+
+	result := GetUserConfig(map[string]interface{}{
+		"base": options["base"],
+	})
+
+	config := result["config"]
+
+	config = append(config, Config{Key: "BOT_UNIQUE_ID", Value: uid})
+
+	ExecuteInDir([]string{"npm", "start"}, templateDir, config)
 }
 
 // Download downloads url to a file name

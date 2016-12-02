@@ -3,14 +3,10 @@ package cmd
 import "os"
 import "os/exec"
 
-func Build() {
-	wd, err := os.Getwd()
-
-	check(err)
-
+func Build(dir string) {
 	cmd := exec.Command("npm", "run", "build")
 
-	cmd.Dir = wd
+	cmd.Dir = dir
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

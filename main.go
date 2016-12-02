@@ -71,7 +71,11 @@ func main() {
 
 			// execute run Command
 
-			cmd.Build()
+			wd, err := os.Getwd()
+
+			check(err)
+
+			cmd.Build(wd)
 
 			uid := cmd.Prepare()
 
@@ -93,9 +97,15 @@ func main() {
 		Short: "Builds the bot module",
 		Long:  "Builds the bot module. Uses the build script from pacakge.json",
 		Run: func(_ *cobra.Command, args []string) {
-			cmd.Build()
+			wd, err := os.Getwd()
+
+			check(err)
+
+			cmd.Build(wd)
 		},
 	}
+
+	var watch bool
 
 	var cmdRun = &cobra.Command{
 		Use:   "run",
@@ -106,16 +116,17 @@ func main() {
 			cmd.Install()
 
 			// execute run Command
-
-			cmd.Build()
-
 			options := map[string]interface{}{
-				"url": AppTemplateURL,
-				"uid": cmd.Prepare(),
+				"url":   AppTemplateURL,
+				"uid":   cmd.Prepare(),
+				"base":  BaseURL,
+				"watch": watch,
 			}
 			cmd.Run(options)
 		},
 	}
+
+	cmdRun.PersistentFlags().BoolVarP(&watch, "watch", "w", false, "Watches the bot folder for changes")
 
 	var rootCmd = &cobra.Command{
 		Use: "recime-cli",
