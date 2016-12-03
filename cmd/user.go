@@ -4,16 +4,12 @@ package cmd
 // import "bufio"
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 
-	"github.com/briandowns/spinner"
 	"github.com/mitchellh/go-homedir"
 )
 
@@ -29,6 +25,7 @@ type User struct {
 	Name     string `json:"name"`
 	Password string `json:"password"`
 	Company  string `json:"company"`
+	Config	 []Config `json:"config"`
 }
 
 // GetStoredUser fetches the stored user
@@ -60,40 +57,9 @@ func GetStoredUser() (User, error) {
 }
 
 //GetUserConfig Gets user configuration.
-func GetUserConfig(options map[string]interface{}) map[string][]Config {
-	user, err := GetStoredUser()
-
-	body := User{Email: user.Email}
-
-	jsonBody, err := json.Marshal(body)
-
-	check(err)
-
-	url := options["base"].(string) + "/api/config"
-
-	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
-
-	s.Start()
-
-	r := bytes.NewBuffer(jsonBody)
-
-	resp, err := http.Post(url, "application/json; charset=utf-8", r)
-
-	var result map[string][]Config
-
-	if err == nil {
-		defer resp.Body.Close()
-
-		bytes, err := ioutil.ReadAll(resp.Body)
-
-		check(err)
-
-		json.Unmarshal(bytes, &result)
-	}
-
-	s.Stop()
-
-	return result
+func GetUserConfig() []Config {
+	user, _ := GetStoredUser()
+	return user.Config
 }
 
 // Guard validates the account against recime cloud

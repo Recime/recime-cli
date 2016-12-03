@@ -19,7 +19,7 @@ func Install() {
 
 	check(err)
 
-	cmd := exec.Command("npm1", "install")
+	cmd := exec.Command("npm", "install")
 
 	cmd.Dir = wd
 

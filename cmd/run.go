@@ -129,11 +129,7 @@ func Run(options map[string]interface{}) {
 		WatchForChanges(filepath.ToSlash(wd), botDir)
 	}
 
-	result := GetUserConfig(map[string]interface{}{
-		"base": options["base"],
-	})
-
-	config := result["config"]
+	config := GetUserConfig()
 
 	config = append(config, Config{Key: "BOT_UNIQUE_ID", Value: uid})
 
