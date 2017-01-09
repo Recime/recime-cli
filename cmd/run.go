@@ -75,6 +75,7 @@ func WatchForChanges(dir string, targetDir string) {
 //Run runs the bot in a local node server.
 func Run(options map[string]interface{}) {
 	url := options["url"].(string)
+	base := options["base"].(string)
 	uid := options["uid"].(string)
 	watch := options["watch"].(bool)
 
@@ -132,6 +133,7 @@ func Run(options map[string]interface{}) {
 	config := GetUserConfig()
 
 	config = append(config, Config{Key: "BOT_UNIQUE_ID", Value: uid})
+	config = append(config, Config{Key: "BASE_URL", Value: base})
 
 	ExecuteInDir([]string{"npm", "start"}, templateDir, config)
 }

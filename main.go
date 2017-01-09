@@ -133,9 +133,10 @@ func main() {
 		Long: fmt.Sprintf(`Recime Command Line Interface
 Version %v
 Copyright %d Recime, Inc.
-https://recime.ai`,
+%s`,
 			Version,
 			time.Now().Year(),
+			BaseURL,
 		),
 	}
 
