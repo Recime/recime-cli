@@ -9,15 +9,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-
 	"github.com/mitchellh/go-homedir"
 )
-
-//Config user configuration
-type Config struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-}
 
 //User Recime User
 type User struct {

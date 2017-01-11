@@ -15,13 +15,15 @@ package main
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+	"time"
 	"os"
 	"os/signal"
-	"time"
 
-	"strings"
-
-	"github.com/Recime/recime-cli/cmd"
+	// "github.com/Recime/recime-cli/cmd"
+	"./cmd"
+	"github.com/gosuri/cmdns"
 	"github.com/spf13/cobra"
 )
 
@@ -105,6 +107,33 @@ func main() {
 		},
 	}
 
+	var cmdConfig = &cobra.Command{
+		Use:   "config",
+		Short: "Manage bot config vars",
+		Long:  "Add or edit bot config vars that will be acccessed via `process.env` from within bot module",
+		Run: func(_ *cobra.Command, args []string) {
+			if len(args) == 0 {
+				fmt.Println("\r\nUSAGE: recime-cli config:set NAME=Joe Smith\r\n")
+			}	
+		},
+	}
+	var cmdConfigAdd = &cobra.Command{
+		Use:   "set",
+		Short: "Sets a new or existing config var",
+		Long:  "Sets a new or existing config var",
+		Run: func(_ *cobra.Command, args []string) {
+			if len(args) == 1 {
+		 		pattern := regexp.MustCompile(`[1-9a-zA-Z]+=[1-9a-zA-Z]+`)
+		 		if pattern.MatchString(args[0]) {
+		 			strings.Split(args)
+		 		}
+				cmd.SetConfig(cmd.Config{Key: "A", Value: "B"})
+			}
+		},
+	}	
+
+	cmdConfig.AddCommand(cmdConfigAdd)
+
 	var watch bool
 
 	var cmdRun = &cobra.Command{
@@ -142,14 +171,18 @@ Copyright %d Recime, Inc.
 
 	rootCmd.AddCommand(cmdInstall)
 	rootCmd.AddCommand(cmdBuild)
+	rootCmd.AddCommand(cmdConfig)
 	rootCmd.AddCommand(cmdInit)
 	rootCmd.AddCommand(cmdCreate)
 	rootCmd.AddCommand(cmdDeploy)
 	rootCmd.AddCommand(cmdRun)
 
+	// Enable namespacing
+	cmdns.Namespace(rootCmd)
+
 	rootCmd.Execute()
 
 	fmt.Println("")
-	fmt.Println("For any questions and feedback, please reach us at hello@recime.ai.")
+	fmt.Println("For any questions and feedback, please reach us at hello@recime.io.")
 	fmt.Println("")
 }
