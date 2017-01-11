@@ -108,7 +108,7 @@ func main() {
 
 	var cmdConfig = &cobra.Command{
 		Use:   "config",
-		Short: "Manage bot config vars",
+		Short: "Initializes bot config vars",
 		Long:  "Add or edit bot config vars that will be acccessed via `process.env` from within bot module",
 		Run: func(_ *cobra.Command, args []string) {
 			if len(args) == 0 {
