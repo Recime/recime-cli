@@ -49,12 +49,6 @@ func GetStoredUser() (User, error) {
 	return user, err
 }
 
-//GetUserConfig Gets user configuration.
-func GetUserConfig() []Config {
-	user, _ := GetStoredUser()
-	return user.Config
-}
-
 // Guard validates the account against recime cloud
 func Guard(user User) {
 	if user.Email == "" {

@@ -1,7 +1,7 @@
 package main
 
 // BaseURL Recime cloud
-const BaseURL = "http://recime.io"
+const BaseURL = "https://recime.io"
 
 // AppTemplateURL node template
 const AppTemplateURL = "https://github.com/Recime/recime-template/archive/1.0.3.zip"

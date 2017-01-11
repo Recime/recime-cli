@@ -23,6 +23,7 @@ type Bot struct {
 	Type    string `json:"fileType"`
 	Version string `json:"version"`
 	Owner   string `json:"owner"`
+	Config []cmd.Config `json:"config"`
 }
 
 func SendRequest(url string, body io.Reader) string {
@@ -100,7 +101,21 @@ func Deploy(uid string) {
 
 	user, err := cmd.GetStoredUser()
 
-	bot := Bot{Id: uid, Type: fileType, Version: Version, Owner: user.Email}
+	var config []cmd.Config
+
+	vars := cmd.GetConfigVars(wd)
+
+	for key, value := range vars {
+		config = append(config, cmd.Config{ Key : key, Value : value.(string) })
+	}
+
+	bot := Bot{
+		Id: uid, 
+		Type: fileType, 
+		Version: Version, 
+		Owner: user.Email, 
+		Config : config,
+	}
 
 	jsonBody, err := json.Marshal(bot)
 

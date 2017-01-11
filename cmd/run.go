@@ -96,7 +96,6 @@ func Run(options map[string]interface{}) {
 
 	if os.IsNotExist(err) {
 		err = os.Mkdir(home, os.ModePerm)
-
 		check(err)
 	}
 
@@ -130,10 +129,15 @@ func Run(options map[string]interface{}) {
 		WatchForChanges(filepath.ToSlash(wd), botDir)
 	}
 
-	config := GetUserConfig()
-
-	config = append(config, Config{Key: "BOT_UNIQUE_ID", Value: uid})
+	config := []Config{Config{Key: "BOT_UNIQUE_ID", Value: uid}}
 	config = append(config, Config{Key: "BASE_URL", Value: base})
+
+	// Add config user config
+	vars :=  GetConfigVars(wd)
+
+	for key, value := range vars {
+		config = append(config, Config{Key: key, Value: value.(string)})
+	}
 
 	ExecuteInDir([]string{"npm", "start"}, templateDir, config)
 }

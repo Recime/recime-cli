@@ -21,8 +21,7 @@ import (
 	"os"
 	"os/signal"
 
-	// "github.com/Recime/recime-cli/cmd"
-	"./cmd"
+	"github.com/Recime/recime-cli/cmd"
 	"github.com/gosuri/cmdns"
 	"github.com/spf13/cobra"
 )
@@ -123,11 +122,13 @@ func main() {
 		Long:  "Sets a new or existing config var",
 		Run: func(_ *cobra.Command, args []string) {
 			if len(args) == 1 {
-		 		pattern := regexp.MustCompile(`[1-9a-zA-Z]+=[1-9a-zA-Z]+`)
+		 		pattern := regexp.MustCompile(`[a-zA-Z][1-9a-zA-Z_]+=[1-9a-zA-Z]+`)
 		 		if pattern.MatchString(args[0]) {
-		 			strings.Split(args)
-		 		}
-				cmd.SetConfig(cmd.Config{Key: "A", Value: "B"})
+		 			pair := strings.Split(args[0], "=")
+					cmd.SetConfig(cmd.Config{Key: pair[0], Value: pair[1]})
+		 		} else {
+		 			fmt.Println("\r\nInfo: Invalid config pair.\r\n")
+		 		}	
 			}
 		},
 	}	
