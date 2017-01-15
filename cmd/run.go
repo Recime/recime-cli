@@ -22,7 +22,7 @@ func ExecuteInDir(args []string, wd string, config []Config) {
 	cmd.Dir = wd
 
 	if config != nil {
-
+		
 		env := os.Environ()
 
 		for _, c := range config {
@@ -133,7 +133,9 @@ func Run(options map[string]interface{}) {
 	config = append(config, Config{Key: "BASE_URL", Value: base})
 
 	// Add config user config
-	vars :=  GetConfigVars(wd)
+	reader, _ := OpenConfig(wd)
+
+	vars :=  GetConfigVars(reader)
 
 	for key, value := range vars {
 		config = append(config, Config{Key: key, Value: value.(string)})

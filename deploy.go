@@ -12,7 +12,7 @@ import (
 
 	"path/filepath"
 
-	"github.com/Recime/recime-cli/cmd"
+	"./cmd"
 	"github.com/Recime/recime-cli/util"
 	"github.com/briandowns/spinner"
 	pb "gopkg.in/cheggaaa/pb.v1"
@@ -47,10 +47,12 @@ func SendRequest(url string, body io.Reader) string {
 }
 
 // Deploy deploys the bot with the given uid
-func Deploy(uid string) {
-	wd, err := os.Getwd()
+func Deploy() {
+	uid := cmd.GetUID()
 
 	var data map[string]interface{}
+
+ 	wd, err := os.Getwd()
 
 	buff, err := ioutil.ReadFile(wd + "/package.json")
 
@@ -103,17 +105,19 @@ func Deploy(uid string) {
 
 	var config []cmd.Config
 
-	vars := cmd.GetConfigVars(wd)
+	// Add config user config
+	reader, _ := cmd.OpenConfig(wd)
+	cfg := cmd.GetConfigVars(reader)
 
-	for key, value := range vars {
+	for key, value := range cfg {
 		config = append(config, cmd.Config{ Key : key, Value : value.(string) })
 	}
 
 	bot := Bot{
-		Id: uid, 
-		Type: fileType, 
-		Version: Version, 
-		Owner: user.Email, 
+		Id: uid,
+		Type: fileType,
+		Version: Version,
+		Owner: user.Email,
 		Config : config,
 	}
 
@@ -183,10 +187,15 @@ func Deploy(uid string) {
 
 	s.Stop()
 
-	if len(result.Name) > 0 {
-		fmt.Println("\r\n=> " + BaseURL + "/bot/" + result.Name + "\r\n")
+	if len(result.Id) > 0{
+		fmt.Println("\r\n=> " + BaseURL + "/bot/" + result.Id + "\r\n")
 		fmt.Println("INFO: Bot publish successful.")
 		return
+	}
+
+	if len(result.Message) > 0{
+		message:= fmt.Sprintf("INFO: %s", result.Message)
+		fmt.Println(message)
 	}
 
 	fmt.Println("\x1b[31;1mFatal: Publish Failed!!!\x1b[0m")

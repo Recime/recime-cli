@@ -20,8 +20,7 @@ import (
 	"time"
 	"os"
 	"os/signal"
-
-	"github.com/Recime/recime-cli/cmd"
+	"./cmd"
 	"github.com/gosuri/cmdns"
 	"github.com/spf13/cobra"
 )
@@ -78,9 +77,7 @@ func main() {
 
 			cmd.Build(wd)
 
-			uid := cmd.Prepare()
-
-			Deploy(uid)
+			Deploy()
 		},
 	}
 
@@ -113,7 +110,7 @@ func main() {
 		Run: func(_ *cobra.Command, args []string) {
 			if len(args) == 0 {
 				fmt.Println("\r\nUSAGE: recime-cli config:set NAME=Joe Smith\r\n")
-			}	
+			}
 		},
 	}
 	var cmdConfigAdd = &cobra.Command{
@@ -125,13 +122,18 @@ func main() {
 		 		pattern := regexp.MustCompile(`[a-zA-Z][1-9a-zA-Z_]+=[1-9a-zA-Z]+`)
 		 		if pattern.MatchString(args[0]) {
 		 			pair := strings.Split(args[0], "=")
-					cmd.SetConfig(cmd.Config{Key: pair[0], Value: pair[1]})
+
+					config := cmd.Config{Key: pair[0], Value: pair[1], Source : BaseURL}
+
+					cmd.SaveConfig(config)
 		 		} else {
-		 			fmt.Println("\r\nInfo: Invalid config pair.\r\n")
-		 		}	
+		 			fmt.Println("\r\nINFO: Invalid Config Pair.\r\n")
+		 		}
+			} else {
+					fmt.Println("\r\nINFO: Invalid Number of Arguments.\r\n")
 			}
 		},
-	}	
+	}
 
 	cmdConfig.AddCommand(cmdConfigAdd)
 
@@ -148,7 +150,7 @@ func main() {
 			// execute run Command
 			options := map[string]interface{}{
 				"url":   AppTemplateURL,
-				"uid":   cmd.Prepare(),
+				"uid":   cmd.GetUID(),
 				"base":  BaseURL,
 				"watch": watch,
 			}

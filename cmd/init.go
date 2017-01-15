@@ -79,11 +79,11 @@ func Init(options map[string]interface{}) {
 
 	if result.User != nil {
 		verified := result.User["verified"].(bool)
-
 		if !verified {
 			fmt.Println("\x1b[31;1mYou must verify your account in order to continue. Please look for the verification email that is sent to you when you signed up for the service.\x1b[0m")
 			os.Exit(1)
 		}
+
 		SaveUser(result.User)
 	} else {
 		fmt.Printf("\x1b[31;1m\r\n%s\x1b[0m", result.Message)

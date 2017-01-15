@@ -9,8 +9,18 @@ import (
 	"os"
 )
 
-//Prepare prepares the bot to deploy.
-func Prepare() string {
+//CreateUID creates md5 hash with bot name and author
+func CreateUID(name string, author string) string {
+	uid := author + ";" + name
+
+	_data := []byte(uid)
+
+	uid = fmt.Sprintf("%x", md5.Sum(_data))
+
+	return uid
+}
+
+func GetUID() string{
 	wd, err := os.Getwd()
 
 	var data map[string]interface{}
@@ -30,30 +40,6 @@ func Prepare() string {
 	name := data["name"].(string)
 
 	uid := CreateUID(name, user.Email)
-
-	// update the author
-	data["author"] = fmt.Sprintf("%s <%s>", user.Company, user.Email)
-
-	fmt.Println("INFO: Preparing.")
-
-	asset := MarshalIndent(data)
-
-	writePath := wd + "/package.json"
-
-	err = ioutil.WriteFile(writePath, asset, os.ModePerm)
-
-	check(err)
-
-	return uid
-}
-
-//CreateUID creates md5 hash with bot name and author
-func CreateUID(name string, author string) string {
-	uid := author + ";" + name
-
-	_data := []byte(uid)
-
-	uid = fmt.Sprintf("%x", md5.Sum(_data))
 
 	return uid
 }
