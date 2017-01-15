@@ -22,7 +22,7 @@ func ExecuteInDir(args []string, wd string, config []Config) {
 	cmd.Dir = wd
 
 	if config != nil {
-		
+
 		env := os.Environ()
 
 		for _, c := range config {
@@ -88,7 +88,7 @@ func Run(options map[string]interface{}) {
 
 	check(err)
 
-	home = filepath.ToSlash(home) + "/recime-app"
+	home = filepath.ToSlash(home) + "/recime-cli"
 
 	fileName = fmt.Sprintf("%s/recime-%s.zip", home, version)
 

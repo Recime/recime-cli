@@ -20,7 +20,7 @@ import (
 	"time"
 	"os"
 	"os/signal"
-	"./cmd"
+	"github.com/Recime/recime-cli/cmd"
 	"github.com/gosuri/cmdns"
 	"github.com/spf13/cobra"
 )
