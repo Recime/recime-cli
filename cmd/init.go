@@ -1,26 +1,17 @@
 package cmd
 
 import "fmt"
-
 // import "encoding/json"
 import "bufio"
-
 import "bytes"
-
 import "path/filepath"
-
 import "io"
 import "io/ioutil"
-
 import "encoding/json"
-
 import "net/http"
-
 import "os"
-
 import "strings"
 import "syscall"
-
 import "time"
 
 import "golang.org/x/crypto/ssh/terminal"
@@ -113,7 +104,7 @@ func SaveUser(user map[string]interface{}) {
 
 	file.Write(jsonBody)
 
-	fmt.Printf("\n\rUser verification successful\n\r")
+	fmt.Printf("\n\rINFO: User Verification Successful.\n\r")
 }
 
 func check(e error) {

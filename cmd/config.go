@@ -1,14 +1,11 @@
 package cmd
 
 import "fmt"
-import "net/http"
 import "encoding/json"
 import "path/filepath"
 import "io"
 import "io/ioutil"
 import "os"
-import "time"
-import "github.com/briandowns/spinner"
 
 //Config user configuration
 type Config struct {
@@ -27,9 +24,7 @@ func OpenConfig(wd string) (io.Reader, error){
 
 // GetConfigVars returns config map for a given path.
 func GetConfigVars(reader io.Reader) map[string]interface{} {
-	dat, err := ioutil.ReadAll(reader)
-
-	check(err)
+	dat, _ := ioutil.ReadAll(reader)
 
 	var config map[string]interface{}
 
@@ -38,33 +33,8 @@ func GetConfigVars(reader io.Reader) map[string]interface{} {
 	} else{
 		config = make(map[string]interface{})
 	}
+
 	return config
-}
-
-func Sync(source string) []Config{
-	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
-
-	s.Start()
-
-	url := fmt.Sprintf("%s/api/bot/config/%s", source, GetUID())
-
-	res, err := http.Get(url)
-
-	check(err)
-
-	var result struct {
-		Config []Config `json:"config"`
-	}
-
-	bytes, err := ioutil.ReadAll(res.Body)
-
-	json.Unmarshal(bytes, &result)
-
-	s.Stop()
-
-	defer res.Body.Close()
-
-	return result.Config
 }
 
 // SetConfig adds / edits a config var.
@@ -82,12 +52,6 @@ func SaveConfig(config Config){
 	reader, err  := OpenConfig(wd)
 
 	if err != nil {
-		_config := Sync(config.Source)
-
-		for _, element := range _config {
-				data[element.Key] = element.Value
-		}
-
 		err = os.MkdirAll(filepath.Dir(target), 0755)
 
 		check(err)
@@ -95,7 +59,7 @@ func SaveConfig(config Config){
 		_, err := os.Stat(target)
 
 		if os.IsNotExist(err) {
-				os.Create(target)
+			os.Create(target)
 		}
 	} else {
 		data = GetConfigVars(reader)
@@ -113,5 +77,5 @@ func SaveConfig(config Config){
 
 	file.Write(jsonBody)
 
-	fmt.Println("\r\nINFO: Config Variables Set Successfully.\r\n")
+	fmt.Println("\r\nINFO: Configuration Saved Successfully.")
 }

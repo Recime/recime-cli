@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"archive/zip"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Recime/recime-cli/util"
+	"github.com/recime/recime-cli/util"
 	"github.com/howeyc/fsnotify"
 	"github.com/mitchellh/go-homedir"
 )
@@ -103,7 +102,7 @@ func Run(options map[string]interface{}) {
 
 	target := home
 
-	check(Unzip(fileName, target))
+	util.Unzip(fileName, target)
 
 	fmt.Println("INFO: Preparing.")
 
@@ -146,8 +145,6 @@ func Run(options map[string]interface{}) {
 
 // Download downloads url to a file name
 func Download(url string, fileName string) {
-	fmt.Println("Downloading", url)
-
 	// TODO: check file existence first with io.IsExist
 	output, err := os.Create(fileName)
 	if err != nil {
@@ -163,50 +160,10 @@ func Download(url string, fileName string) {
 	}
 	defer response.Body.Close()
 
-	n, err := io.Copy(output, response.Body)
+	_, err = io.Copy(output, response.Body)
+	
 	if err != nil {
 		fmt.Println("Error while downloading", url, "-", err)
 		return
 	}
-
-	fmt.Println(n, "bytes downloaded.")
-}
-
-// Unzip unzips a given archive to a target
-func Unzip(archive, target string) error {
-	reader, err := zip.OpenReader(archive)
-
-	if err != nil {
-		return err
-	}
-
-	if err = os.MkdirAll(target, 0755); err != nil {
-		return err
-	}
-
-	for _, file := range reader.File {
-		path := filepath.Join(target, file.Name)
-		if file.FileInfo().IsDir() {
-			os.MkdirAll(path, file.Mode())
-			continue
-		}
-
-		fileReader, err := file.Open()
-		if err != nil {
-			return err
-		}
-		defer fileReader.Close()
-
-		targetFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
-		if err != nil {
-			return err
-		}
-		defer targetFile.Close()
-
-		if _, err := io.Copy(targetFile, fileReader); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

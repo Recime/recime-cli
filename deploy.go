@@ -12,21 +12,78 @@ import (
 
 	"path/filepath"
 
-	"github.com/Recime/recime-cli/cmd"
-	"github.com/Recime/recime-cli/util"
+	"github.com/recime/recime-cli/cmd"
+	"github.com/recime/recime-cli/util"
 	"github.com/briandowns/spinner"
 	pb "gopkg.in/cheggaaa/pb.v1"
+	"github.com/jhoonb/archivex"
 )
 
 type Bot struct {
 	Id      string `json:"uid"`
 	Type    string `json:"fileType"`
+	Name  string `json:"name"`
+	Title string `json:"title"`
+	Author string `json:"author"`
+	Desc  string `json:"description"`
 	Version string `json:"version"`
 	Owner   string `json:"owner"`
 	Config []cmd.Config `json:"config"`
 }
 
-func SendRequest(url string, body io.Reader) string {
+type Package struct {
+	FileType string `json:"fileType"`
+	Id string `json:"uid"`
+	Method string `json:"method"`
+}
+
+func PrepareLambdaPackage(uid string) string{
+	jsonBody, err := json.Marshal(Package {
+		FileType : "application/octet-stream",
+		Id : "package.zip",
+		Method : "getObject",
+	})
+
+	check(err)
+
+	source := fmt.Sprintf("%s/signed-url", BaseURL)
+	signedUrl := SendHTTPRequest(source, bytes.NewBuffer(jsonBody))
+	
+	temp, err := ioutil.TempDir("", "recime-cli")
+
+	check(err)
+
+	dest := filepath.ToSlash(temp) + "/bin"
+
+	err = os.Mkdir(dest, os.ModePerm)
+
+	fileName := fmt.Sprintf("%s/%s.zip", dest, uid)
+
+	cmd.Download(signedUrl, fileName)
+
+	target := fmt.Sprintf("%s/%s", dest, uid)
+
+	check(util.Unzip(fileName, target))
+
+	wd, err := os.Getwd()
+
+	check(err)
+
+	botDir := fmt.Sprintf("%s/%s", target, uid)
+
+	_ = util.CopyDir(wd, botDir)
+
+	pkg := fmt.Sprintf("%s/%s.zip", temp, uid)
+
+	zip := new(archivex.ZipFile)
+    zip.Create(pkg)
+    zip.AddAll(target, true)
+    zip.Close()
+
+	return pkg
+}
+
+func SendHTTPRequest(url string, body io.Reader) string {
 	res, err := http.Post(url, "application/json; charset=utf-8", body)
 
 	check(err)
@@ -50,39 +107,11 @@ func SendRequest(url string, body io.Reader) string {
 func Deploy() {
 	uid := cmd.GetUID()
 
-	var data map[string]interface{}
+	fmt.Println("INFO: Preparing Package.")
 
- 	wd, err := os.Getwd()
+	pkgPath := PrepareLambdaPackage(uid)
 
-	buff, err := ioutil.ReadFile(wd + "/package.json")
-
-	check(err)
-
-	if err := json.Unmarshal(buff, &data); err != nil {
-		panic(err)
-	}
-
-	name := data["name"].(string)
-
-	fmt.Println("INFO: Compressing.")
-
-	temp, err := ioutil.TempDir("", name)
-
-	check(err)
-
-	dest := filepath.ToSlash(temp) + "/" + uid
-
-	err = os.Mkdir(dest, os.ModePerm)
-
-	check(err)
-
-	err = util.CopyDir(wd, dest)
-
-	filePath := temp + "/" + name + ".zip"
-
-	Archive(dest, filePath)
-
-	file, err := os.Open(filePath)
+	file, err := os.Open(pkgPath)
 
 	defer file.Close()
 
@@ -92,10 +121,8 @@ func Deploy() {
 
 	buffer := make([]byte, size)
 
-	// read file content to buffer
+	// // read file content to buffer
 	file.Read(buffer)
-
-	fmt.Println("INFO: Preparing to upload.")
 
 	url := BaseURL + "/signed-url"
 
@@ -105,27 +132,49 @@ func Deploy() {
 
 	var config []cmd.Config
 
-	// Add config user config
-	reader, _ := cmd.OpenConfig(wd)
-	cfg := cmd.GetConfigVars(reader)
+	wd, err := os.Getwd()
 
-	for key, value := range cfg {
-		config = append(config, cmd.Config{ Key : key, Value : value.(string) })
+	check(err)
+	
+	// Add config user config
+	reader, err := cmd.OpenConfig(wd)
+
+	if reader != nil {
+		cfg := cmd.GetConfigVars(reader)
+		for key, value := range cfg {
+			config = append(config, cmd.Config{ Key : key, Value : value.(string) })
+		}
+	}
+
+	var data map[string]interface{}
+
+	buff, err := ioutil.ReadFile(wd + "/package.json")
+
+	check(err)
+
+	if err := json.Unmarshal(buff, &data); err != nil {
+		panic(err)
 	}
 
 	bot := Bot{
+		Author : data["author"].(string),
 		Id: uid,
 		Type: fileType,
 		Version: Version,
 		Owner: user.Email,
 		Config : config,
+		Name : data["name"].(string),
+		Desc : data["description"].(string),
+		Title : data["title"].(string),
 	}
 
 	jsonBody, err := json.Marshal(bot)
 
 	check(err)
 
-	signedUrl := SendRequest(url, bytes.NewBuffer(jsonBody))
+	fmt.Println("INFO: Uploading.")
+
+	signedUrl := SendHTTPRequest(url, bytes.NewBuffer(jsonBody))
 
 	bar := pb.New(len(buffer)).SetUnits(pb.U_BYTES)
 
@@ -141,8 +190,6 @@ func Deploy() {
 
 	check(err)
 
-	// bar.Finish()
-
 	resp, err := http.DefaultClient.Do(req)
 
 	check(err)
@@ -152,8 +199,6 @@ func Deploy() {
 	check(err)
 
 	defer resp.Body.Close()
-
-	fmt.Println(string(dat))
 
 	if len(dat) == 0 {
 		fmt.Println("INFO: Finalizing.")
@@ -189,7 +234,7 @@ func Deploy() {
 
 	if len(result.Id) > 0{
 		fmt.Println("\r\n=> " + BaseURL + "/bot/" + result.Id + "\r\n")
-		fmt.Println("INFO: Bot publish successful.")
+		fmt.Println("INFO: Success!")
 		return
 	}
 
@@ -198,5 +243,5 @@ func Deploy() {
 		fmt.Println(message)
 	}
 
-	fmt.Println("\x1b[31;1mFatal: Publish Failed!!!\x1b[0m")
+	fmt.Println("\x1b[31;1mFatal: Deploy Failed!!!\x1b[0m")
 }
