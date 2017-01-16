@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/recime/recime-cli/util"
+	"github.com/Recime/recime-cli/util"
 	"github.com/howeyc/fsnotify"
 	"github.com/mitchellh/go-homedir"
 )

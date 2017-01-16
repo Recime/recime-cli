@@ -12,8 +12,8 @@ import (
 
 	"path/filepath"
 
-	"github.com/recime/recime-cli/cmd"
-	"github.com/recime/recime-cli/util"
+	"github.com/Recime/recime-cli/cmd"
+	"github.com/Recime/recime-cli/util"
 	"github.com/briandowns/spinner"
 	pb "gopkg.in/cheggaaa/pb.v1"
 	"github.com/jhoonb/archivex"
