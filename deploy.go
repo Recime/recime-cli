@@ -15,40 +15,40 @@ import (
 	"github.com/Recime/recime-cli/cmd"
 	"github.com/Recime/recime-cli/util"
 	"github.com/briandowns/spinner"
-	pb "gopkg.in/cheggaaa/pb.v1"
 	"github.com/jhoonb/archivex"
+	pb "gopkg.in/cheggaaa/pb.v1"
 )
 
 type Bot struct {
-	Id      string `json:"uid"`
-	Type    string `json:"fileType"`
-	Name  string `json:"name"`
-	Title string `json:"title"`
-	Author string `json:"author"`
-	Desc  string `json:"description"`
-	Version string `json:"version"`
-	Owner   string `json:"owner"`
-	Config []cmd.Config `json:"config"`
+	Id      string       `json:"uid"`
+	Type    string       `json:"fileType"`
+	Name    string       `json:"name"`
+	Title   string       `json:"title"`
+	Author  string       `json:"author"`
+	Desc    string       `json:"description"`
+	Version string       `json:"version"`
+	Owner   string       `json:"owner"`
+	Config  []cmd.Config `json:"config"`
 }
 
 type Package struct {
 	FileType string `json:"fileType"`
-	Id string `json:"uid"`
-	Method string `json:"method"`
+	Id       string `json:"uid"`
+	Method   string `json:"method"`
 }
 
-func PrepareLambdaPackage(uid string) string{
-	jsonBody, err := json.Marshal(Package {
-		FileType : "application/octet-stream",
-		Id : "package.zip",
-		Method : "getObject",
+func PrepareLambdaPackage(uid string) string {
+	jsonBody, err := json.Marshal(Package{
+		FileType: "application/octet-stream",
+		Id:       "package.zip",
+		Method:   "getObject",
 	})
 
 	check(err)
 
 	source := fmt.Sprintf("%s/signed-url", BaseURL)
 	signedUrl := SendHTTPRequest(source, bytes.NewBuffer(jsonBody))
-	
+
 	temp, err := ioutil.TempDir("", "recime-cli")
 
 	check(err)
@@ -76,9 +76,9 @@ func PrepareLambdaPackage(uid string) string{
 	pkg := fmt.Sprintf("%s/%s.zip", temp, uid)
 
 	zip := new(archivex.ZipFile)
-    zip.Create(pkg)
-    zip.AddAll(target, true)
-    zip.Close()
+	zip.Create(pkg)
+	zip.AddAll(target, true)
+	zip.Close()
 
 	return pkg
 }
@@ -135,14 +135,14 @@ func Deploy() {
 	wd, err := os.Getwd()
 
 	check(err)
-	
+
 	// Add config user config
 	reader, err := cmd.OpenConfig(wd)
 
 	if reader != nil {
 		cfg := cmd.GetConfigVars(reader)
 		for key, value := range cfg {
-			config = append(config, cmd.Config{ Key : key, Value : value.(string) })
+			config = append(config, cmd.Config{Key: key, Value: value.(string)})
 		}
 	}
 
@@ -157,15 +157,21 @@ func Deploy() {
 	}
 
 	bot := Bot{
-		Author : data["author"].(string),
-		Id: uid,
-		Type: fileType,
+		Author:  data["author"].(string),
+		Id:      uid,
+		Type:    fileType,
 		Version: Version,
-		Owner: user.Email,
-		Config : config,
-		Name : data["name"].(string),
-		Desc : data["description"].(string),
-		Title : data["title"].(string),
+		Owner:   user.Email,
+		Config:  config,
+		Name:    data["name"].(string),
+	}
+
+	if title, ok := data["title"].(string); ok {
+		bot.Title = title
+	}
+
+	if desc, ok := data["description"].(string); ok {
+		bot.Desc = desc
 	}
 
 	jsonBody, err := json.Marshal(bot)
@@ -232,14 +238,14 @@ func Deploy() {
 
 	s.Stop()
 
-	if len(result.Id) > 0{
+	if len(result.Id) > 0 {
 		fmt.Println("\r\n=> " + BaseURL + "/bot/" + result.Id + "\r\n")
 		fmt.Println("INFO: Success!")
 		return
 	}
 
-	if len(result.Message) > 0{
-		message:= fmt.Sprintf("INFO: %s", result.Message)
+	if len(result.Message) > 0 {
+		message := fmt.Sprintf("INFO: %s", result.Message)
 		fmt.Println(message)
 	}
 

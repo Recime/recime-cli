@@ -15,11 +15,12 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
 	"regexp"
 	"strings"
 	"time"
-	"os"
-	"os/signal"
+
 	"github.com/Recime/recime-cli/cmd"
 	"github.com/gosuri/cmdns"
 	"github.com/spf13/cobra"
@@ -119,18 +120,18 @@ func main() {
 		Long:  "Sets a new or existing config var",
 		Run: func(_ *cobra.Command, args []string) {
 			if len(args) == 1 {
-		 		pattern := regexp.MustCompile(`[a-zA-Z][1-9a-zA-Z_]+=[1-9a-zA-Z]+`)
-		 		if pattern.MatchString(args[0]) {
-		 			pair := strings.Split(args[0], "=")
+				pattern := regexp.MustCompile(`[a-zA-Z][1-9a-zA-Z_]+=[0-9a-zA-Z]+`)
+				if pattern.MatchString(args[0]) {
+					pair := strings.Split(args[0], "=")
 
-					config := cmd.Config{Key: pair[0], Value: pair[1], Source : BaseURL}
+					config := cmd.Config{Key: pair[0], Value: pair[1], Source: BaseURL}
 
 					cmd.SaveConfig(config)
-		 		} else {
-		 			fmt.Println("\r\nINFO: Invalid Config Pair.\r\n")
-		 		}
+				} else {
+					fmt.Println("\r\nINFO: Invalid Config Pair.\r\n")
+				}
 			} else {
-					fmt.Println("\r\nINFO: Invalid Number of Arguments.\r\n")
+				fmt.Println("\r\nINFO: Invalid Number of Arguments.\r\n")
 			}
 		},
 	}
