@@ -29,6 +29,7 @@ type Bot struct {
 	Version string       `json:"version"`
 	Owner   string       `json:"owner"`
 	Config  []cmd.Config `json:"config"`
+	Icon    []byte       `json:"icon"`
 }
 
 type Package struct {
@@ -47,7 +48,9 @@ func PrepareLambdaPackage(uid string) string {
 	check(err)
 
 	source := fmt.Sprintf("%s/signed-url", BaseURL)
-	signedUrl := SendHTTPRequest(source, bytes.NewBuffer(jsonBody))
+	response := SendRequest(source, bytes.NewBuffer(jsonBody))
+
+	signedURL := response["url"].(string)
 
 	temp, err := ioutil.TempDir("", "recime-cli")
 
@@ -59,7 +62,7 @@ func PrepareLambdaPackage(uid string) string {
 
 	fileName := fmt.Sprintf("%s/%s.zip", dest, uid)
 
-	cmd.Download(signedUrl, fileName)
+	cmd.Download(signedURL, fileName)
 
 	target := fmt.Sprintf("%s/%s", dest, uid)
 
@@ -83,24 +86,21 @@ func PrepareLambdaPackage(uid string) string {
 	return pkg
 }
 
-func SendHTTPRequest(url string, body io.Reader) string {
+// SendRequest sends POST request
+func SendRequest(url string, body io.Reader) map[string]interface{} {
 	res, err := http.Post(url, "application/json; charset=utf-8", body)
 
 	check(err)
 
-	var result struct {
-		Url string `json:"url"`
-	}
+	var data map[string]interface{}
 
 	bytes, err := ioutil.ReadAll(res.Body)
 
-	json.Unmarshal(bytes, &result)
+	json.Unmarshal(bytes, &data)
 
 	defer res.Body.Close()
 
-	// fmt.Println(string(res.Body))
-
-	return result.Url
+	return data
 }
 
 // Deploy deploys the bot with the given uid
@@ -111,18 +111,7 @@ func Deploy() {
 
 	pkgPath := PrepareLambdaPackage(uid)
 
-	file, err := os.Open(pkgPath)
-
-	defer file.Close()
-
-	fileInfo, _ := file.Stat()
-
-	var size = fileInfo.Size()
-
-	buffer := make([]byte, size)
-
-	// // read file content to buffer
-	file.Read(buffer)
+	buffer, size := ReadFile(pkgPath)
 
 	url := BaseURL + "/signed-url"
 
@@ -180,7 +169,9 @@ func Deploy() {
 
 	fmt.Println("INFO: Uploading.")
 
-	signedUrl := SendHTTPRequest(url, bytes.NewBuffer(jsonBody))
+	response := SendRequest(url, bytes.NewBuffer(jsonBody))
+
+	signedURL := response["url"].(string)
 
 	bar := pb.New(len(buffer)).SetUnits(pb.U_BYTES)
 
@@ -190,10 +181,9 @@ func Deploy() {
 
 	proxy := NewReader(buffer, bar)
 
-	req, err := http.NewRequest("PUT", signedUrl, proxy)
+	req, err := http.NewRequest("PUT", signedURL, proxy)
 
 	req.ContentLength = size
-
 	check(err)
 
 	resp, err := http.DefaultClient.Do(req)
@@ -209,6 +199,8 @@ func Deploy() {
 	if len(dat) == 0 {
 		fmt.Println("INFO: Finalizing.")
 	}
+
+	UploadIcon(uid)
 
 	url = BaseURL + "/module/deploy/" + uid
 
@@ -250,4 +242,52 @@ func Deploy() {
 	}
 
 	fmt.Println("\x1b[31;1mFatal: Deploy Failed!!!\x1b[0m")
+}
+
+func ReadFile(path string) ([]byte, int64) {
+	file, err := os.Open(path)
+
+	check(err)
+
+	defer file.Close()
+
+	fileInfo, _ := file.Stat()
+
+	var size = fileInfo.Size()
+
+	buffer := make([]byte, size)
+
+	// // read file content to buffer
+	file.Read(buffer)
+
+	return buffer, size
+}
+
+// UploadIcon uploads the icon from bot folder.
+func UploadIcon(id string) {
+	wd, _ := os.Getwd()
+
+	icon, size := ReadFile(fmt.Sprintf("%s/icon.png", wd))
+
+	source := fmt.Sprintf("%s/bot/icon", BaseURL)
+
+	bot := Bot{
+		Id: id,
+	}
+
+	jsonBody, err := json.Marshal(bot)
+
+	response := SendRequest(source, bytes.NewBuffer(jsonBody))
+
+	signedURL := response["url"].(string)
+
+	reader := bytes.NewReader(icon)
+
+	req, err := http.NewRequest("PUT", signedURL, reader)
+
+	req.ContentLength = size
+
+	check(err)
+
+	http.DefaultClient.Do(req)
 }
