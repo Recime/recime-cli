@@ -3,6 +3,7 @@ package util
 import "archive/zip"
 import "strings"
 import "path/filepath"
+import "os"
 
 func Zip(source, target string) error {
 	zipfile, err := os.Create(target)
