@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 
 	"github.com/Recime/recime-cli/cmd"
-	"github.com/Recime/recime-cli/util"
+	"./util"
 	"github.com/briandowns/spinner"
 	pb "gopkg.in/cheggaaa/pb.v1"
 )
