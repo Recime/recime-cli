@@ -11,11 +11,12 @@ import (
 	"time"
 
 	"path/filepath"
+	"archive/zip"
+	"strings"
 
 	"github.com/Recime/recime-cli/cmd"
 	"github.com/Recime/recime-cli/util"
 	"github.com/briandowns/spinner"
-	"github.com/jhoonb/archivex"
 	pb "gopkg.in/cheggaaa/pb.v1"
 )
 
@@ -56,15 +57,15 @@ func PrepareLambdaPackage(uid string) string {
 
 	check(err)
 
-	dest := filepath.ToSlash(temp) + "/bin"
+	dest := fmt.Sprintf("%s/bin", temp)
 
 	err = os.Mkdir(dest, os.ModePerm)
 
-	fileName := fmt.Sprintf("%s/%s.zip", dest, uid)
+	fileName := filepath.ToSlash(fmt.Sprintf("%s/%s.zip", dest, uid))
 
 	cmd.Download(signedURL, fileName)
 
-	target := fmt.Sprintf("%s/%s", dest, uid)
+	target := filepath.ToSlash(fmt.Sprintf("%s/%s", dest, uid))
 
 	check(util.Unzip(fileName, target))
 
@@ -72,18 +73,89 @@ func PrepareLambdaPackage(uid string) string {
 
 	check(err)
 
-	botDir := fmt.Sprintf("%s/%s", target, uid)
+	botDir := filepath.ToSlash(fmt.Sprintf("%s/%s", target, uid))
 
 	_ = util.CopyDir(wd, botDir)
 
-	pkg := fmt.Sprintf("%s/%s.zip", temp, uid)
+	pkg := filepath.ToSlash(fmt.Sprintf("%s/%s.zip", temp, uid))
 
-	zip := new(archivex.ZipFile)
-	zip.Create(pkg)
-	zip.AddAll(target, true)
-	zip.Close()
+	Zip(target, pkg)
+
+	// zip := new(archivex.ZipFile)
+	// zip.Create(pkg)
+	// zip.AddAll(target, true)
+	// zip.Close()
 
 	return pkg
+}
+
+func Zip(source, target string) error {
+	zipfile, err := os.Create(target)
+	if err != nil {
+		return err
+	}
+	defer zipfile.Close()
+
+	archive := zip.NewWriter(zipfile)
+	defer archive.Close()
+
+	info, err := os.Stat(source)
+	if err != nil {
+		return nil
+	}
+
+	var baseDir string
+
+	if info.IsDir() {
+		baseDir = filepath.Base(source)
+	}
+
+	filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+
+		if err != nil {
+			return err
+		}
+
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+
+		if baseDir != "" {
+			path = filepath.ToSlash(path)
+			source = filepath.ToSlash(source)
+
+			header.Name = filepath.Join(baseDir, strings.TrimPrefix(path, source))
+		}
+
+		if info.IsDir() {
+			header.Name += "/"
+		} else {
+			header.Method = zip.Deflate
+		}
+
+		header.Name = filepath.ToSlash(header.Name)
+
+		writer, err := archive.CreateHeader(header)
+
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		_, err = io.Copy(writer, file)
+		return err
+	})
+
+	return err
 }
 
 // SendRequest sends POST request
