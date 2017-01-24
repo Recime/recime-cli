@@ -14,3 +14,4 @@ install:
   - go get github.com/spf13/cobra
   - go get golang.org/x/crypto/ssh/terminal
   - go get github.com/mitchellh/go-homedir
+  - go get github.com/howeyc/fsnotify
