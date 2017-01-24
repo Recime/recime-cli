@@ -1,0 +1,16 @@
+language: go
+sudo: required
+go:
+  - 1.6.4
+  - 1.7.x
+  - master
+os:
+  - linux
+  - osx
+install:
+  - go get gopkg.in/cheggaaa/pb.v1
+  - go get github.com/briandowns/spinner
+  - go get github.com/gosuri/cmdns
+  - go get github.com/spf13/cobra
+  - go get golang.org/x/crypto/ssh/terminal
+  - go get github.com/mitchellh/go-homedir
