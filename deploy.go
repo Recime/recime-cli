@@ -57,7 +57,7 @@ func PrepareLambdaPackage(uid string) string {
 
 	dest := fmt.Sprintf("%s/bin", temp)
 
-	err = os.Mkdir(dest, os.ModePerm)
+	err = os.Mkdir(filepath.ToSlash(dest), os.ModePerm)
 
 	fileName := filepath.ToSlash(fmt.Sprintf("%s/%s.zip", dest, uid))
 
