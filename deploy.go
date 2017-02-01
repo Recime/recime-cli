@@ -25,8 +25,8 @@ import (
 
 	"path/filepath"
 
-	"github.com/Recime/recime-cli/util"
 	"github.com/Recime/recime-cli/cmd"
+	"github.com/Recime/recime-cli/util"
 	"github.com/briandowns/spinner"
 
 	bar "gopkg.in/cheggaaa/pb.v1"
@@ -85,7 +85,7 @@ func (d *deployer) Prepare() {
 	deployRequest := &pb.DeployRequest{
 		Resource: &pb.Resource{
 			Bucket: bucket,
-			Key:    fmt.Sprintf("data/%s", d.ID),
+			Key:    fmt.Sprintf("bot/%s", d.ID),
 		},
 	}
 
@@ -298,7 +298,7 @@ func Deploy() {
 	fmt.Println("INFO: Uploading.")
 
 	r := &resource{
-		Key: fmt.Sprintf("data/%s", uid),
+		Key: fmt.Sprintf("bot/%s", uid),
 	}
 
 	jsonBody, err := json.Marshal(r)
