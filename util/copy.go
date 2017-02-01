@@ -60,7 +60,7 @@ func CopyDir(source string, dest string) (err error) {
 			sfp := source + "/" + entry.Name()
 			dfp := dest + "/" + entry.Name()
 			if entry.IsDir() {
-				if entry.Name() != ".recime" {
+				if entry.Name() != ".recime" && entry.Name() != "node_modules"{
 					err = CopyDir(sfp, dfp)
 					if err != nil {
 						log.Println(err)

@@ -9,12 +9,12 @@ import "os"
 
 //Config user configuration
 type Config struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
+	Key    string `json:"key"`
+	Value  string `json:"value"`
 	Source string
 }
 
-func OpenConfig(wd string) (io.Reader, error){
+func OpenConfig(wd string) (io.Reader, error) {
 	path := filepath.Join(wd, filepath.Join(".recime", "config.json"))
 
 	reader, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0600)
@@ -30,15 +30,15 @@ func GetConfigVars(reader io.Reader) map[string]interface{} {
 
 	if len(dat) > 0 {
 		json.Unmarshal(dat, &config)
-	} else{
+	} else {
 		config = make(map[string]interface{})
 	}
 
 	return config
 }
 
-// SetConfig adds / edits a config var.
-func SaveConfig(config Config){
+// SaveConfig adds / edits a config var.
+func SaveConfig(config Config) {
 	wd, err := os.Getwd()
 
 	check(err)
@@ -49,7 +49,7 @@ func SaveConfig(config Config){
 
 	target := filepath.Join(wd, _filepath)
 
-	reader, err  := OpenConfig(wd)
+	reader, err := OpenConfig(wd)
 
 	if err != nil {
 		err = os.MkdirAll(filepath.Dir(target), 0755)

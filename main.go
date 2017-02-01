@@ -1,4 +1,4 @@
-// Copyright 2016 The Recime Inc. All rights reserved.
+// Copyright 2017 The Recime Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -67,11 +67,6 @@ func main() {
 		Short: "Deploys the bot to Recime cloud",
 		Long:  "Prepares and deploys to bot to Recime cloud. Installs the node modules defined in package.json, validates provides the endpoint to test the bot",
 		Run: func(_ *cobra.Command, args []string) {
-			// install any dependencies
-			cmd.Install()
-
-			// execute run Command
-
 			wd, err := os.Getwd()
 
 			check(err)
