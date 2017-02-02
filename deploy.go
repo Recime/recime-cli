@@ -38,9 +38,10 @@ import (
 )
 
 const (
-	address   = "ec2-52-33-248-211.us-west-2.compute.amazonaws.com:3000"
+	address   = "agent.recime.io"
+	port      = 3000
 	bucket    = "recime-io"
-	container = "https://s3-us-west-2.amazonaws.com/recime-cli/script.zip"
+	template  = "https://github.com/Recime/recime-lambda-package-template/releases/download/1.0.1/package.zip"
 	singedURL = BaseURL + "/signed-url"
 )
 
@@ -71,7 +72,9 @@ type deployer struct {
 
 // Prepare prepares the bot for deploy.
 func (d *deployer) Prepare() {
-	connection, err := grpc.Dial(address, grpc.WithInsecure())
+	target := fmt.Sprintf("%s:%v", address, port)
+
+	connection, err := grpc.Dial(target, grpc.WithInsecure())
 
 	if err != nil {
 		fmt.Println(fmt.Sprintf("\x1b[31;1mFatal: %v\x1b[0m", err))
@@ -113,7 +116,6 @@ func (d *deployer) Prepare() {
 
 		if resp.Resource != nil {
 			r = resp.Resource
-			fmt.Println(r)
 		}
 	}
 
@@ -196,7 +198,7 @@ func prepareLambdaPackage(uid string) string {
 
 	fileName := filepath.ToSlash(fmt.Sprintf("%s/%s.zip", dest, uid))
 
-	cmd.Download(container, fileName)
+	cmd.Download(template, fileName)
 
 	target := filepath.ToSlash(fmt.Sprintf("%s/%s", dest, uid))
 
