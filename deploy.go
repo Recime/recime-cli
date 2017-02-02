@@ -335,7 +335,7 @@ func Deploy() {
 	defer resp.Body.Close()
 
 	if len(dat) == 0 {
-		fmt.Println("INFO: Deploying.")
+		fmt.Println("INFO: Preparing.")
 	}
 
 	d := &deployer{
@@ -344,7 +344,7 @@ func Deploy() {
 
 	d.Prepare()
 
-	fmt.Println("INFO: Finalizing.")
+	fmt.Println("INFO: Deploying.")
 
 	d.UploadIcon()
 
