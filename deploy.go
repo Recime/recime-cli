@@ -113,6 +113,7 @@ func (d *deployer) Prepare() {
 
 		if resp.Resource != nil {
 			r = resp.Resource
+			fmt.Println(r)
 		}
 	}
 

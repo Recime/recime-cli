@@ -15,3 +15,5 @@ install:
   - go get golang.org/x/crypto/ssh/terminal
   - go get github.com/mitchellh/go-homedir
   - go get github.com/howeyc/fsnotify
+  - go get github.com/golang/protobuf/proto
+  - go get google.golang.org/grpc
