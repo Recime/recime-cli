@@ -101,6 +101,8 @@ func (d *deployer) Prepare() {
 
 	var r *pb.Resource
 
+	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
+
 	for {
 		resp, err := stream.Recv()
 
@@ -112,12 +114,19 @@ func (d *deployer) Prepare() {
 			os.Exit(1)
 		}
 
-		fmt.Println(fmt.Sprintf("INFO: %v", resp.Status))
+		if len(resp.Status) > 1 {
+			s.Stop()
+			fmt.Println(fmt.Sprintf("INFO: %v", resp.Status))
+		}
+
+		s.Start()
 
 		if resp.Resource != nil {
 			r = resp.Resource
 		}
 	}
+
+	s.Stop()
 
 	if len(r.Key) == 0 {
 		fmt.Println("\x1b[31;1mFatal: Deploy Failed!!!\x1b[0m")
@@ -328,15 +337,11 @@ func Deploy() {
 
 	check(err)
 
-	dat, err := ioutil.ReadAll(resp.Body)
+	_, err = ioutil.ReadAll(resp.Body)
 
 	check(err)
 
 	defer resp.Body.Close()
-
-	if len(dat) == 0 {
-		fmt.Println("INFO: Preparing.")
-	}
 
 	d := &deployer{
 		ID: uid,
@@ -344,7 +349,7 @@ func Deploy() {
 
 	d.Prepare()
 
-	fmt.Println("INFO: Deploying.")
+	fmt.Println("INFO: Finishing.")
 
 	d.UploadIcon()
 
