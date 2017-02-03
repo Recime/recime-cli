@@ -9,16 +9,17 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
 	"github.com/mitchellh/go-homedir"
 )
 
 //User Recime User
 type User struct {
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
-	Company  string `json:"company"`
-	Config	 []Config `json:"config"`
+	Email    string   `json:"email"`
+	Name     string   `json:"name"`
+	Password string   `json:"password"`
+	Company  string   `json:"company"`
+	Config   []Config `json:"config"`
 }
 
 // GetStoredUser fetches the stored user
@@ -52,7 +53,8 @@ func GetStoredUser() (User, error) {
 // Guard validates the account against recime cloud
 func Guard(user User) {
 	if user.Email == "" {
-		fmt.Println("\x1b[31;1mInvalid account. Please run \"recime-cli init\" to get started.\x1b[0m")
+		fmt.Println("\x1b[31;1mUser is not logged in. Please run \"recime-cli init\" to get started.\x1b[0m")
+		fmt.Println("")
 		os.Exit(1)
 	}
 }

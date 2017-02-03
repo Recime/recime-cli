@@ -20,7 +20,7 @@ func CreateUID(name string, author string) string {
 	return uid
 }
 
-func GetUID() string{
+func GetUID() string {
 	wd, err := os.Getwd()
 
 	var data map[string]interface{}
@@ -34,6 +34,8 @@ func GetUID() string{
 	}
 
 	user, err := GetStoredUser()
+
+	Guard(user)
 
 	check(err)
 
