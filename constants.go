@@ -13,11 +13,14 @@
 
 package main
 
-// BaseURL Recime cloud
-const BaseURL = "https://recime.io"
+// SiteURL Site URL
+const SiteURL = "https://recime.io"
+
+// Version 1.1.3
+const Version = "1.1.3"
+
+const baseURL = "https://developer.recime.io"
+const apiEndpoint = baseURL + "/api"
 
 // AppTemplateURL node template
-const AppTemplateURL = "https://github.com/Recime/recime-template/archive/1.0.3.zip"
-
-// Version 1.1.2
-const Version = "1.1.2"
+const appTemplateURL = "https://github.com/Recime/recime-template/archive/1.0.3.zip"

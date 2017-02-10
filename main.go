@@ -42,7 +42,7 @@ func main() {
 		Run: func(_ *cobra.Command, args []string) {
 			options := map[string]interface{}{
 				"in":   os.Stdin,
-				"base": BaseURL,
+				"base": apiEndpoint,
 			}
 			cmd.Init(options)
 		},
@@ -119,7 +119,7 @@ func main() {
 				if pattern.MatchString(args[0]) {
 					pair := strings.Split(args[0], "=")
 
-					config := cmd.Config{Key: pair[0], Value: pair[1], Source: BaseURL}
+					config := cmd.Config{Key: pair[0], Value: pair[1], Source: apiEndpoint}
 
 					cmd.SaveConfig(config)
 				} else {
@@ -145,9 +145,9 @@ func main() {
 
 			// execute run Command
 			options := map[string]interface{}{
-				"url":   AppTemplateURL,
+				"url":   appTemplateURL,
 				"uid":   cmd.GetUID(),
-				"base":  BaseURL,
+				"base":  apiEndpoint,
 				"watch": watch,
 			}
 			cmd.Run(options)
@@ -164,7 +164,7 @@ Copyright %d Recime, Inc.
 %s`,
 			Version,
 			time.Now().Year(),
-			BaseURL,
+			SiteURL,
 		),
 	}
 

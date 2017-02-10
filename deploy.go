@@ -42,7 +42,7 @@ const (
 	port      = 3000
 	bucket    = "recime-io"
 	template  = "https://github.com/Recime/recime-lambda-package-template/releases/download/1.0.1/package.zip"
-	singedURL = BaseURL + "/signed-url"
+	singedURL = apiEndpoint + "/signedurl"
 )
 
 // Resource contains the bucket information.
@@ -152,7 +152,7 @@ func (d *deployer) Deploy(b bot) []byte {
 
 	check(err)
 
-	url := fmt.Sprintf("%s/module/deploy/%s", BaseURL, uid)
+	url := fmt.Sprintf("%s/bot/deploy/%s", apiEndpoint, uid)
 
 	r := bytes.NewBuffer(jsonBody)
 
@@ -175,7 +175,7 @@ func (d *deployer) UploadIcon() {
 
 	icon, size := readFile(fmt.Sprintf("%s/icon.png", wd))
 
-	source := fmt.Sprintf("%s/bot/icon", BaseURL)
+	source := fmt.Sprintf("%s/bot/icon", apiEndpoint)
 
 	jsonBody, err := json.Marshal(&bot{
 		ID: d.ID,
@@ -388,7 +388,7 @@ func Deploy() {
 	json.Unmarshal(bytes, &result)
 
 	if len(result.ID) > 0 {
-		fmt.Println("\r\n=> " + BaseURL + "/bot/" + result.ID + "\r\n")
+		fmt.Println("\r\n=> " + baseURL + "/bot/" + result.ID + "\r\n")
 		fmt.Println("INFO: Success!")
 		return
 	}
