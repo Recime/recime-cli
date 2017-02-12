@@ -69,8 +69,6 @@ func Login(options map[string]interface{}) {
 
 	s.Stop()
 
-	fmt.Println(result)
-
 	if result.User != nil {
 		verified := result.User["verified"].(bool)
 		if !verified {
