@@ -19,7 +19,7 @@ const SiteURL = "https://recime.io"
 // Version 1.1.3
 const Version = "1.1.3"
 
-const baseURL = "http://localhost:8081"
+const baseURL = "https://developer.recime.io"
 const apiEndpoint = baseURL + "/api"
 
 // AppTemplateURL node template
