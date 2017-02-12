@@ -46,7 +46,7 @@ config      Initializes bot config vars
 config:set  Sets a new or existing config var
 create      Scaffolds the bot from an interactive prompt
 deploy      Deploys the bot to Recime cloud
-init        Initializes your Recime account
+login       Logs into your Recime account
 install     Installs the dependencies
 run         Runs the bot locally
 ```

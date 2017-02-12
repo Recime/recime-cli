@@ -35,16 +35,16 @@ func main() {
 		os.Exit(1)
 	}()
 
-	var cmdInit = &cobra.Command{
-		Use:   "init",
-		Short: "Initializes your Recime account",
-		Long:  `Initializes the CLI with your Recime account. You need to create and verify your account from https://recime.ai in order to get started.`,
+	var cmdLogin = &cobra.Command{
+		Use:   "login",
+		Short: "Logs into your Recime account",
+		Long:  `Logs into your Recime account. You need to create and verify your account from https://recime.io in order to get started.`,
 		Run: func(_ *cobra.Command, args []string) {
 			options := map[string]interface{}{
 				"in":   os.Stdin,
 				"base": apiEndpoint,
 			}
-			cmd.Init(options)
+			cmd.Login(options)
 		},
 	}
 
@@ -171,7 +171,7 @@ Copyright %d Recime, Inc.
 	rootCmd.AddCommand(cmdInstall)
 	rootCmd.AddCommand(cmdBuild)
 	rootCmd.AddCommand(cmdConfig)
-	rootCmd.AddCommand(cmdInit)
+	rootCmd.AddCommand(cmdLogin)
 	rootCmd.AddCommand(cmdCreate)
 	rootCmd.AddCommand(cmdDeploy)
 	rootCmd.AddCommand(cmdRun)
