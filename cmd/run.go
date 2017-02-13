@@ -45,20 +45,15 @@ func WatchForChanges(dir string, targetDir string) {
 
 	// Process events
 	go func() {
-		last := dir
 		for {
 			select {
 			case ev := <-watcher.Event:
-				if last != ev.Name {
+				if !ev.IsAttrib() {
 					fmt.Println("INFO: File change event.")
 
 					util.CopyDir(dir, targetDir)
 
 					Build(targetDir)
-
-					fmt.Println("INFO: Build Successful.")
-
-					last = ev.Name
 				}
 			case err := <-watcher.Error:
 				fmt.Println("error:", err)
@@ -134,7 +129,7 @@ func Run(options map[string]interface{}) {
 	// Add config user config
 	reader, _ := OpenConfig(wd)
 
-	vars :=  GetConfigVars(reader)
+	vars := GetConfigVars(reader)
 
 	for key, value := range vars {
 		config = append(config, Config{Key: key, Value: value.(string)})
@@ -161,7 +156,7 @@ func Download(url string, fileName string) {
 	defer response.Body.Close()
 
 	_, err = io.Copy(output, response.Body)
-	
+
 	if err != nil {
 		fmt.Println("Error while downloading", url, "-", err)
 		return

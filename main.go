@@ -149,7 +149,7 @@ func main() {
 			options := map[string]interface{}{
 				"url":   appTemplateURL,
 				"uid":   cmd.GetUID(),
-				"base":  apiEndpoint,
+				"base":  baseURL,
 				"watch": watch,
 			}
 			cmd.Run(options)
