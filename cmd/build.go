@@ -4,7 +4,7 @@ import "os"
 import "os/exec"
 
 // Build builds the bot.
-func Build(dir string) {
+func Build(dir string) error {
 	cmd := exec.Command("npm", "run", "build")
 
 	cmd.Dir = dir
@@ -12,7 +12,5 @@ func Build(dir string) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if cmd.Run() != nil {
-		os.Exit(1)
-	}
+	return cmd.Run()
 }

@@ -71,7 +71,9 @@ func main() {
 
 			check(err)
 
-			cmd.Build(wd)
+			if cmd.Build(wd) != nil {
+				os.Exit(1)
+			}
 
 			Deploy()
 		},
