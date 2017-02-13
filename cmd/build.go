@@ -10,6 +10,9 @@ func Build(dir string) {
 	cmd.Dir = dir
 
 	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
-	cmd.Run()
+	if cmd.Run() != nil {
+		os.Exit(1)
+	}
 }
