@@ -22,7 +22,7 @@ import (
 	"time"
 
 	"github.com/Recime/recime-cli/cmd"
-	"github.com/gosuri/cmdns"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -107,7 +107,7 @@ func main() {
 		Long:  "Add or edit bot config vars that will be acccessed via `process.env` from within bot module",
 		Run: func(_ *cobra.Command, args []string) {
 			if len(args) == 0 {
-				fmt.Println("\r\nUSAGE: recime-cli config:set NAME=Joe Smith\r\n")
+				fmt.Println("\r\nUSAGE: recime-cli config set NAME=Joe Smith\r\n")
 			}
 		},
 	}
@@ -117,18 +117,20 @@ func main() {
 		Long:  "Sets a new or existing config var",
 		Run: func(_ *cobra.Command, args []string) {
 			if len(args) == 1 {
+				pair := strings.Split(args[0], "=")
+				config := cmd.Config{Key: pair[0], Value: pair[1], Source: apiEndpoint}
+
 				pattern := regexp.MustCompile(`[a-zA-Z][1-9a-zA-Z_]+=[0-9a-zA-Z]+`)
-				if pattern.MatchString(args[0]) {
-					pair := strings.Split(args[0], "=")
 
-					config := cmd.Config{Key: pair[0], Value: pair[1], Source: apiEndpoint}
-
+				if pattern.MatchString(config.Key) {
 					cmd.SaveConfig(config)
+					fmt.Println("\r\nINFO: Configuration Saved Successfully.")
 				} else {
-					fmt.Println("\r\nINFO: Invalid Config Pair.\r\n")
+					fmt.Println("\r\nInvalid Config Pair.\r\n")
 				}
+
 			} else {
-				fmt.Println("\r\nINFO: Invalid Number of Arguments.\r\n")
+				fmt.Println("INFO: Invalid Number of Arguments.")
 			}
 		},
 	}
@@ -170,6 +172,34 @@ Copyright %d Recime, Inc.
 		),
 	}
 
+	var cmdPlatform = &cobra.Command{
+		Use:   "platform",
+		Short: "Initializes Platform",
+		Long:  "Initializes the bot to be used in the target platform",
+		Run: func(_ *cobra.Command, args []string) {
+			if len(args) == 0 {
+				fmt.Println("\r\nUSAGE: recime-cli platform add facebook")
+			}
+		},
+	}
+
+	var cmdPlaformAdd = &cobra.Command{
+		Use:   "add",
+		Short: "Initializes a new platform",
+		Long:  "Initializes a new platform",
+		Run: func(_ *cobra.Command, args []string) {
+			if len(args) == 1 {
+				p := &platform{}
+				p.install(args[0])
+			} else {
+				red := color.New(color.FgRed).Add(color.Bold)
+				red.Println("ERROR: Missing Platform. USAGE: recime-cli platform add facebook")
+			}
+		},
+	}
+
+	cmdPlatform.AddCommand(cmdPlaformAdd)
+
 	rootCmd.AddCommand(cmdInstall)
 	rootCmd.AddCommand(cmdBuild)
 	rootCmd.AddCommand(cmdConfig)
@@ -177,9 +207,7 @@ Copyright %d Recime, Inc.
 	rootCmd.AddCommand(cmdCreate)
 	rootCmd.AddCommand(cmdDeploy)
 	rootCmd.AddCommand(cmdRun)
-
-	// Enable namespacing
-	cmdns.Namespace(rootCmd)
+	rootCmd.AddCommand(cmdPlatform)
 
 	rootCmd.Execute()
 

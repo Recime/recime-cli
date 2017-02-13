@@ -1,11 +1,12 @@
 package cmd
 
-import "fmt"
-import "encoding/json"
-import "path/filepath"
-import "io"
-import "io/ioutil"
-import "os"
+import (
+	"encoding/json"
+	"io"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+)
 
 //Config user configuration
 type Config struct {
@@ -77,5 +78,4 @@ func SaveConfig(config Config) {
 
 	file.Write(jsonBody)
 
-	fmt.Println("\r\nINFO: Configuration Saved Successfully.")
 }
