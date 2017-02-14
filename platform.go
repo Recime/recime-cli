@@ -21,7 +21,7 @@ func (p *platform) install(name string) {
 	case "facebook":
 		scanner := bufio.NewScanner(os.Stdin)
 
-		fmt.Println("Enter Page Access Token:")
+		fmt.Println("Page Access Token:")
 
 		scanner.Scan()
 
@@ -33,7 +33,7 @@ func (p *platform) install(name string) {
 			cmd.SaveConfig(config)
 
 			fmt.Println("")
-			fmt.Println("INFO: Platform Added Successfully.")
+			fmt.Println("INFO: Platform Configured Successfully. \r\nPlease do \"recime-cli deploy\" for changes to take effect.")
 		} else {
 			red := color.New(color.FgRed).Add(color.Bold)
 

@@ -183,8 +183,8 @@ Copyright %d Recime, Inc.
 		},
 	}
 
-	var cmdPlaformAdd = &cobra.Command{
-		Use:   "add",
+	var cmdPlaformConfig = &cobra.Command{
+		Use:   "config",
 		Short: "Initializes a new platform",
 		Long:  "Initializes a new platform",
 		Run: func(_ *cobra.Command, args []string) {
@@ -198,7 +198,7 @@ Copyright %d Recime, Inc.
 		},
 	}
 
-	cmdPlatform.AddCommand(cmdPlaformAdd)
+	cmdPlatform.AddCommand(cmdPlaformConfig)
 
 	rootCmd.AddCommand(cmdInstall)
 	rootCmd.AddCommand(cmdBuild)
