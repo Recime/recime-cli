@@ -193,7 +193,7 @@ Copyright %d Recime, Inc.
 				p.install(args[0])
 			} else {
 				red := color.New(color.FgRed).Add(color.Bold)
-				red.Println("ERROR: Missing Platform. USAGE: recime-cli platform add facebook")
+				red.Println("ERROR: Missing Platform. USAGE: recime-cli platform config facebook")
 			}
 		},
 	}
