@@ -117,16 +117,19 @@ func main() {
 		Long:  "Sets a new or existing config var",
 		Run: func(_ *cobra.Command, args []string) {
 			if len(args) == 1 {
-				pair := strings.Split(args[0], "=")
-				config := cmd.Config{Key: pair[0], Value: pair[1], Source: apiEndpoint}
-
 				pattern := regexp.MustCompile(`[a-zA-Z][1-9a-zA-Z_]+=[0-9a-zA-Z]+`)
 
-				if pattern.MatchString(config.Key) {
+				if pattern.MatchString(args[0]) {
+					pair := strings.Split(args[0], "=")
+
+					config := cmd.Config{Key: pair[0], Value: pair[1], Source: apiEndpoint}
+
 					cmd.SaveConfig(config)
+
 					fmt.Println("\r\nINFO: Configuration Saved Successfully.")
 				} else {
-					fmt.Println("\r\nInvalid Config Pair.\r\n")
+					red := color.New(color.FgRed).Add(color.Bold)
+					red.Println("\r\nERROR: Invalid Key-Value Pair!")
 				}
 
 			} else {
@@ -177,8 +180,9 @@ Copyright %d Recime, Inc.
 		Short: "Initializes Platform",
 		Long:  "Initializes the bot to be used in the target platform",
 		Run: func(_ *cobra.Command, args []string) {
-			if len(args) == 0 {
-				fmt.Println("\r\nUSAGE: recime-cli platform add facebook")
+			if len(args) == 0 || (len(args) == 1 && args[0] != "config") {
+				red := color.New(color.FgRed).Add(color.Bold)
+				red.Println("\r\nUSAGE: recime-cli platform config facebook")
 			}
 		},
 	}
@@ -193,7 +197,7 @@ Copyright %d Recime, Inc.
 				p.install(args[0])
 			} else {
 				red := color.New(color.FgRed).Add(color.Bold)
-				red.Println("ERROR: Missing Platform. USAGE: recime-cli platform config facebook")
+				red.Println("\r\nERROR: Missing Platform. USAGE: recime-cli platform config facebook")
 			}
 		},
 	}
