@@ -14,29 +14,6 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
-// ExecuteInDir executes command in a given directory
-func ExecuteInDir(args []string, wd string, config []Config) {
-	cmd := exec.Command(args[0], args[1])
-
-	cmd.Dir = wd
-
-	if config != nil {
-
-		env := os.Environ()
-
-		for _, c := range config {
-			env = append(env, fmt.Sprintf("%s=%s", c.Key, c.Value))
-		}
-
-		cmd.Env = env
-	}
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	cmd.Run()
-}
-
 //WatchForChanges watch file for changes
 func WatchForChanges(dir string, targetDir string) {
 	watcher, err := fsnotify.NewWatcher()
@@ -99,25 +76,29 @@ func Run(options map[string]interface{}) {
 
 	util.Unzip(fileName, target)
 
-	fmt.Println("INFO: Preparing.")
-
 	templateDir := target + "/recime-template-" + version
 
 	wd, err := os.Getwd()
 
-	botDir := templateDir + "/" + uid
-
 	check(err)
 
-	fmt.Println("INFO: Deploying Bot.")
+	botDir := templateDir + "/" + uid
 
-	ExecuteInDir([]string{"npm", "install"}, templateDir, nil)
-
-	fmt.Println("INFO: Starting.")
+	fmt.Println("INFO: Deploying Bot...")
 
 	Build(wd)
 
 	util.CopyDir(filepath.ToSlash(wd), botDir)
+
+	fmt.Println("INFO: Installing Dependencies...")
+
+	installCmd := []string{"npm", "install"}
+
+	runCmd(installCmd, botDir, nil)
+
+	runCmd(installCmd, templateDir, nil)
+
+	fmt.Println("INFO: Starting...")
 
 	if watch {
 		WatchForChanges(filepath.ToSlash(wd), botDir)
@@ -135,7 +116,29 @@ func Run(options map[string]interface{}) {
 		config = append(config, Config{Key: key, Value: value.(string)})
 	}
 
-	ExecuteInDir([]string{"npm", "start"}, templateDir, config)
+	runCmd([]string{"npm", "start"}, templateDir, config)
+}
+
+func runCmd(args []string, wd string, config []Config) {
+	cmd := exec.Command(args[0], args[1])
+
+	cmd.Dir = wd
+
+	if config != nil {
+
+		env := os.Environ()
+
+		for _, c := range config {
+			env = append(env, fmt.Sprintf("%s=%s", c.Key, c.Value))
+		}
+
+		cmd.Env = env
+	}
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	cmd.Run()
 }
 
 // Download downloads url to a file name
