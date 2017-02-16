@@ -82,7 +82,7 @@ func main() {
 	var cmdInstall = &cobra.Command{
 		Use:   "install",
 		Short: "Installs the dependencies",
-		Long:  "Installs the requried dependencies for the bot to work in Recime cloud",
+		Long:  "Installs the required dependencies for the bot to work in Recime cloud",
 		Run: func(_ *cobra.Command, args []string) {
 			cmd.Install()
 		},

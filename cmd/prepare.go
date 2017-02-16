@@ -20,6 +20,7 @@ func CreateUID(name string, author string) string {
 	return uid
 }
 
+// GetUID gets the uid for the package.
 func GetUID() string {
 	wd, err := os.Getwd()
 

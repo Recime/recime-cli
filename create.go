@@ -26,44 +26,6 @@ import "regexp"
 import "github.com/Recime/recime-cli/cmd"
 import "path/filepath"
 
-func SetValue(data map[string]interface{}, key string, value string) {
-	if len(value) > 0 {
-		data[key] = strings.TrimRight(value, "\n")
-	}
-}
-
-func ProcesssInput(in io.Reader) (data map[string]interface{}) {
-	scanner := bufio.NewScanner(in)
-
-	asset := MustAsset("data/package.json")
-
-	check(json.Unmarshal(asset, &data))
-
-	fmt.Printf("Title (%s):", data["title"])
-
-	scanner.Scan()
-
-	title := scanner.Text()
-
-	fmt.Printf("Description (%s):", data["description"])
-
-	scanner.Scan()
-
-	desc := scanner.Text()
-
-	fmt.Printf("License (%s):", data["license"])
-
-	scanner.Scan()
-
-	license := scanner.Text()
-
-	SetValue(data, "title", title)
-	SetValue(data, "description", desc)
-	SetValue(data, "license", license)
-
-	return data
-}
-
 // Create Generates the bot
 func Create(folder string) {
 	user, err := cmd.GetStoredUser()
@@ -72,7 +34,7 @@ func Create(folder string) {
 
 	wd, err := os.Getwd()
 
-	data := ProcesssInput(os.Stdin)
+	data := processsInput(os.Stdin)
 
 	data["author"] = fmt.Sprintf("%s <%s>", user.Company, user.Email)
 
@@ -126,4 +88,42 @@ func Create(folder string) {
 
 	fmt.Println("Bot Created Successfully.")
 
+}
+
+func setValue(data map[string]interface{}, key string, value string) {
+	if len(value) > 0 {
+		data[key] = strings.TrimRight(value, "\n")
+	}
+}
+
+func processsInput(in io.Reader) (data map[string]interface{}) {
+	scanner := bufio.NewScanner(in)
+
+	asset := MustAsset("data/package.json")
+
+	check(json.Unmarshal(asset, &data))
+
+	fmt.Printf("Title (%s):", data["title"])
+
+	scanner.Scan()
+
+	title := scanner.Text()
+
+	fmt.Printf("Description (%s):", data["description"])
+
+	scanner.Scan()
+
+	desc := scanner.Text()
+
+	fmt.Printf("License (%s):", data["license"])
+
+	scanner.Scan()
+
+	license := scanner.Text()
+
+	setValue(data, "title", title)
+	setValue(data, "description", desc)
+	setValue(data, "license", license)
+
+	return data
 }

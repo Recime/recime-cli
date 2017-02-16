@@ -6,7 +6,7 @@ import "io/ioutil"
 import "log"
 import "path"
 
-// Copies file source to destination dest.
+//CopyFile copies file source to destination dest.
 func CopyFile(source string, dest string) (err error) {
 	sf, err := os.Open(source)
 	if err != nil {
@@ -29,8 +29,7 @@ func CopyFile(source string, dest string) (err error) {
 	return
 }
 
-// Recursively copies a directory tree, attempting to preserve permissions.
-// Source directory must exist, destination directory must *not* exist.
+// CopyDir Recursively copies a directory tree, attempting to preserve permissions.
 func CopyDir(source string, dest string) (err error) {
 
 	// get properties of source dir
@@ -60,7 +59,7 @@ func CopyDir(source string, dest string) (err error) {
 			sfp := source + "/" + entry.Name()
 			dfp := dest + "/" + entry.Name()
 			if entry.IsDir() {
-				if entry.Name() != ".recime" && entry.Name() != "node_modules"{
+				if entry.Name() != ".recime" && entry.Name() != "node_modules" {
 					err = CopyDir(sfp, dfp)
 					if err != nil {
 						log.Println(err)

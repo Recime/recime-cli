@@ -245,11 +245,11 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"data/icon.png": dataIconPng,
-	"data/main.js": dataMainJs,
-	"data/main.ts": dataMainTs,
-	"data/node.d.ts": dataNodeDTs,
-	"data/package.json": dataPackageJson,
+	"data/icon.png":      dataIconPng,
+	"data/main.js":       dataMainJs,
+	"data/main.ts":       dataMainTs,
+	"data/node.d.ts":     dataNodeDTs,
+	"data/package.json":  dataPackageJson,
 	"data/tsconfig.json": dataTsconfigJson,
 }
 
@@ -292,13 +292,14 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
+
 var _bintree = &bintree{nil, map[string]*bintree{
 	"data": &bintree{nil, map[string]*bintree{
-		"icon.png": &bintree{dataIconPng, map[string]*bintree{}},
-		"main.js": &bintree{dataMainJs, map[string]*bintree{}},
-		"main.ts": &bintree{dataMainTs, map[string]*bintree{}},
-		"node.d.ts": &bintree{dataNodeDTs, map[string]*bintree{}},
-		"package.json": &bintree{dataPackageJson, map[string]*bintree{}},
+		"icon.png":      &bintree{dataIconPng, map[string]*bintree{}},
+		"main.js":       &bintree{dataMainJs, map[string]*bintree{}},
+		"main.ts":       &bintree{dataMainTs, map[string]*bintree{}},
+		"node.d.ts":     &bintree{dataNodeDTs, map[string]*bintree{}},
+		"package.json":  &bintree{dataPackageJson, map[string]*bintree{}},
 		"tsconfig.json": &bintree{dataTsconfigJson, map[string]*bintree{}},
 	}},
 }}
@@ -349,4 +350,3 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-

@@ -19,6 +19,7 @@ import "golang.org/x/crypto/ssh/terminal"
 import "github.com/briandowns/spinner"
 import "github.com/mitchellh/go-homedir"
 
+// Login validates the user
 func Login(options map[string]interface{}) {
 	scanner := bufio.NewScanner(options["in"].(io.Reader))
 
@@ -56,7 +57,7 @@ func Login(options map[string]interface{}) {
 
 	var result struct {
 		User    map[string]interface{} `json:"user"`
-		Message string                 `json:message`
+		Message string                 `json:"message"`
 	}
 
 	defer resp.Body.Close()
@@ -102,6 +103,8 @@ func SaveUser(user map[string]interface{}) {
 	file, err = os.OpenFile(location, os.O_WRONLY|os.O_TRUNC, 0600)
 
 	jsonBody, err := json.Marshal(user)
+
+	check(err)
 
 	file.Write(jsonBody)
 
