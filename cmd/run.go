@@ -48,6 +48,7 @@ func Run(options map[string]interface{}) {
 	url := options["url"].(string)
 	base := options["base"].(string)
 	uid := options["uid"].(string)
+
 	watch := options["watch"].(bool)
 
 	tokens := strings.Split(url, "/")

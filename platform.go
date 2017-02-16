@@ -30,7 +30,7 @@ func (p *platform) install(name string) {
 		if len(token) > 0 {
 			config := cmd.Config{Key: "FACEBOOK_PAGE_ACCESS_TOKEN", Value: token, Source: apiEndpoint}
 
-			cmd.SaveConfig(config)
+			config.Save()
 
 			fmt.Println("")
 			fmt.Println("INFO: Platform Configured Successfully. \r\nPlease do \"recime-cli deploy\" for changes to take effect.")

@@ -289,11 +289,13 @@ func Deploy() {
 
 	check(err)
 
+	_config := cmd.Config{}
+
 	// Add config user config
-	reader, err := cmd.OpenConfig(wd)
+	reader, err := _config.Open(wd)
 
 	if reader != nil {
-		cfg := cmd.GetConfigVars(reader)
+		cfg := _config.Get(reader)
 		for key, value := range cfg {
 			config = append(config, cmd.Config{Key: key, Value: value.(string)})
 		}
