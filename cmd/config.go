@@ -8,23 +8,15 @@ import (
 	"path/filepath"
 )
 
-//Config user configuration
+//Config bot configuration
 type Config struct {
 	Key    string `json:"key"`
 	Value  string `json:"value"`
 	Source string
 }
 
-func OpenConfig(wd string) (io.Reader, error) {
-	path := filepath.Join(wd, filepath.Join(".recime", "config.json"))
-
-	reader, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0600)
-
-	return reader, err
-}
-
-// GetConfigVars returns config map for a given path.
-func GetConfigVars(reader io.Reader) map[string]interface{} {
+// Get gets stored config.
+func (c *Config) Get(reader io.Reader) map[string]interface{} {
 	dat, _ := ioutil.ReadAll(reader)
 
 	var config map[string]interface{}
@@ -38,8 +30,17 @@ func GetConfigVars(reader io.Reader) map[string]interface{} {
 	return config
 }
 
-// SaveConfig adds / edits a config var.
-func SaveConfig(config Config) {
+// Open opens config from working directory.
+func (c *Config) Open(wd string) (io.Reader, error) {
+	path := filepath.Join(wd, filepath.Join(".recime", "config.json"))
+
+	reader, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0600)
+
+	return reader, err
+}
+
+// Save saves the config to disk.
+func (c *Config) Save() {
 	wd, err := os.Getwd()
 
 	check(err)
@@ -50,7 +51,7 @@ func SaveConfig(config Config) {
 
 	target := filepath.Join(wd, _filepath)
 
-	reader, err := OpenConfig(wd)
+	reader, err := c.Open(wd)
 
 	if err != nil {
 		err = os.MkdirAll(filepath.Dir(target), 0755)
@@ -63,10 +64,10 @@ func SaveConfig(config Config) {
 			os.Create(target)
 		}
 	} else {
-		data = GetConfigVars(reader)
+		data = c.Get(reader)
 	}
 
-	data[config.Key] = config.Value
+	data[c.Key] = c.Value
 
 	file, err := os.OpenFile(target, os.O_WRONLY|os.O_TRUNC, 0600)
 

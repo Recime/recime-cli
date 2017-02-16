@@ -107,7 +107,7 @@ func main() {
 		Long:  "Add or edit bot config vars that will be acccessed via `process.env` from within bot module",
 		Run: func(_ *cobra.Command, args []string) {
 			if len(args) == 0 {
-				fmt.Println("\r\nUSAGE: recime-cli config set NAME=Joe Smith\r\n")
+				fmt.Println("\r\nUSAGE: recime-cli config set NAME=Joe Smith")
 			}
 		},
 	}
@@ -124,7 +124,7 @@ func main() {
 
 					config := cmd.Config{Key: pair[0], Value: pair[1], Source: apiEndpoint}
 
-					cmd.SaveConfig(config)
+					config.Save()
 
 					fmt.Println("\r\nINFO: Configuration Saved Successfully.")
 				} else {

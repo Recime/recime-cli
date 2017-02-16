@@ -107,10 +107,11 @@ func Run(options map[string]interface{}) {
 	config := []Config{Config{Key: "BOT_UNIQUE_ID", Value: uid}}
 	config = append(config, Config{Key: "BASE_URL", Value: base})
 
+	_config := Config{}
 	// Add config user config
-	reader, _ := OpenConfig(wd)
+	reader, _ := _config.Open(wd)
 
-	vars := GetConfigVars(reader)
+	vars := _config.Get(reader)
 
 	for key, value := range vars {
 		config = append(config, Config{Key: key, Value: value.(string)})

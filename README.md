@@ -3,6 +3,7 @@
 The `Recime Command Line Tool` allows you to scaffold your bot from terminal. It creates your account based on the email you have provided and lets you deploy it to **[Recime](https://recime.ai)** cloud.
 
 [![Build Status](https://travis-ci.org/Recime/recime-cli.svg?branch=master)](https://travis-ci.org/Recime/recime-cli)
+[![Go Report Card](https://goreportcard.com/badge/github.com/recime/recime-cli)](https://goreportcard.com/report/github.com/recime/recime-cli)
 
 ## macOS
 

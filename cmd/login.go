@@ -2,7 +2,6 @@ package cmd
 
 import "fmt"
 
-// import "encoding/json"
 import "bufio"
 import "bytes"
 import "path/filepath"
@@ -77,13 +76,13 @@ func Login(options map[string]interface{}) {
 			os.Exit(1)
 		}
 
-		SaveUser(result.User)
+		saveUser(result.User)
 	} else {
 		fmt.Printf("\x1b[31;1m\r\n%s\x1b[0m", result.Message)
 	}
 }
 
-func SaveUser(user map[string]interface{}) {
+func saveUser(user map[string]interface{}) {
 	homeDir, err := homedir.Dir()
 
 	check(err)
