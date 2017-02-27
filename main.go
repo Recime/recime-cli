@@ -26,6 +26,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// PrintStatus outputs formatted status.
+func PrintStatus(status string) {
+	console := color.New(color.FgHiMagenta)
+
+	console.Print("INFO: ")
+
+	console = color.New(color.FgHiCyan)
+
+	console.Println(fmt.Sprintf("%v", status))
+}
+
 func main() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
@@ -126,7 +137,7 @@ func main() {
 
 					config.Save()
 
-					fmt.Println("\r\nINFO: Configuration Saved Successfully.")
+					fmt.Println("\r\nINFO: Config Var Set Successfully.")
 				} else {
 					red := color.New(color.FgRed).Add(color.Bold)
 					red.Println("\r\nERROR: Invalid Key-Value Pair!")

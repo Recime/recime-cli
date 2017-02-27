@@ -28,6 +28,7 @@ import (
 	"github.com/Recime/recime-cli/cmd"
 	"github.com/Recime/recime-cli/util"
 	"github.com/briandowns/spinner"
+	"github.com/fatih/color"
 
 	bar "gopkg.in/cheggaaa/pb.v1"
 
@@ -41,7 +42,7 @@ const (
 	address   = "agent.recime.io"
 	port      = 3000
 	bucket    = "recime-io"
-	template  = "https://github.com/Recime/recime-lambda-package-template/releases/download/1.0.1/package.zip"
+	template  = "https://s3-us-west-2.amazonaws.com/recime-io/package-with-container.zip"
 	singedURL = apiEndpoint + "/signedurl"
 )
 
@@ -116,7 +117,7 @@ func (d *deployer) Prepare() {
 
 		if len(resp.Status) > 1 {
 			s.Stop()
-			fmt.Println(fmt.Sprintf("INFO: %v", resp.Status))
+			PrintStatus(resp.Status)
 		}
 
 		s.Start()
@@ -273,7 +274,7 @@ func sendRequest(url string, body io.Reader) map[string]interface{} {
 func Deploy() {
 	uid := cmd.GetUID()
 
-	fmt.Println("INFO: Preparing Package.")
+	PrintStatus("Preparing Package.")
 
 	pkgPath := prepareLambdaPackage(uid)
 
@@ -311,7 +312,7 @@ func Deploy() {
 		panic(err)
 	}
 
-	fmt.Println("INFO: Uploading.")
+	PrintStatus("Uploading...")
 
 	r := &resource{
 		Key: fmt.Sprintf("bot/%s", uid),
@@ -353,7 +354,7 @@ func Deploy() {
 
 	d.Prepare()
 
-	fmt.Println("INFO: Finishing.")
+	PrintStatus("Finishing.")
 
 	d.UploadIcon()
 
@@ -387,13 +388,22 @@ func Deploy() {
 		Name    string `json:"name"`
 		ID      string `json:"uid"`
 		Message string `json:"message"`
+		URI     string `json:"uri"`
 	}
 
 	json.Unmarshal(bytes, &result)
 
 	if len(result.ID) > 0 {
-		fmt.Println("\r\n=> " + baseURL + "/bot/" + result.ID + "\r\n")
-		fmt.Println("INFO: Success!")
+		console := color.New(color.FgHiWhite)
+
+		fmt.Println("")
+
+		console.Println(result.URI)
+
+		fmt.Println("")
+
+		PrintStatus("Success!")
+
 		return
 	}
 
