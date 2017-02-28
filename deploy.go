@@ -270,19 +270,63 @@ func sendRequest(url string, body io.Reader) map[string]interface{} {
 	return data
 }
 
+func printError(msg string) {
+	if len(msg) > 0 {
+		console := color.New(color.FgHiRed).Add(color.Bold)
+		message := fmt.Sprintf("ERROR: %s", msg)
+		console.Println(message)
+	}
+}
+
+func guard(uid string, owner string) {
+	source := fmt.Sprintf("%s/bot/status", apiEndpoint)
+
+	jsonBody, err := json.Marshal(&bot{
+		ID:      uid,
+		Owner:   owner,
+		Version: Version,
+	})
+
+	res, err := http.Post(source, "application/json; charset=utf-8", bytes.NewBuffer(jsonBody))
+
+	check(err)
+
+	var data struct {
+		ID      string `json:"uid"`
+		Message string `json:"message"`
+	}
+
+	bytes, err := ioutil.ReadAll(res.Body)
+
+	defer res.Body.Close()
+
+	check(err)
+
+	json.Unmarshal(bytes, &data)
+
+	if len(data.Message) > 0 {
+		printError(data.Message)
+
+		fmt.Println("")
+
+		os.Exit(1)
+	}
+}
+
 // Deploy deploys the bot
 func Deploy() {
 	uid := cmd.GetUID()
+	user, err := cmd.GetStoredUser()
 
-	PrintStatus("Preparing Package.")
+	guard(uid, user.Email)
+
+	PrintStatus("Packaging.")
 
 	pkgPath := prepareLambdaPackage(uid)
 
 	buffer, size := readFile(pkgPath)
 
 	fileType := http.DetectContentType(buffer)
-
-	user, err := cmd.GetStoredUser()
 
 	var config []cmd.Config
 
@@ -324,7 +368,9 @@ func Deploy() {
 
 	signedURL := response["url"].(string)
 
-	bar := bar.New(len(buffer)).SetUnits(bar.U_BYTES)
+	bar := bar.New(len(buffer))
+
+	bar.ShowCounters = false
 
 	bar.Format("[## ]")
 
@@ -354,7 +400,7 @@ func Deploy() {
 
 	d.Prepare()
 
-	PrintStatus("Finishing.")
+	PrintStatus("Preparing...")
 
 	d.UploadIcon()
 
@@ -394,7 +440,7 @@ func Deploy() {
 	json.Unmarshal(bytes, &result)
 
 	if len(result.ID) > 0 {
-		console := color.New(color.FgHiWhite)
+		console := color.New(color.FgHiMagenta)
 
 		fmt.Println("")
 
@@ -407,10 +453,7 @@ func Deploy() {
 		return
 	}
 
-	if len(result.Message) > 0 {
-		message := fmt.Sprintf("INFO: %s", result.Message)
-		fmt.Println(message)
-	}
+	printError(result.Message)
 
 	fmt.Println("\x1b[31;1mFatal: Deploy Failed!!!\x1b[0m")
 }

@@ -28,13 +28,8 @@ import (
 
 // PrintStatus outputs formatted status.
 func PrintStatus(status string) {
-	console := color.New(color.FgHiMagenta)
-
-	console.Print("INFO: ")
-
-	console = color.New(color.FgHiCyan)
-
-	console.Println(fmt.Sprintf("%v", status))
+	fmt.Print("INFO: ")
+	fmt.Println(fmt.Sprintf("%v", status))
 }
 
 func main() {
