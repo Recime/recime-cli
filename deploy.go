@@ -320,7 +320,7 @@ func Deploy() {
 
 	guard(uid, user.Email)
 
-	PrintStatus("Packaging.")
+	fmt.Println("Creating bot package to deploy to \"Recime\" cloud.")
 
 	pkgPath := prepareLambdaPackage(uid)
 
@@ -356,8 +356,6 @@ func Deploy() {
 		panic(err)
 	}
 
-	PrintStatus("Uploading...")
-
 	r := &resource{
 		Key: fmt.Sprintf("bot/%s", uid),
 	}
@@ -371,6 +369,8 @@ func Deploy() {
 	bar := bar.New(len(buffer))
 
 	bar.ShowCounters = false
+
+	bar.Prefix("Uploading: ")
 
 	bar.Format("[## ]")
 
@@ -394,13 +394,16 @@ func Deploy() {
 
 	defer resp.Body.Close()
 
+	bar.FinishPrint("Done...")
+
 	d := &deployer{
 		ID: uid,
 	}
 
 	d.Prepare()
 
-	PrintStatus("Preparing...")
+	fmt.Println("")
+	fmt.Println("Reigstering the bot and creating the API endpoint.")
 
 	d.UploadIcon()
 

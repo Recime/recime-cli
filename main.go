@@ -146,6 +146,31 @@ func main() {
 
 	cmdConfig.AddCommand(cmdConfigAdd)
 
+	var cmdPlugin = &cobra.Command{
+		Use:   "plugins",
+		Short: "Installs third-party plugins",
+		Long:  "Install third-party plugins for bot to take advantage",
+		Run: func(_ *cobra.Command, args []string) {
+
+		},
+	}
+
+	var cmdPluginAdd = &cobra.Command{
+		Use:   "add",
+		Short: "Adds a new Plugin",
+		Long:  "Adds a new Plugin",
+		Run: func(_ *cobra.Command, args []string) {
+			if len(args) == 1 {
+				p := &plugin{}
+				p.Add(args[0])
+			} else {
+				fmt.Println("INFO: Invalid Number of Arguments.")
+			}
+		},
+	}
+
+	cmdPlugin.AddCommand(cmdPluginAdd)
+
 	var watch bool
 
 	var cmdRun = &cobra.Command{
@@ -218,6 +243,7 @@ Copyright %d Recime, Inc.
 	rootCmd.AddCommand(cmdDeploy)
 	rootCmd.AddCommand(cmdRun)
 	rootCmd.AddCommand(cmdPlatform)
+	rootCmd.AddCommand(cmdPlugin)
 
 	rootCmd.Execute()
 
