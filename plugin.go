@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -28,9 +30,28 @@ type pkg struct {
 type plugin struct {
 }
 
+func (p *plugin) install(pkg string) {
+	wd, err := os.Getwd()
+
+	check(err)
+
+	cmd := exec.Command("npm", "install", pkg, "--save")
+
+	cmd.Dir = wd
+
+	cmd.Stdout = os.Stdout
+
+	cmd.Run()
+}
+
 func (p *plugin) Add(name string) {
-	switch strings.ToLower(name) {
-	case "botimize.io":
+
+	name = strings.ToLower(name)
+
+	switch name {
+	case "botimize":
+		p.install(name)
+
 		source := fmt.Sprintf("%s/plugin", apiEndpoint)
 
 		uid := cmd.GetUID()
@@ -38,7 +59,7 @@ func (p *plugin) Add(name string) {
 		jsonBody, err := json.Marshal(&botimizeIo{
 			Name:     uid,
 			Platform: "generic",
-			Type:     "BotimizeIO",
+			Type:     "Botimize",
 		})
 
 		s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
@@ -82,7 +103,7 @@ func (p *plugin) Add(name string) {
 
 	fmt.Println("")
 
-	console.Println("INFO: Plugin Added Succesfully.")
+	console.Println("INFO: Plugin added succesfully to your project.")
 
 	fmt.Println("")
 }
