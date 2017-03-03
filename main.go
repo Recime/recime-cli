@@ -28,8 +28,13 @@ import (
 
 // PrintStatus outputs formatted status.
 func PrintStatus(status string) {
-	fmt.Print("INFO: ")
-	fmt.Println(fmt.Sprintf("%v", status))
+	pattern := regexp.MustCompile(`[a-z1-9A-Z.]+`)
+	if pattern.MatchString(status) {
+		fmt.Print("INFO: ")
+		fmt.Println(fmt.Sprintf("%v", status))
+	} else {
+		fmt.Print(status)
+	}
 }
 
 func main() {

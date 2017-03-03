@@ -39,7 +39,7 @@ import (
 )
 
 const (
-	address   = "agent.recime.io"
+	address   = "deployer.recime.io"
 	port      = 3000
 	bucket    = "recime-io"
 	template  = "https://s3-us-west-2.amazonaws.com/recime-io/package-with-container.zip"
@@ -67,8 +67,9 @@ type bot struct {
 }
 
 type deployer struct {
-	ID       string
-	Resource *resource
+	ID          string
+	UserID      string
+	Environment map[string]string
 }
 
 // Prepare prepares the bot for deploy.
@@ -87,10 +88,9 @@ func (d *deployer) Prepare() {
 	client := pb.NewDeployerClient(connection)
 
 	deployRequest := &pb.DeployRequest{
-		Resource: &pb.Resource{
-			Bucket: bucket,
-			Key:    fmt.Sprintf("bot/%s", d.ID),
-		},
+		UserId:      d.UserID,
+		BotId:       d.ID,
+		Environment: d.Environment,
 	}
 
 	stream, err := client.Deploy(context.Background(), deployRequest)
@@ -100,9 +100,9 @@ func (d *deployer) Prepare() {
 		os.Exit(1)
 	}
 
-	var r *pb.Resource
-
 	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
+
+	failed := false
 
 	for {
 		resp, err := stream.Recv()
@@ -115,28 +115,29 @@ func (d *deployer) Prepare() {
 			os.Exit(1)
 		}
 
-		if len(resp.Status) > 1 {
+		if resp.Code == 0 {
 			s.Stop()
-			PrintStatus(resp.Status)
+			PrintStatus(resp.Message)
 		}
 
 		s.Start()
 
-		if resp.Resource != nil {
-			r = resp.Resource
+		if resp.Code > 0 {
+			failed = true
+			break
 		}
 	}
 
 	s.Stop()
 
-	if len(r.Key) == 0 {
-		fmt.Println("\x1b[31;1mFatal: Deploy Failed!!!\x1b[0m")
-		os.Exit(1)
-	}
+	if failed {
+		fmt.Println("")
+		printError("Deploy Failed!!!")
+		fmt.Println("")
+		fmt.Println("For any questions and feedback, please reach us at hello@recime.io.")
+		fmt.Println("")
 
-	d.Resource = &resource{
-		Key:    r.Key,
-		Bucket: r.Bucket,
+		os.Exit(1)
 	}
 }
 
@@ -144,16 +145,11 @@ func (d *deployer) Prepare() {
 func (d *deployer) Deploy(b bot) []byte {
 	uid := b.ID
 
-	b.Resource = &resource{
-		Bucket: d.Resource.Bucket,
-		Key:    d.Resource.Key,
-	}
-
 	jsonBody, err := json.Marshal(b)
 
 	check(err)
 
-	url := fmt.Sprintf("%s/bot/deploy/%s", apiEndpoint, uid)
+	url := fmt.Sprintf("%s/bot/register/%s", apiEndpoint, uid)
 
 	r := bytes.NewBuffer(jsonBody)
 
@@ -273,7 +269,7 @@ func sendRequest(url string, body io.Reader) map[string]interface{} {
 func printError(msg string) {
 	if len(msg) > 0 {
 		console := color.New(color.FgHiRed).Add(color.Bold)
-		message := fmt.Sprintf("ERROR: %s", msg)
+		message := fmt.Sprintf("FATAL: %s", msg)
 		console.Println(message)
 	}
 }
@@ -336,13 +332,15 @@ func Deploy() {
 
 	_config := cmd.Config{}
 
-	// Add config user config
+	env := make(map[string]string)
+
+	// open config.json
 	reader, err := _config.Open(wd)
 
-	if reader != nil {
-		cfg := _config.Get(reader)
-		for key, value := range cfg {
-			config = append(config, cmd.Config{Key: key, Value: value.(string)})
+	if err == nil {
+		env = _config.Get(reader)
+		for key, value := range env {
+			config = append(config, cmd.Config{Key: key, Value: value})
 		}
 	}
 
@@ -396,17 +394,6 @@ func Deploy() {
 
 	bar.FinishPrint("Done...")
 
-	d := &deployer{
-		ID: uid,
-	}
-
-	d.Prepare()
-
-	fmt.Println("")
-	fmt.Println("Reigstering the bot and creating the API endpoint.")
-
-	d.UploadIcon()
-
 	b := bot{
 		Author:  data["author"].(string),
 		ID:      uid,
@@ -416,6 +403,19 @@ func Deploy() {
 		Config:  config,
 		Name:    data["name"].(string),
 	}
+
+	d := &deployer{
+		ID:          b.ID,
+		UserID:      user.ID,
+		Environment: env,
+	}
+
+	d.Prepare()
+
+	fmt.Println("")
+	fmt.Println("Reigstering the bot and creating the API endpoint.")
+
+	d.UploadIcon()
 
 	if title, ok := data["title"].(string); ok {
 		b.Title = title
@@ -450,8 +450,6 @@ func Deploy() {
 		console.Println(result.URI)
 
 		fmt.Println("")
-
-		PrintStatus("First time deployment might take several minutes for your bot to be ready, we will send you an email as soon as it is ready.")
 
 		PrintStatus("Success!")
 

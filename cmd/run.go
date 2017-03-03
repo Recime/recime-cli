@@ -114,7 +114,7 @@ func Run(options map[string]interface{}) {
 	vars := _config.Get(reader)
 
 	for key, value := range vars {
-		config = append(config, Config{Key: key, Value: value.(string)})
+		config = append(config, Config{Key: key, Value: value})
 	}
 
 	runCmd([]string{"npm", "start"}, templateDir, config)

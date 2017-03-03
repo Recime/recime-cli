@@ -16,15 +16,15 @@ type Config struct {
 }
 
 // Get gets stored config.
-func (c *Config) Get(reader io.Reader) map[string]interface{} {
+func (c *Config) Get(reader io.Reader) map[string]string {
 	dat, _ := ioutil.ReadAll(reader)
 
-	var config map[string]interface{}
+	var config map[string]string
 
 	if len(dat) > 0 {
 		json.Unmarshal(dat, &config)
 	} else {
-		config = make(map[string]interface{})
+		config = make(map[string]string)
 	}
 
 	return config
@@ -45,7 +45,7 @@ func (c *Config) Save() {
 
 	check(err)
 
-	data := make(map[string]interface{})
+	data := make(map[string]string)
 
 	_filepath := filepath.Join(".recime", "config.json")
 
