@@ -77,7 +77,7 @@ func Run(options map[string]interface{}) {
 
 	util.Unzip(fileName, target)
 
-	templateDir := target + "/recime-template-" + version
+	templateDir := target + "/recime-bot-template-" + version
 
 	wd, err := os.Getwd()
 
@@ -96,7 +96,6 @@ func Run(options map[string]interface{}) {
 	installCmd := []string{"npm", "install"}
 
 	runCmd(installCmd, botDir, nil)
-
 	runCmd(installCmd, templateDir, nil)
 
 	fmt.Println("INFO: Starting...")

@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Recime/recime-cli/cmd"
+	"./cmd"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )

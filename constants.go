@@ -23,4 +23,4 @@ const baseURL = "https://developer.recime.io"
 const apiEndpoint = baseURL + "/api"
 
 // AppTemplateURL node template
-const appTemplateURL = "https://github.com/Recime/recime-template/archive/1.0.3.zip"
+const appTemplateURL = "https://github.com/Recime/recime-bot-template/archive/1.0.3.zip"
