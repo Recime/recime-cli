@@ -451,6 +451,8 @@ func Deploy() {
 
 		fmt.Println("")
 
+		PrintStatus("First time deployment might take several minutes for your bot to be ready, we will send you an email as soon as it is ready.")
+
 		PrintStatus("Success!")
 
 		return
