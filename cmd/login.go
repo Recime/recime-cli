@@ -107,7 +107,7 @@ func saveUser(user map[string]interface{}) {
 
 	file.Write(jsonBody)
 
-	fmt.Printf("\n\rINFO: User Verification Successful.\n\r")
+	fmt.Printf("\r\nINFO: User Verification Successful.\r\n")
 }
 
 func check(e error) {

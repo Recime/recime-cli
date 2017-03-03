@@ -320,7 +320,7 @@ func Deploy() {
 
 	guard(uid, user.Email)
 
-	fmt.Println("Creating bot package to deploy to \"Recime\" cloud.")
+	fmt.Println("Creating bot package to deploy into \"Recime\" cloud.")
 
 	pkgPath := prepareLambdaPackage(uid)
 
@@ -457,8 +457,6 @@ func Deploy() {
 	}
 
 	printError(result.Message)
-
-	fmt.Println("\x1b[31;1mFatal: Deploy Failed!!!\x1b[0m")
 }
 
 func readFile(path string) ([]byte, int64) {
