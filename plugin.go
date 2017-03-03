@@ -22,6 +22,7 @@ type pkg struct {
 }
 
 type plugin struct {
+	APIKey string
 }
 
 func (p *plugin) install(pkg string) {
@@ -72,10 +73,11 @@ func (p *plugin) Add(name string) {
 	json.Unmarshal(bytes, &data)
 
 	if len(data.Config.Key) > 0 {
-		p.install(name)
-
 		config := cmd.Config{Key: data.Config.Key, Value: data.Config.Value, Source: source}
 
+		if len(p.APIKey) > 0 {
+			config.Value = p.APIKey
+		}
 		config.Save()
 
 	} else {

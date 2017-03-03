@@ -155,19 +155,23 @@ func main() {
 		},
 	}
 
+	var apikey string
+
 	var cmdPluginAdd = &cobra.Command{
 		Use:   "add",
 		Short: "Adds a new Plugin",
 		Long:  "Adds a new Plugin",
 		Run: func(_ *cobra.Command, args []string) {
 			if len(args) == 1 {
-				p := &plugin{}
+				p := &plugin{APIKey: apikey}
 				p.Add(args[0])
 			} else {
 				fmt.Println("INFO: Invalid Number of Arguments.")
 			}
 		},
 	}
+
+	cmdPluginAdd.PersistentFlags().StringVarP(&apikey, "apikey", "k", "", "Sets the api key")
 
 	cmdPlugin.AddCommand(cmdPluginAdd)
 
