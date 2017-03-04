@@ -123,7 +123,9 @@ func (d *deployer) Prepare() {
 		s.Start()
 
 		if resp.Code > 0 {
-			PrintStatus(resp.Message)
+			fmt.Println("")
+			printError(resp.Message)
+			fmt.Println("")
 			failed = true
 			break
 		}
@@ -132,9 +134,6 @@ func (d *deployer) Prepare() {
 	s.Stop()
 
 	if failed {
-		fmt.Println("")
-		printError("Deploy Failed!!!")
-		fmt.Println("")
 		fmt.Println("For any questions and feedback, please reach us at hello@recime.io.")
 		fmt.Println("")
 
@@ -269,7 +268,7 @@ func sendRequest(url string, body io.Reader) map[string]interface{} {
 
 func printError(msg string) {
 	if len(msg) > 0 {
-		console := color.New(color.FgHiRed).Add(color.Bold)
+		console := color.New(color.FgHiRed)
 		message := fmt.Sprintf("FATAL: %s", msg)
 		console.Println(message)
 	}
@@ -392,8 +391,6 @@ func Deploy() {
 	check(err)
 
 	defer resp.Body.Close()
-
-	bar.FinishPrint("Done...")
 
 	b := bot{
 		Author:  data["author"].(string),
