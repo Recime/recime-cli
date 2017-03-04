@@ -16,11 +16,8 @@ package main
 // SiteURL Site URL
 const SiteURL = "https://recime.io"
 
-// Version 1.1.6
-const Version = "1.1.6"
+// Version 1.1.7
+const Version = "1.1.7"
 
 const baseURL = "https://developer.recime.io"
 const apiEndpoint = baseURL + "/api"
-
-// AppTemplateURL node template
-const appTemplateURL = "https://github.com/Recime/recime-bot-template/archive/1.0.3.zip"

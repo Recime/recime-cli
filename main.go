@@ -189,15 +189,7 @@ func main() {
 		Run: func(_ *cobra.Command, args []string) {
 			// install any dependencies
 			cmd.Install()
-
-			// execute run Command
-			options := map[string]interface{}{
-				"url":   appTemplateURL,
-				"uid":   cmd.GetUID(),
-				"base":  baseURL,
-				"watch": watch,
-			}
-			cmd.Run(options)
+			cmd.Run(baseURL, watch)
 		},
 	}
 

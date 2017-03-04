@@ -14,6 +14,10 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
+const (
+	template = "https://s3-us-west-2.amazonaws.com/recime-io/package-with-container.zip"
+)
+
 //WatchForChanges watch file for changes
 func WatchForChanges(dir string, targetDir string) {
 	watcher, err := fsnotify.NewWatcher()
@@ -44,17 +48,12 @@ func WatchForChanges(dir string, targetDir string) {
 }
 
 //Run runs the bot in a local node server.
-func Run(options map[string]interface{}) {
-	url := options["url"].(string)
-	base := options["base"].(string)
-	uid := options["uid"].(string)
+func Run(source string, watch bool) {
+	uid := GetUID()
 
-	watch := options["watch"].(bool)
-
-	tokens := strings.Split(url, "/")
+	tokens := strings.Split(template, "/")
 	fileName := tokens[len(tokens)-1]
-
-	version := strings.TrimSuffix(fileName, filepath.Ext(fileName))
+	fileName = strings.TrimSuffix(fileName, filepath.Ext(fileName))
 
 	home, err := homedir.Dir()
 
@@ -62,7 +61,7 @@ func Run(options map[string]interface{}) {
 
 	home = filepath.ToSlash(home) + "/recime-cli"
 
-	fileName = fmt.Sprintf("%s/recime-%s.zip", home, version)
+	zipName := fmt.Sprintf("%s/%s.zip", home, fileName)
 
 	_, err = os.Stat(home)
 
@@ -71,13 +70,11 @@ func Run(options map[string]interface{}) {
 		check(err)
 	}
 
-	Download(url, fileName)
+	Download(template, zipName)
 
-	target := home
+	templateDir := fmt.Sprintf("%s/recime-bot-template", home)
 
-	util.Unzip(fileName, target)
-
-	templateDir := target + "/recime-bot-template-" + version
+	util.Unzip(zipName, templateDir)
 
 	wd, err := os.Getwd()
 
@@ -95,8 +92,8 @@ func Run(options map[string]interface{}) {
 
 	installCmd := []string{"npm", "install"}
 
-	runCmd(installCmd, botDir, nil)
 	runCmd(installCmd, templateDir, nil)
+	runCmd(installCmd, botDir, nil)
 
 	fmt.Println("INFO: Starting...")
 
@@ -105,7 +102,7 @@ func Run(options map[string]interface{}) {
 	}
 
 	config := []Config{Config{Key: "BOT_UNIQUE_ID", Value: uid}}
-	config = append(config, Config{Key: "BASE_URL", Value: base})
+	config = append(config, Config{Key: "BASE_URL", Value: source})
 
 	_config := Config{}
 	// Add config user config

@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/fatih/color"
 	"github.com/mitchellh/go-homedir"
 )
 
@@ -54,7 +55,8 @@ func GetStoredUser() (User, error) {
 // Guard validates the account against recime cloud
 func Guard(user User) {
 	if user.Email == "" {
-		fmt.Println("\x1b[31;1mUser is not logged in. Please run \"recime-cli init\" to get started.\x1b[0m")
+		console := color.New(color.FgHiRed)
+		console.Println("User is not logged in. Please run \"recime-cli login\" to get started.")
 		fmt.Println("")
 		os.Exit(1)
 	}
