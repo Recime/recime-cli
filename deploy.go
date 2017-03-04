@@ -123,6 +123,7 @@ func (d *deployer) Prepare() {
 		s.Start()
 
 		if resp.Code > 0 {
+			PrintStatus(resp.Message)
 			failed = true
 			break
 		}

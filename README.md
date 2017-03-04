@@ -38,8 +38,8 @@ Next, type the following to install recime-cli:
 
 This will install all the dependencies, configure path and install the CLI accessible globally. Once installation is complete, type recime-cli to verify. Please do refreshenv or restart the shell for changes to take effect and dependencies to initialize correctly.
 
-
 ## Linux
+
 `Recime Command Line Tool` is built using Go. Therefore, if you have go tools installs then type the following command to install:
 
 ```
