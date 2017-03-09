@@ -21,3 +21,4 @@ const Version = "1.1.7"
 
 const baseURL = "https://developer.recime.io"
 const apiEndpoint = baseURL + "/api"
+const template = "https://github.com/Recime/recime-bot-template/archive/1.0.4.zip"

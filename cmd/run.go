@@ -14,10 +14,6 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
-const (
-	template = "https://s3-us-west-2.amazonaws.com/recime-io/package-with-container.zip"
-)
-
 //WatchForChanges watch file for changes
 func WatchForChanges(dir string, targetDir string) {
 	watcher, err := fsnotify.NewWatcher()
@@ -48,12 +44,13 @@ func WatchForChanges(dir string, targetDir string) {
 }
 
 //Run runs the bot in a local node server.
-func Run(source string, watch bool) {
+func Run(source string, template string, watch bool) {
 	uid := GetUID()
 
 	tokens := strings.Split(template, "/")
 	fileName := tokens[len(tokens)-1]
 	fileName = strings.TrimSuffix(fileName, filepath.Ext(fileName))
+	fileName = fmt.Sprintf("recime-bot-template-%s", fileName)
 
 	home, err := homedir.Dir()
 
@@ -72,15 +69,15 @@ func Run(source string, watch bool) {
 
 	Download(template, zipName)
 
-	templateDir := fmt.Sprintf("%s/recime-bot-template", home)
+	util.Unzip(zipName, home)
 
-	util.Unzip(zipName, templateDir)
+	templateDir := fmt.Sprintf("%s/%s", home, fileName)
 
 	wd, err := os.Getwd()
 
 	check(err)
 
-	botDir := templateDir + "/" + uid
+	botDir := fmt.Sprintf("%s/%s", templateDir, uid)
 
 	fmt.Println("INFO: Deploying Bot...")
 

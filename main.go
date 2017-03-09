@@ -189,7 +189,7 @@ func main() {
 		Run: func(_ *cobra.Command, args []string) {
 			// install any dependencies
 			cmd.Install()
-			cmd.Run(baseURL, watch)
+			cmd.Run(baseURL, template, watch)
 		},
 	}
 

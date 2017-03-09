@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"path/filepath"
@@ -42,7 +43,6 @@ const (
 	address   = "deployer.recime.io"
 	port      = 3000
 	bucket    = "recime-io"
-	template  = "https://s3-us-west-2.amazonaws.com/recime-io/package-with-container.zip"
 	singedURL = apiEndpoint + "/signedurl"
 )
 
@@ -206,23 +206,32 @@ func prepareLambdaPackage(uid string) string {
 
 	cmd.Download(template, fileName)
 
-	target := filepath.ToSlash(fmt.Sprintf("%s/%s", dest, uid))
+	check(util.Unzip(fileName, dest))
 
-	check(util.Unzip(fileName, target))
+	tokens := strings.Split(template, "/")
+
+	templatedir := tokens[len(tokens)-1]
+	templatedir = strings.TrimSuffix(templatedir, filepath.Ext(templatedir))
+	templatedir = fmt.Sprintf("recime-bot-template-%s", templatedir)
 
 	wd, err := os.Getwd()
 
 	check(err)
 
-	botDir := filepath.ToSlash(fmt.Sprintf("%s/%s", target, uid))
+	target := filepath.ToSlash(fmt.Sprintf("%s/%s", dest, templatedir))
+	botdir := filepath.ToSlash(fmt.Sprintf("%s/%s", target, uid))
 
-	_ = util.CopyDir(wd, botDir)
+	_ = util.CopyDir(wd, botdir)
 
-	removeScript(botDir)
+	removeScript(botdir)
+
+	pkgdir := filepath.ToSlash(fmt.Sprintf("%s/%s", dest, uid))
+
+	os.Rename(target, pkgdir)
 
 	pkg := filepath.ToSlash(fmt.Sprintf("%s/%s.zip", temp, uid))
 
-	util.Zip(target, pkg)
+	util.Zip(pkgdir, pkg)
 
 	return pkg
 }
