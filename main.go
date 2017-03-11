@@ -187,8 +187,6 @@ func main() {
 		Short: "Runs the bot locally",
 		Long:  "Runs the bot locally",
 		Run: func(_ *cobra.Command, args []string) {
-			// install any dependencies
-			cmd.Install()
 			cmd.Run(baseURL, template, watch)
 		},
 	}
