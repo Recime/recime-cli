@@ -70,19 +70,19 @@ func Run(watch bool) {
 
 	util.Unzip(zipName, home)
 
-	templateDir := fmt.Sprintf("%s/%s", home, fileName)
+	templatedir := fmt.Sprintf("%s/%s", home, fileName)
 
 	wd, err := os.Getwd()
 
 	check(err)
 
-	botDir := fmt.Sprintf("%s/%s", templateDir, uid)
+	botdir := fmt.Sprintf("%s/%s", templatedir, uid)
 
 	fmt.Println("INFO: Deploying Bot...")
 
 	cmd.Build(wd)
 
-	util.CopyDir(filepath.ToSlash(wd), botDir)
+	util.CopyDir(filepath.ToSlash(wd), botdir)
 
 	fmt.Println("INFO: Installing Dependencies...")
 
@@ -92,15 +92,15 @@ func Run(watch bool) {
 
 	pkg := &pkg{}
 
-	pkg.sync(botDir, templateDir)
+	pkg.sync(botdir, templatedir)
 
-	shell.execute(installCmd, templateDir, nil)
-	shell.execute(installCmd, botDir, nil)
+	shell.execute(installCmd, templatedir, nil)
+	shell.execute(installCmd, botdir, nil)
 
 	fmt.Println("INFO: Starting...")
 
 	if watch {
-		WatchForChanges(filepath.ToSlash(wd), botDir)
+		WatchForChanges(filepath.ToSlash(wd), botdir)
 	}
 
 	config := []cmd.Config{cmd.Config{Key: "BOT_UNIQUE_ID", Value: uid}}
@@ -116,5 +116,5 @@ func Run(watch bool) {
 		config = append(config, cmd.Config{Key: key, Value: value})
 	}
 
-	shell.execute([]string{"npm", "start"}, templateDir, config)
+	shell.execute([]string{"npm", "start"}, templatedir, config)
 }

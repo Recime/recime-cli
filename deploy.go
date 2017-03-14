@@ -225,15 +225,18 @@ func prepareLambdaPackage(uid string) string {
 
 	removeScript(botdir)
 
+	pkg := &pkg{}
+	pkg.sync(botdir, target)
+
 	pkgdir := filepath.ToSlash(fmt.Sprintf("%s/%s", dest, uid))
 
 	os.Rename(target, pkgdir)
 
-	pkg := filepath.ToSlash(fmt.Sprintf("%s/%s.zip", temp, uid))
+	pkgName := filepath.ToSlash(fmt.Sprintf("%s/%s.zip", temp, uid))
 
-	util.Zip(pkgdir, pkg)
+	util.Zip(pkgdir, pkgName)
 
-	return pkg
+	return pkgName
 }
 
 func removeScript(dir string) {
