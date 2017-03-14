@@ -204,7 +204,7 @@ func prepareLambdaPackage(uid string) string {
 
 	fileName := filepath.ToSlash(fmt.Sprintf("%s/%s.zip", dest, uid))
 
-	cmd.Download(template, fileName)
+	download(template, fileName)
 
 	check(util.Unzip(fileName, dest))
 
