@@ -1,8 +1,5 @@
 package cmd
 
-// import "fmt"
-// import "bufio"
-
 import (
 	"encoding/json"
 	"fmt"

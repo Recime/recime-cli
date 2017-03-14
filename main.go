@@ -90,15 +90,6 @@ func main() {
 		},
 	}
 
-	var cmdInstall = &cobra.Command{
-		Use:   "install",
-		Short: "Installs the dependencies",
-		Long:  "Installs the required dependencies for the bot to work in Recime cloud",
-		Run: func(_ *cobra.Command, args []string) {
-			cmd.Install()
-		},
-	}
-
 	var cmdBuild = &cobra.Command{
 		Use:   "build",
 		Short: "Builds the bot module",
@@ -168,7 +159,7 @@ func main() {
 		Long:  "Adds a new Plugin",
 		Run: func(_ *cobra.Command, args []string) {
 			if len(args) == 1 {
-				p := &plugin{APIKey: apikey}
+				p := &plugins{APIKey: apikey}
 				p.Add(args[0])
 			} else {
 				fmt.Println("INFO: Invalid Number of Arguments.")
@@ -187,7 +178,7 @@ func main() {
 		Short: "Runs the bot locally",
 		Long:  "Runs the bot locally",
 		Run: func(_ *cobra.Command, args []string) {
-			cmd.Run(baseURL, template, watch)
+			Run(watch)
 		},
 	}
 
@@ -234,7 +225,6 @@ Copyright %d Recime, Inc.
 
 	cmdPlatform.AddCommand(cmdPlaformConfig)
 
-	rootCmd.AddCommand(cmdInstall)
 	rootCmd.AddCommand(cmdBuild)
 	rootCmd.AddCommand(cmdConfig)
 	rootCmd.AddCommand(cmdLogin)

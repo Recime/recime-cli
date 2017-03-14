@@ -1,15 +1,16 @@
-package cmd
+package main
 
 import (
 	"fmt"
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"github.com/Recime/recime-cli/cmd"
 	"github.com/Recime/recime-cli/util"
+
 	"github.com/howeyc/fsnotify"
 	"github.com/mitchellh/go-homedir"
 )
@@ -30,7 +31,7 @@ func WatchForChanges(dir string, targetDir string) {
 
 					util.CopyDir(dir, targetDir)
 
-					Build(targetDir)
+					cmd.Build(targetDir)
 				}
 			case err := <-watcher.Error:
 				fmt.Println("error:", err)
@@ -44,8 +45,8 @@ func WatchForChanges(dir string, targetDir string) {
 }
 
 //Run runs the bot in a local node server.
-func Run(source string, template string, watch bool) {
-	uid := GetUID()
+func Run(watch bool) {
+	uid := cmd.GetUID()
 
 	tokens := strings.Split(template, "/")
 	fileName := tokens[len(tokens)-1]
@@ -67,7 +68,7 @@ func Run(source string, template string, watch bool) {
 		check(err)
 	}
 
-	Download(template, zipName)
+	download(template, zipName)
 
 	util.Unzip(zipName, home)
 
@@ -81,7 +82,7 @@ func Run(source string, template string, watch bool) {
 
 	fmt.Println("INFO: Deploying Bot...")
 
-	Build(wd)
+	cmd.Build(wd)
 
 	util.CopyDir(filepath.ToSlash(wd), botDir)
 
@@ -89,8 +90,14 @@ func Run(source string, template string, watch bool) {
 
 	installCmd := []string{"npm", "install"}
 
-	runCmd(installCmd, templateDir, nil)
-	runCmd(installCmd, botDir, nil)
+	shell := &shell{}
+
+	pkg := &pkg{}
+
+	pkg.sync(botDir, templateDir)
+
+	shell.execute(installCmd, templateDir, nil)
+	shell.execute(installCmd, botDir, nil)
 
 	fmt.Println("INFO: Starting...")
 
@@ -98,46 +105,24 @@ func Run(source string, template string, watch bool) {
 		WatchForChanges(filepath.ToSlash(wd), botDir)
 	}
 
-	config := []Config{Config{Key: "BOT_UNIQUE_ID", Value: uid}}
-	config = append(config, Config{Key: "BASE_URL", Value: source})
+	config := []cmd.Config{cmd.Config{Key: "BOT_UNIQUE_ID", Value: uid}}
+	config = append(config, cmd.Config{Key: "BASE_URL", Value: baseURL})
 
-	_config := Config{}
+	_config := cmd.Config{}
 	// Add config user config
 	reader, _ := _config.Open(wd)
 
 	vars := _config.Get(reader)
 
 	for key, value := range vars {
-		config = append(config, Config{Key: key, Value: value})
+		config = append(config, cmd.Config{Key: key, Value: value})
 	}
 
-	runCmd([]string{"npm", "start"}, templateDir, config)
-}
-
-func runCmd(args []string, wd string, config []Config) {
-	cmd := exec.Command(args[0], args[1])
-
-	cmd.Dir = wd
-
-	if config != nil {
-
-		env := os.Environ()
-
-		for _, c := range config {
-			env = append(env, fmt.Sprintf("%s=%s", c.Key, c.Value))
-		}
-
-		cmd.Env = env
-	}
-
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	cmd.Run()
+	shell.execute([]string{"npm", "start"}, templateDir, config)
 }
 
 // Download downloads url to a file name
-func Download(url string, fileName string) {
+func download(url string, fileName string) {
 	// TODO: check file existence first with io.IsExist
 	output, err := os.Create(fileName)
 	if err != nil {

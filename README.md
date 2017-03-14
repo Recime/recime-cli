@@ -54,7 +54,6 @@ The following commands are currently available in the `Recime Command Line Tool`
   config      Initializes bot config vars
   create      Scaffolds the bot from an interactive prompt
   deploy      Deploys the bot to Recime cloud
-  install     Installs the dependencies
   login       Logs into your Recime account
   platform    Initializes Platform
   plugins     Installs third-party plugins
