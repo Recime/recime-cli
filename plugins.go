@@ -25,13 +25,13 @@ func (p *plugins) Add(name string) {
 
 	uid := cmd.GetUID()
 
-	_pkg := &pkg{
+	pkg := &pkg{
 		UID:    uid,
 		Name:   name,
 		APIKey: p.APIKey,
 	}
 
-	jsonBody, err := json.Marshal(p)
+	jsonBody, err := json.Marshal(pkg)
 
 	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
 
@@ -59,7 +59,7 @@ func (p *plugins) Add(name string) {
 
 		config.Save()
 
-		_pkg.save()
+		pkg.save()
 
 	} else {
 		red := color.New(color.FgRed).Add(color.Bold)
