@@ -1,16 +1,24 @@
 package cmd
 
-import "os"
-import "os/exec"
+import (
+	"bytes"
+	"os/exec"
+
+	"github.com/fatih/color"
+)
 
 // Build builds the bot.
-func Build(dir string) error {
+func Build(dir string) {
 	cmd := exec.Command("npm", "run", "build")
 
 	cmd.Dir = dir
 
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	var out bytes.Buffer
 
-	return cmd.Run()
+	cmd.Stdout = &out
+
+	cmd.Run()
+
+	red := color.New(color.FgMagenta)
+	red.Println(out.String())
 }

@@ -230,7 +230,7 @@ func prepareLambdaPackage(uid string) string {
 
 	pkgdir := filepath.ToSlash(fmt.Sprintf("%s/%s", dest, uid))
 
-	os.Rename(target, pkgdir)
+	util.CopyDir(target, pkgdir)
 
 	pkgName := filepath.ToSlash(fmt.Sprintf("%s/%s.zip", temp, uid))
 

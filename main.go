@@ -21,7 +21,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Recime/recime-cli/cmd"
+	"./cmd"
+
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
@@ -82,9 +83,7 @@ func main() {
 
 			check(err)
 
-			if cmd.Build(wd) != nil {
-				os.Exit(1)
-			}
+			cmd.Build(wd)
 
 			Deploy()
 		},
