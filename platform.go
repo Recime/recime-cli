@@ -38,7 +38,7 @@ func (p *platform) install(name string) {
 
 		scanner.Scan()
 
-		p.set("TELEGRAM_ACCESS_TOKEN", scanner.Text())
+		p.set("FACEBOOK_PAGE_ACCESS_TOKEN", scanner.Text())
 	case "telegram":
 		scanner := bufio.NewScanner(os.Stdin)
 
