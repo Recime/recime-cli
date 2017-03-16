@@ -35,6 +35,7 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 
 	pb "github.com/Recime/recime-cli/pb"
 )
@@ -76,7 +77,11 @@ type deployer struct {
 func (d *deployer) Prepare() {
 	target := fmt.Sprintf("%s:%v", address, port)
 
-	connection, err := grpc.Dial(target, grpc.WithInsecure())
+	connection, err := grpc.Dial(
+		target,
+		grpc.WithBackoffMaxDelay(10*time.Second),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{Time: 5 * time.Second}),
+		grpc.WithInsecure())
 
 	if err != nil {
 		fmt.Println(fmt.Sprintf("\x1b[31;1mFatal: %v\x1b[0m", err))
