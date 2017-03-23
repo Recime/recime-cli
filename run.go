@@ -78,10 +78,6 @@ func Run(watch bool) {
 
 	botdir := fmt.Sprintf("%s/%s", templatedir, uid)
 
-	fmt.Println("INFO: Deploying Bot...")
-
-	cmd.Build(wd)
-
 	util.CopyDir(filepath.ToSlash(wd), botdir)
 
 	fmt.Println("INFO: Installing Dependencies...")
@@ -96,6 +92,12 @@ func Run(watch bool) {
 
 	shell.execute(installCmd, templatedir, nil)
 	shell.execute(installCmd, botdir, nil)
+
+	fmt.Println("INFO: Building...")
+
+	if cmd.Build(botdir) != nil {
+		return
+	}
 
 	fmt.Println("INFO: Starting...")
 

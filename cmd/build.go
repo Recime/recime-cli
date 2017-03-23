@@ -8,7 +8,7 @@ import (
 )
 
 // Build builds the bot.
-func Build(dir string) {
+func Build(dir string) error {
 	cmd := exec.Command("npm", "run", "build")
 
 	cmd.Dir = dir
@@ -17,8 +17,10 @@ func Build(dir string) {
 
 	cmd.Stdout = &out
 
-	cmd.Run()
+	err := cmd.Run()
 
 	red := color.New(color.FgMagenta)
 	red.Println(out.String())
+
+	return err
 }
