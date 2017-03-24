@@ -78,12 +78,6 @@ func main() {
 		Short: "Deploys the bot to Recime cloud",
 		Long:  "Prepares and deploys to bot to Recime cloud. Installs the node modules defined in package.json, validates provides the endpoint to test the bot",
 		Run: func(_ *cobra.Command, args []string) {
-			wd, err := os.Getwd()
-
-			check(err)
-
-			cmd.Build(wd)
-
 			Deploy()
 		},
 	}

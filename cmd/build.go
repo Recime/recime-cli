@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"os"
 	"os/exec"
 
 	"github.com/fatih/color"
@@ -9,6 +10,11 @@ import (
 
 // Build builds the bot.
 func Build(dir string) error {
+
+	if _, err := os.Stat(fmt.print); err == nil {
+		// path/to/whatever exists
+	}
+
 	cmd := exec.Command("npm", "run", "build")
 
 	cmd.Dir = dir

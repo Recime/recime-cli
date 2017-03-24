@@ -37,6 +37,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 
+	"errors"
+
 	pb "github.com/Recime/recime-cli/pb"
 )
 
@@ -198,7 +200,7 @@ func (d *deployer) UploadIcon() {
 	http.DefaultClient.Do(req)
 }
 
-func prepareLambdaPackage(uid string) string {
+func preparePackage(uid string) (string, error) {
 	temp, err := ioutil.TempDir("", "recime-cli")
 
 	check(err)
@@ -223,25 +225,33 @@ func prepareLambdaPackage(uid string) string {
 
 	check(err)
 
-	target := filepath.ToSlash(fmt.Sprintf("%s/%s", dest, templatedir))
-	botdir := filepath.ToSlash(fmt.Sprintf("%s/%s", target, uid))
+	bindir := filepath.ToSlash(fmt.Sprintf("%s/%s", dest, templatedir))
+	botdir := filepath.ToSlash(fmt.Sprintf("%s/%s", bindir, uid))
 
 	_ = util.CopyDir(wd, botdir)
 
-	removeScript(botdir)
+	shell := &shell{}
+
+	shell.execute([]string{"npm", "install"}, botdir, nil)
+
+	if cmd.Build(botdir) != nil {
+		return "", errors.New("Build failed")
+	}
 
 	pkg := &pkg{}
-	pkg.sync(botdir, target)
+	pkg.sync(botdir, bindir)
+
+	removeScript(botdir)
 
 	pkgdir := filepath.ToSlash(fmt.Sprintf("%s/%s", dest, uid))
 
-	util.CopyDir(target, pkgdir)
+	util.CopyDir(bindir, pkgdir)
 
-	pkgName := filepath.ToSlash(fmt.Sprintf("%s/%s.zip", temp, uid))
+	zip := filepath.ToSlash(fmt.Sprintf("%s/%s.zip", temp, uid))
 
-	util.Zip(pkgdir, pkgName)
+	util.Zip(pkgdir, zip)
 
-	return pkgName
+	return zip, nil
 }
 
 func removeScript(dir string) {
@@ -257,7 +267,7 @@ func removeScript(dir string) {
 		panic(err)
 	}
 
-	data["scripts"] = make([]interface{}, 0)
+	delete(data, "scripts")
 
 	err = ioutil.WriteFile(pkgFilePath, cmd.MarshalIndent(data), os.ModePerm)
 
@@ -335,7 +345,11 @@ func Deploy() {
 
 	fmt.Println("Creating bot package to deploy into \"Recime\" cloud.")
 
-	pkgPath := prepareLambdaPackage(uid)
+	pkgPath, err := preparePackage(uid)
+
+	if err != nil {
+		return
+	}
 
 	buffer, size := readFile(pkgPath)
 
