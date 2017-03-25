@@ -28,27 +28,26 @@ func (p *platform) set(key string, value string) {
 	}
 }
 
+func (p *platform) processInput(key string, title string) {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	fmt.Println(title)
+
+	scanner.Scan()
+
+	p.set(key, scanner.Text())
+}
+
 // Prepare prepares the bot for deploy.
 func (p *platform) install(name string) {
 	switch strings.ToLower(name) {
 	case "facebook":
-		scanner := bufio.NewScanner(os.Stdin)
-
-		fmt.Println("Page access token:")
-
-		scanner.Scan()
-
-		p.set("FACEBOOK_PAGE_ACCESS_TOKEN", scanner.Text())
+		p.processInput("FACEBOOK_PAGE_ACCESS_TOKEN", "Page access token:")
 	case "telegram":
-		scanner := bufio.NewScanner(os.Stdin)
-
-		fmt.Println("Telegram access key:")
-
-		scanner.Scan()
-
-		p.set("TELEGRAM_ACCESS_TOKEN", scanner.Text())
+		p.processInput("TELEGRAM_ACCESS_TOKEN", "Telegram access key:")
+	case "wechat":
+		p.processInput("WECHAT_ACCESS_TOKEN", "WeChat access token:")
 	default:
 		panic("INFO: Unsupported Platform.")
 	}
-
 }
