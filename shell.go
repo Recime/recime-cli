@@ -9,18 +9,19 @@ import (
 )
 
 type shell struct {
+	config []cmd.Config
 }
 
-func (c *shell) execute(args []string, wd string, config []cmd.Config) {
-	cmd := exec.Command(args[0], args[1])
+func (sh *shell) execute(wd string, arg ...string) {
+	cmd := exec.Command("npm", arg...)
 
 	cmd.Dir = wd
 
-	if config != nil {
+	if sh.config != nil {
 
 		env := os.Environ()
 
-		for _, c := range config {
+		for _, c := range sh.config {
 			env = append(env, fmt.Sprintf("%s=%s", c.Key, c.Value))
 		}
 

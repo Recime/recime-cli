@@ -232,7 +232,7 @@ func preparePackage(uid string) (string, error) {
 
 	shell := &shell{}
 
-	shell.execute([]string{"npm", "install"}, botdir, nil)
+	shell.execute(botdir, "install")
 
 	if cmd.Build(botdir) != nil {
 		return "", errors.New("Build failed")

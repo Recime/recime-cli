@@ -82,18 +82,20 @@ func Run(watch bool) {
 
 	fmt.Println("INFO: Installing Dependencies...")
 
-	installCmd := []string{"npm", "install"}
-
-	shell := &shell{}
+	sh := &shell{}
 
 	pkg := &pkg{}
 
 	pkg.sync(botdir, templatedir)
 
-	shell.execute(installCmd, templatedir, nil)
-	shell.execute(installCmd, botdir, nil)
+	sh.execute(templatedir, "install")
+	sh.execute(botdir, "install")
 
 	fmt.Println("INFO: Building...")
+
+	if _, err := os.Stat(fmt.Sprintf("%s/.babelrc", botdir)); err == nil {
+		sh.execute(botdir, "install", "babel-cli", "babel-core", "babel-preset-es2015")
+	}
 
 	if cmd.Build(botdir) != nil {
 		return
@@ -118,5 +120,9 @@ func Run(watch bool) {
 		config = append(config, cmd.Config{Key: key, Value: value})
 	}
 
-	shell.execute([]string{"npm", "start"}, templatedir, config)
+	sh = &shell{
+		config: config,
+	}
+
+	sh.execute(templatedir, "start")
 }
