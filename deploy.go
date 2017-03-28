@@ -230,9 +230,13 @@ func preparePackage(uid string) (string, error) {
 
 	_ = util.CopyDir(wd, botdir)
 
-	shell := &shell{}
+	sh := &shell{}
 
-	shell.execute(botdir, "install")
+	sh.execute(botdir, "install")
+
+	if _, err := os.Stat(fmt.Sprintf("%s/.babelrc", botdir)); err == nil {
+		sh.execute(botdir, "install", "babel-cli", "babel-core", "babel-preset-es2015")
+	}
 
 	if cmd.Build(botdir) != nil {
 		return "", errors.New("Build failed")
