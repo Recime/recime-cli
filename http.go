@@ -7,8 +7,11 @@ import (
 	"os"
 )
 
+type httpClient struct {
+}
+
 // Download downloads url to a file name
-func download(url string, fileName string) {
+func (h *httpClient) download(url string, fileName string) {
 	// TODO: check file existence first with io.IsExist
 	output, err := os.Create(fileName)
 	if err != nil {

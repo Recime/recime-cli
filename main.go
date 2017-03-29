@@ -59,6 +59,8 @@ func main() {
 		},
 	}
 
+	var lang string
+
 	var cmdCreate = &cobra.Command{
 		Use:   "create",
 		Short: "Scaffolds the bot from an interactive prompt",
@@ -66,12 +68,14 @@ func main() {
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) > 0 {
 				folder := strings.Join(args, " ")
-				Create(folder)
+				Create(folder, lang)
 			} else {
-				fmt.Println("\n\rUSAGE: recime-cli create [folderName]\n\r")
+				fmt.Println("\n\rUSAGE: recime-cli create [folderName|.]\n\r")
 			}
 		},
 	}
+
+	cmdCreate.PersistentFlags().StringVarP(&lang, "lang", "l", "es6", "Specifies the language of the template.")
 
 	var cmdDeploy = &cobra.Command{
 		Use:   "deploy",

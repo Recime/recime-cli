@@ -211,7 +211,8 @@ func preparePackage(uid string) (string, error) {
 
 	fileName := filepath.ToSlash(fmt.Sprintf("%s/%s.zip", dest, uid))
 
-	download(template, fileName)
+	h := &httpClient{}
+	h.download(template, fileName)
 
 	check(util.Unzip(fileName, dest))
 
@@ -233,10 +234,6 @@ func preparePackage(uid string) (string, error) {
 	sh := &shell{}
 
 	sh.execute(botdir, "install")
-
-	if _, err := os.Stat(fmt.Sprintf("%s/.babelrc", botdir)); err == nil {
-		sh.execute(botdir, "install", "babel-cli", "babel-core", "babel-preset-es2015")
-	}
 
 	if cmd.Build(botdir) != nil {
 		return "", errors.New("Build failed")

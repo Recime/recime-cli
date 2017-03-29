@@ -13,35 +13,6 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
-//WatchForChanges watch file for changes
-func WatchForChanges(dir string, targetDir string) {
-	watcher, err := fsnotify.NewWatcher()
-
-	check(err)
-
-	// Process events
-	go func() {
-		for {
-			select {
-			case ev := <-watcher.Event:
-				if !ev.IsAttrib() {
-					fmt.Println("INFO: File change event.")
-
-					util.CopyDir(dir, targetDir)
-
-					cmd.Build(targetDir)
-				}
-			case err := <-watcher.Error:
-				fmt.Println("error:", err)
-			}
-		}
-	}()
-
-	err = watcher.Watch(dir)
-
-	check(err)
-}
-
 //Run runs the bot in a local node server.
 func Run(watch bool) {
 	uid := cmd.GetUID()
@@ -66,7 +37,8 @@ func Run(watch bool) {
 		check(err)
 	}
 
-	download(template, zipName)
+	h := &httpClient{}
+	h.download(template, zipName)
 
 	util.Unzip(zipName, home)
 
@@ -93,10 +65,6 @@ func Run(watch bool) {
 
 	fmt.Println("INFO: Building...")
 
-	if _, err := os.Stat(fmt.Sprintf("%s/.babelrc", botdir)); err == nil {
-		sh.execute(botdir, "install", "babel-cli", "babel-core", "babel-preset-es2015")
-	}
-
 	if cmd.Build(botdir) != nil {
 		return
 	}
@@ -104,7 +72,7 @@ func Run(watch bool) {
 	fmt.Println("INFO: Starting...")
 
 	if watch {
-		WatchForChanges(filepath.ToSlash(wd), botdir)
+		watchDir(filepath.ToSlash(wd), botdir)
 	}
 
 	config := []cmd.Config{cmd.Config{Key: "BOT_UNIQUE_ID", Value: uid}}
@@ -125,4 +93,45 @@ func Run(watch bool) {
 	}
 
 	sh.execute(templatedir, "start")
+}
+
+//watchDir watch file for changes
+func watchDir(dir string, targetDir string) {
+	watcher, err := fsnotify.NewWatcher()
+
+	check(err)
+
+	// Process events
+	go func() {
+		for {
+			select {
+			case ev := <-watcher.Event:
+				fileInfo, err := os.Stat(ev.Name)
+
+				if !ev.IsAttrib() {
+					if os.IsNotExist(err) {
+						components := strings.Split(filepath.ToSlash(ev.Name), "/")
+						name := components[len(components)-1]
+
+						os.Remove(fmt.Sprintf("%s/%s", targetDir, string(name)))
+					} else {
+						targetFile := fmt.Sprintf("%s/%s", targetDir, fileInfo.Name())
+
+						fmt.Println("INFO: File change event.")
+
+						util.CopyFile(ev.Name, targetFile)
+						cmd.Build(targetDir)
+
+						fmt.Println("----")
+					}
+				}
+			case err := <-watcher.Error:
+				fmt.Println("error:", err)
+			}
+		}
+	}()
+
+	err = watcher.Watch(dir)
+
+	check(err)
 }

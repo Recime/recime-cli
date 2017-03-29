@@ -13,28 +13,91 @@
 
 package main
 
-import "fmt"
-import "os"
-import "io"
-import "io/ioutil"
+import (
+	"bufio"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
+	"time"
 
-import "encoding/json"
-import "bufio"
-import "strings"
-import "regexp"
-
-import "github.com/Recime/recime-cli/cmd"
-import "path/filepath"
+	"github.com/Recime/recime-cli/cmd"
+	"github.com/Recime/recime-cli/util"
+	"github.com/briandowns/spinner"
+	homedir "github.com/mitchellh/go-homedir"
+)
 
 // Create Generates the bot
-func Create(folder string) {
+func Create(folder string, lang string) {
 	user, err := cmd.GetStoredUser()
 
 	cmd.Guard(user)
 
+	h := &httpClient{}
+
+	home, err := homedir.Dir()
+
+	check(err)
+
+	home = fmt.Sprintf("%s/recime-cli", filepath.ToSlash(home))
+
+	fileName := filepath.ToSlash(fmt.Sprintf("%s/recime-bot-%s-template.zip", home, lang))
+
+	if _, err := os.Stat(fileName); os.IsNotExist(err) {
+		fmt.Println("INFO: Downloading template...")
+
+		s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
+
+		s.Start()
+
+		h.download(botTemplateURL(lang), fileName)
+
+		s.Stop()
+
+		fmt.Println("---")
+	}
+
+	botDir := filepath.ToSlash(folder)
+
 	wd, err := os.Getwd()
 
-	data := processsInput(os.Stdin)
+	if !filepath.IsAbs(botDir) {
+		botDir = filepath.Join(wd, botDir)
+	}
+
+	if _, err := os.Stat(botDir); os.IsNotExist(err) {
+		si, err := os.Stat(wd)
+
+		check(err)
+
+		err = os.Mkdir(botDir, si.Mode())
+
+		check(err)
+	}
+
+	util.Unzip(fileName, home)
+
+	tokens := strings.Split(botTemplateURL(lang), "/")
+	templateDir := tokens[len(tokens)-1]
+	templateDir = strings.TrimSuffix(templateDir, filepath.Ext(templateDir))
+	templateDir = fmt.Sprintf("%s/recime-bot-%s-template-%s", home, strings.ToLower(lang), templateDir)
+
+	var data map[string]interface{}
+
+	pkgFilePath := fmt.Sprintf("%s/package.json", templateDir)
+
+	buff, err := ioutil.ReadFile(pkgFilePath)
+
+	check(err)
+
+	if err := json.Unmarshal(buff, &data); err != nil {
+		panic(err)
+	}
+
+	readFromStdin(data)
 
 	data["author"] = fmt.Sprintf("%s <%s>", user.Company, user.Email)
 
@@ -48,46 +111,24 @@ func Create(folder string) {
 
 	data["name"] = normalizedName
 
-	check(err)
+	filePath := fmt.Sprintf("%s/package.json", templateDir)
 
-	path := filepath.ToSlash(folder)
-
-	if !filepath.IsAbs(path) {
-		path = filepath.Join(wd, path)
-	}
-
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		si, err := os.Stat(wd)
-
-		check(err)
-
-		err = os.Mkdir(path, si.Mode())
-
-		check(err)
-	}
-
-	resources, err := AssetDir("data")
+	err = ioutil.WriteFile(filePath, cmd.MarshalIndent(data), os.ModePerm)
 
 	check(err)
 
-	for key := range resources {
-		entry := resources[key]
+	util.CopyDir(templateDir, botDir)
 
-		asset := MustAsset("data/" + entry)
+	fmt.Println("INFO: Bot created successfully.")
+}
 
-		if entry == "package.json" {
-			asset = cmd.MarshalIndent(data)
-		}
-
-		filePath := path + "/" + entry
-
-		err = ioutil.WriteFile(filePath, asset, os.ModePerm)
-
-		check(err)
+func botTemplateURL(lang string) string {
+	switch lang {
+	case "typescript":
+		return typescriptBotTemplate
+	default:
+		return es6BotTemplate
 	}
-
-	fmt.Println("Bot Created Successfully.")
-
 }
 
 func setValue(data map[string]interface{}, key string, value string) {
@@ -96,12 +137,8 @@ func setValue(data map[string]interface{}, key string, value string) {
 	}
 }
 
-func processsInput(in io.Reader) (data map[string]interface{}) {
-	scanner := bufio.NewScanner(in)
-
-	asset := MustAsset("data/package.json")
-
-	check(json.Unmarshal(asset, &data))
+func readFromStdin(data map[string]interface{}) {
+	scanner := bufio.NewScanner(os.Stdin)
 
 	fmt.Printf("Title (%s):", data["title"])
 
@@ -124,6 +161,4 @@ func processsInput(in io.Reader) (data map[string]interface{}) {
 	setValue(data, "title", title)
 	setValue(data, "description", desc)
 	setValue(data, "license", license)
-
-	return data
 }
