@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -9,6 +10,11 @@ import (
 
 	"github.com/Recime/recime-cli/cmd"
 )
+
+type dependency struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+}
 
 type pkg struct {
 	Name   string `json:"name"`
@@ -30,12 +36,56 @@ func (p *pkg) get(reader io.Reader) map[string]interface{} {
 	return config
 }
 
+func (p *pkg) getFilePath() string {
+	return filepath.Join(".recime", "plugins.json")
+}
+
+func (p *pkg) getTargetPath(wd string) string {
+	target := filepath.Join(wd, p.getFilePath())
+
+	return target
+}
+
 func (p *pkg) open(wd string) (io.Reader, error) {
 	path := filepath.Join(wd, filepath.Join(".recime", "plugins.json"))
 
 	reader, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0600)
 
 	return reader, err
+}
+
+func (p *pkg) read(wd string) map[string]interface{} {
+	data := make(map[string]interface{})
+	reader, err := p.open(wd)
+
+	if err != nil {
+		targetPath := p.getTargetPath(wd)
+		err = os.MkdirAll(filepath.Dir(targetPath), 0755)
+
+		check(err)
+
+		_, err := os.Stat(targetPath)
+
+		if os.IsNotExist(err) {
+			os.Create(targetPath)
+		}
+	} else {
+		data = p.get(reader)
+	}
+
+	return data
+}
+
+func (p *pkg) remove() {
+	wd, err := os.Getwd()
+
+	check(err)
+
+	data := p.read(wd)
+
+	delete(data, p.Name)
+
+	p.saveDataToDisk(data)
 }
 
 func (p *pkg) sync(source string, dest string) {
@@ -46,7 +96,7 @@ func (p *pkg) sync(source string, dest string) {
 
 		var meta map[string]interface{}
 
-		fp := dest + "/package.json"
+		fp := fmt.Sprintf("%s/package.json", dest)
 
 		buff, err := ioutil.ReadFile(fp)
 
@@ -67,36 +117,28 @@ func (p *pkg) sync(source string, dest string) {
 
 }
 
-func (p *pkg) save() {
-	data := make(map[string]interface{})
-
+func (p *pkg) save(dependencies []dependency) {
 	wd, err := os.Getwd()
 
 	check(err)
 
-	_filepath := filepath.Join(".recime", "plugins.json")
+	data := p.read(wd)
 
-	target := filepath.Join(wd, _filepath)
-
-	reader, err := p.open(wd)
-
-	if err != nil {
-		err = os.MkdirAll(filepath.Dir(target), 0755)
-
-		check(err)
-
-		_, err := os.Stat(target)
-
-		if os.IsNotExist(err) {
-			os.Create(target)
-		}
-	} else {
-		data = p.get(reader)
+	for _, dep := range dependencies {
+		data[dep.Name] = dep.Version
 	}
 
-	data[p.Name] = "latest"
+	p.saveDataToDisk(data)
+}
 
-	file, err := os.OpenFile(target, os.O_WRONLY|os.O_TRUNC, 0600)
+func (p *pkg) saveDataToDisk(data map[string]interface{}) {
+	wd, err := os.Getwd()
+
+	check(err)
+
+	targetPath := p.getTargetPath(wd)
+
+	file, err := os.OpenFile(targetPath, os.O_WRONLY|os.O_TRUNC, 0600)
 
 	check(err)
 

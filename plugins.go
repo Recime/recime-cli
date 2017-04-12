@@ -26,9 +26,8 @@ func (p *plugins) Add(name string) {
 	uid := cmd.GetUID()
 
 	pkg := &pkg{
-		UID:    uid,
-		Name:   name,
-		APIKey: p.APIKey,
+		UID:  uid,
+		Name: name,
 	}
 
 	jsonBody, err := json.Marshal(pkg)
@@ -44,8 +43,9 @@ func (p *plugins) Add(name string) {
 	check(err)
 
 	var data struct {
-		Config  cmd.Config `json:"config"`
-		Message string     `json:"message"`
+		Name         string       `json:"name"`
+		Dependencies []dependency `json:"dependencies"`
+		Message      string       `json:"message"`
 	}
 
 	bytes, err := ioutil.ReadAll(res.Body)
@@ -54,12 +54,14 @@ func (p *plugins) Add(name string) {
 
 	json.Unmarshal(bytes, &data)
 
-	if len(data.Config.Key) > 0 {
-		config := cmd.Config{Key: data.Config.Key, Value: data.Config.Value, Source: source}
+	if len(data.Name) > 0 {
+		key := fmt.Sprintf("%s_API_KEY", strings.ToUpper(data.Name))
+
+		config := cmd.Config{Key: key, Value: p.APIKey, Source: source}
 
 		config.Save()
 
-		pkg.save()
+		pkg.save(data.Dependencies)
 
 	} else {
 		red := color.New(color.FgRed).Add(color.Bold)
@@ -76,4 +78,49 @@ func (p *plugins) Add(name string) {
 	console.Println("INFO: Plugin added succesfully to your project.")
 
 	fmt.Println("")
+}
+
+func (p *plugins) Remove(name string) {
+	source := fmt.Sprintf("%s/plugin", apiEndpoint)
+
+	uid := cmd.GetUID()
+
+	pkg := &pkg{
+		UID:  uid,
+		Name: name,
+	}
+
+	jsonBody, err := json.Marshal(pkg)
+
+	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
+
+	s.Start()
+
+	reader := bytes.NewReader(jsonBody)
+
+	req, err := http.NewRequest("DELETE", source, reader)
+	req.Header.Set("Content-Type", "application/json")
+
+	check(err)
+
+	res, err := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+
+	_, err = ioutil.ReadAll(res.Body)
+
+	check(err)
+
+	s.Stop()
+
+	pkg.remove()
+
+	config := cmd.Config{
+		Key: fmt.Sprintf("%s_API_KEY", strings.ToUpper(name)),
+	}
+
+	config.Remove()
+
+	console := color.New(color.FgHiMagenta)
+	console.Println("\r\nINFO: Plugin removed succesfully from your project.\r\n")
 }

@@ -131,12 +131,35 @@ func main() {
 				}
 
 			} else {
-				fmt.Println("INFO: Invalid Number of Arguments.")
+				red := color.New(color.FgRed).Add(color.Bold)
+				red.Println("\r\nERROR: Missing arguments. USAGE: recime-cli config set KEY_NAME=value")
+			}
+		},
+	}
+
+	var cmdConfigRemove = &cobra.Command{
+		Use:   "unset",
+		Short: "Removes a config var",
+		Long:  "Removes a config var",
+		Run: func(_ *cobra.Command, args []string) {
+			if len(args) == 1 {
+				config := cmd.Config{
+					Key: args[0],
+				}
+
+				if config.Remove() != nil {
+					console := color.New(color.FgHiMagenta)
+					console.Println("\r\nINFO: Config key removed successfully.\r\n")
+				}
+			} else {
+				red := color.New(color.FgRed).Add(color.Bold)
+				red.Println("\r\nERROR: Missing arguments. USAGE: recime-cli config unset KEY_NAME")
 			}
 		},
 	}
 
 	cmdConfig.AddCommand(cmdConfigAdd)
+	cmdConfig.AddCommand(cmdConfigRemove)
 
 	var cmdPlugin = &cobra.Command{
 		Use:   "plugins",
@@ -154,11 +177,27 @@ func main() {
 		Short: "Adds a new Plugin",
 		Long:  "Adds a new Plugin",
 		Run: func(_ *cobra.Command, args []string) {
-			if len(args) == 1 {
+			if len(args) == 1 && len(apikey) > 0 {
 				p := &plugins{APIKey: apikey}
 				p.Add(args[0])
 			} else {
-				fmt.Println("INFO: Invalid Number of Arguments.")
+				red := color.New(color.FgRed).Add(color.Bold)
+				red.Println("\r\nERROR: Missing arguments. USAGE: recime-cli plugins add pluginname --apikey=[KEY]")
+			}
+		},
+	}
+
+	var cmdPluginRemove = &cobra.Command{
+		Use:   "remove",
+		Short: "Remove a Plugin",
+		Long:  "Removes a Plugin",
+		Run: func(_ *cobra.Command, args []string) {
+			if len(args) == 1 {
+				p := &plugins{}
+				p.Remove(args[0])
+			} else {
+				red := color.New(color.FgRed).Add(color.Bold)
+				red.Println("\r\nERROR: Missing arguments. USAGE: recime-cli plugins remove pluginname")
 			}
 		},
 	}
@@ -166,6 +205,7 @@ func main() {
 	cmdPluginAdd.PersistentFlags().StringVarP(&apikey, "apikey", "k", "", "Sets the api key")
 
 	cmdPlugin.AddCommand(cmdPluginAdd)
+	cmdPlugin.AddCommand(cmdPluginRemove)
 
 	var watch bool
 
