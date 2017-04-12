@@ -43,7 +43,6 @@ func (p *platform) install(name string) {
 	switch strings.ToLower(name) {
 	case "facebook":
 		p.processInput("FACEBOOK_PAGE_ACCESS_TOKEN", "Page access token:")
-		fmt.Println("Gretting text (")
 	case "telegram":
 		p.processInput("TELEGRAM_ACCESS_TOKEN", "Telegram access key:")
 	case "wechat":
