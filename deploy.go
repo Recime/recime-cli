@@ -443,7 +443,7 @@ func Deploy() {
 	d.Prepare()
 
 	fmt.Println("")
-	fmt.Println("Reigstering the bot and creating the API endpoint.")
+	fmt.Println("Registering the bot and creating the API endpoint.")
 
 	d.UploadIcon()
 
