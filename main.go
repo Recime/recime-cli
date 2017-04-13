@@ -40,8 +40,6 @@ func PrintStatus(status string) {
 }
 
 func checkMainFolder() {
-	fmt.Println("main")
-
 	home, err := homedir.Dir()
 
 	check(err)
