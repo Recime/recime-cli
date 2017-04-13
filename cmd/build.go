@@ -17,11 +17,10 @@ func execute(cmd *exec.Cmd) error {
 
 	err := cmd.Run()
 
-	red := color.New(color.FgMagenta)
+	red := color.New(color.FgRed)
 
 	if err != nil {
 		red.Println(fmt.Sprint(err) + ": " + stderr.String())
-		return err
 	}
 
 	red.Println(out.String())
