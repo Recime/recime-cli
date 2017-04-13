@@ -47,6 +47,8 @@ func (p *platform) install(name string) {
 		p.processInput("TELEGRAM_ACCESS_TOKEN", "Telegram access key:")
 	case "wechat":
 		p.processInput("WECHAT_ACCESS_TOKEN", "WeChat access token:")
+	case "slack":
+		p.processInput("SLACK_ACCESS_TOKEN", "Slack access token:")
 	default:
 		panic("INFO: Unsupported Platform.")
 	}

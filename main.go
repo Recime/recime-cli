@@ -17,12 +17,14 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/Recime/recime-cli/cmd"
 	"github.com/fatih/color"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 )
 
@@ -37,6 +39,23 @@ func PrintStatus(status string) {
 	}
 }
 
+func checkMainFolder() {
+	fmt.Println("main")
+
+	home, err := homedir.Dir()
+
+	check(err)
+
+	home = filepath.ToSlash(home) + "/recime-cli"
+
+	_, err = os.Stat(home)
+
+	if os.IsNotExist(err) {
+		err = os.Mkdir(home, os.ModePerm)
+		check(err)
+	}
+}
+
 func main() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
@@ -45,6 +64,8 @@ func main() {
 		fmt.Println("")
 		os.Exit(1)
 	}()
+
+	checkMainFolder()
 
 	var cmdLogin = &cobra.Command{
 		Use:   "login",
