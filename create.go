@@ -46,7 +46,12 @@ func Create(folder string, lang string) {
 
 	fileName := filepath.ToSlash(fmt.Sprintf("%s/recime-bot-%s-template.zip", home, lang))
 
-	if _, err := os.Stat(fileName); os.IsNotExist(err) {
+	tokens := strings.Split(botTemplateURL(lang), "/")
+	templateDir := tokens[len(tokens)-1]
+	templateDir = strings.TrimSuffix(templateDir, filepath.Ext(templateDir))
+	templateDir = fmt.Sprintf("%s/recime-bot-%s-template-%s", home, strings.ToLower(lang), templateDir)
+
+	if _, err := os.Stat(templateDir); os.IsNotExist(err) {
 		fmt.Println("INFO: Downloading template...")
 
 		s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
@@ -79,11 +84,6 @@ func Create(folder string, lang string) {
 	}
 
 	util.Unzip(fileName, home)
-
-	tokens := strings.Split(botTemplateURL(lang), "/")
-	templateDir := tokens[len(tokens)-1]
-	templateDir = strings.TrimSuffix(templateDir, filepath.Ext(templateDir))
-	templateDir = fmt.Sprintf("%s/recime-bot-%s-template-%s", home, strings.ToLower(lang), templateDir)
 
 	var data map[string]interface{}
 
