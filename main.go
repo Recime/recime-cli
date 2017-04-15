@@ -105,19 +105,6 @@ func main() {
 		},
 	}
 
-	var cmdBuild = &cobra.Command{
-		Use:   "build",
-		Short: "Builds the bot module",
-		Long:  "Builds the bot module. Uses the build script from pacakge.json",
-		Run: func(_ *cobra.Command, args []string) {
-			wd, err := os.Getwd()
-
-			check(err)
-
-			cmd.Build(wd)
-		},
-	}
-
 	var cmdConfig = &cobra.Command{
 		Use:   "config",
 		Short: "Initializes bot config vars",
@@ -280,7 +267,6 @@ Copyright %d Recime, Inc.
 
 	cmdPlatform.AddCommand(cmdPlaformConfig)
 
-	rootCmd.AddCommand(cmdBuild)
 	rootCmd.AddCommand(cmdConfig)
 	rootCmd.AddCommand(cmdLogin)
 	rootCmd.AddCommand(cmdCreate)
