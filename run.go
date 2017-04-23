@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"./cmd"
+	"github.com/Recime/recime-cli/cmd"
 	"github.com/Recime/recime-cli/util"
 
 	"github.com/howeyc/fsnotify"

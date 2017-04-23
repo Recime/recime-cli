@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 
-	"./cmd"
+	"github.com/Recime/recime-cli/cmd"
 )
 
 type shell struct {

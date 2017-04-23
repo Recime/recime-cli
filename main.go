@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"./cmd"
+	"github.com/Recime/recime-cli/cmd"
 	"github.com/fatih/color"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
