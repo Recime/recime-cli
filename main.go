@@ -167,52 +167,6 @@ func main() {
 	cmdConfig.AddCommand(cmdConfigAdd)
 	cmdConfig.AddCommand(cmdConfigRemove)
 
-	var cmdPlugin = &cobra.Command{
-		Use:   "plugins",
-		Short: "Installs third-party plugins",
-		Long:  "Install third-party plugins for bot to take advantage",
-		Run: func(_ *cobra.Command, args []string) {
-
-		},
-	}
-
-	var apikey string
-
-	var cmdPluginAdd = &cobra.Command{
-		Use:   "add",
-		Short: "Adds a new Plugin",
-		Long:  "Adds a new Plugin",
-		Run: func(_ *cobra.Command, args []string) {
-			if len(args) == 1 && len(apikey) > 0 {
-				p := &plugins{APIKey: apikey}
-				p.Add(args[0])
-			} else {
-				red := color.New(color.FgRed).Add(color.Bold)
-				red.Println("\r\nERROR: Missing arguments. USAGE: recime-cli plugins add pluginname --apikey=[KEY]")
-			}
-		},
-	}
-
-	var cmdPluginRemove = &cobra.Command{
-		Use:   "remove",
-		Short: "Remove a Plugin",
-		Long:  "Removes a Plugin",
-		Run: func(_ *cobra.Command, args []string) {
-			if len(args) == 1 {
-				p := &plugins{}
-				p.Remove(args[0])
-			} else {
-				red := color.New(color.FgRed).Add(color.Bold)
-				red.Println("\r\nERROR: Missing arguments. USAGE: recime-cli plugins remove pluginname")
-			}
-		},
-	}
-
-	cmdPluginAdd.PersistentFlags().StringVarP(&apikey, "apikey", "k", "", "Sets the api key")
-
-	cmdPlugin.AddCommand(cmdPluginAdd)
-	cmdPlugin.AddCommand(cmdPluginRemove)
-
 	var watch bool
 
 	var cmdRun = &cobra.Command{
@@ -273,7 +227,6 @@ Copyright %d Recime, Inc.
 	rootCmd.AddCommand(cmdDeploy)
 	rootCmd.AddCommand(cmdRun)
 	rootCmd.AddCommand(cmdPlatform)
-	rootCmd.AddCommand(cmdPlugin)
 
 	rootCmd.Execute()
 
