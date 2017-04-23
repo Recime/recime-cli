@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -48,6 +49,16 @@ const (
 	bucket    = "recime-io"
 	singedURL = apiEndpoint + "/signedurl"
 )
+
+// PrintStatus outputs formatted status.
+func printRemoteStatus(status string) {
+	pattern := regexp.MustCompile(`[a-z1-9A-Z.]+`)
+	if pattern.MatchString(status) {
+		fmt.Println(fmt.Sprintf("remote ---> %v", status))
+	} else {
+		fmt.Print(status)
+	}
+}
 
 // Resource contains the bucket information.
 type resource struct {
@@ -109,6 +120,8 @@ func (d *deployer) Prepare() {
 
 	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
 
+	s.Stop()
+
 	failed := false
 
 	for {
@@ -124,10 +137,8 @@ func (d *deployer) Prepare() {
 
 		if resp.Code == 0 {
 			s.Stop()
-			PrintStatus(resp.Message)
+			printRemoteStatus(resp.Message)
 		}
-
-		s.Start()
 
 		if resp.Code > 0 {
 			fmt.Println("")
@@ -136,6 +147,8 @@ func (d *deployer) Prepare() {
 			failed = true
 			break
 		}
+
+		s.Start()
 	}
 
 	s.Stop()
@@ -481,7 +494,7 @@ func Deploy() {
 
 		fmt.Println("")
 
-		PrintStatus("Success!")
+		fmt.Println("INFO: Success!")
 
 		return
 	}

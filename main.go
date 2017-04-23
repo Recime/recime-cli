@@ -22,22 +22,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Recime/recime-cli/cmd"
+	"./cmd"
 	"github.com/fatih/color"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 )
-
-// PrintStatus outputs formatted status.
-func PrintStatus(status string) {
-	pattern := regexp.MustCompile(`[a-z1-9A-Z.]+`)
-	if pattern.MatchString(status) {
-		fmt.Print("INFO: ")
-		fmt.Println(fmt.Sprintf("%v", status))
-	} else {
-		fmt.Print(status)
-	}
-}
 
 func checkMainFolder() {
 	home, err := homedir.Dir()
