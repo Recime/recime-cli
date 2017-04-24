@@ -16,7 +16,7 @@ package main
 // SiteURL Site URL
 const SiteURL = "https://recime.io"
 
-// Version 1.2.4
+// Version 1.2.5
 const Version = "1.2.5"
 
 const baseURL = "https://developer.recime.io"
