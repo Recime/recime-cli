@@ -61,8 +61,6 @@ func Create(folder string, lang string) {
 		h.download(botTemplateURL(lang), fileName)
 
 		s.Stop()
-
-		fmt.Println("---")
 	}
 
 	botDir := filepath.ToSlash(folder)
