@@ -1,22 +1,24 @@
 package cmd
 
-import "fmt"
+import (
+	"bufio"
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+	"syscall"
+	"time"
 
-import "bufio"
-import "bytes"
-import "path/filepath"
-import "io"
-import "io/ioutil"
-import "encoding/json"
-import "net/http"
-import "os"
-import "strings"
-import "syscall"
-import "time"
-
-import "golang.org/x/crypto/ssh/terminal"
-import "github.com/briandowns/spinner"
-import "github.com/mitchellh/go-homedir"
+	"github.com/briandowns/spinner"
+	"github.com/fatih/color"
+	"github.com/mitchellh/go-homedir"
+	"golang.org/x/crypto/ssh/terminal"
+)
 
 // Login validates the user
 func Login(options map[string]interface{}) {
@@ -108,7 +110,15 @@ func saveUser(user map[string]interface{}) {
 	file.Write(jsonBody)
 
 	fmt.Println("")
-	fmt.Printf("INFO: User Verification Successful.")
+
+	color := color.New(color.FgHiMagenta)
+
+	fmt.Println("")
+
+	fmt.Print("Logged in as: ")
+
+	color.Print(user["email"])
+
 	fmt.Println("")
 }
 

@@ -49,7 +49,9 @@ func (p *platform) install(name string) {
 		p.processInput("WECHAT_ACCESS_TOKEN", "WeChat access token:")
 	case "slack":
 		p.processInput("SLACK_ACCESS_TOKEN", "Slack access token:")
+	case "viber":
+		p.processInput("VIBER_ACCESS_TOKEN", "Viber authentication token:")
 	default:
-		panic("INFO: Unsupported Platform.")
+		panic("ERROR: Unsupported Platform.")
 	}
 }
