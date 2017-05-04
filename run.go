@@ -26,7 +26,7 @@ func Run(watch bool) {
 
 	check(err)
 
-	home = filepath.ToSlash(home) + "/recime-cli"
+	home = fmt.Sprintf("%v/recime-cli-%v", filepath.ToSlash(home), Version)
 
 	zipName := fmt.Sprintf("%s/%s.zip", home, fileName)
 

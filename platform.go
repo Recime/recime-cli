@@ -40,17 +40,19 @@ func (p *platform) processInput(key string, title string) {
 
 // Prepare prepares the bot for deploy.
 func (p *platform) install(name string) {
+	key := fmt.Sprintf("RECIME_%v_ACCESS_TOKEN", strings.ToUpper(name))
+
 	switch strings.ToLower(name) {
 	case "facebook":
-		p.processInput("FACEBOOK_PAGE_ACCESS_TOKEN", "Page access token:")
+		p.processInput(key, "Page access token:")
 	case "telegram":
-		p.processInput("TELEGRAM_ACCESS_TOKEN", "Telegram access key:")
+		p.processInput(key, "Telegram access key:")
 	case "wechat":
-		p.processInput("WECHAT_ACCESS_TOKEN", "WeChat access token:")
+		p.processInput(key, "WeChat access token:")
 	case "slack":
-		p.processInput("SLACK_ACCESS_TOKEN", "Slack access token:")
+		p.processInput(key, "Slack oAuth access token:")
 	case "viber":
-		p.processInput("VIBER_ACCESS_TOKEN", "Viber authentication token:")
+		p.processInput(key, "Viber authentication token:")
 	default:
 		panic("ERROR: Unsupported Platform.")
 	}
