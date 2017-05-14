@@ -11,7 +11,7 @@ import (
 	"github.com/fatih/color"
 )
 
-//UID Defines unique ID operartions
+//UID Defines unique ID operations
 type UID struct {
 }
 

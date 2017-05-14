@@ -331,19 +331,32 @@ func sendRequest(url string, token string, body io.Reader) []byte {
 
 	s.Stop()
 
-	bytes, err := ioutil.ReadAll(res.Body)
+	dat, err := ioutil.ReadAll(res.Body)
 
 	check(err)
 
 	color := color.New(color.FgHiRed)
 
 	if res.StatusCode >= 200 && res.StatusCode < 300 {
-		return bytes
+		return dat
 	}
 
 	switch res.StatusCode {
 	case 400:
-		color.Println("Bad Request.")
+		{
+			type err struct {
+				Message string `json:"message"`
+			}
+			var result []err
+
+			json.Unmarshal(dat, &result)
+
+			for _, value := range result {
+				printError(value.Message)
+			}
+
+			color.Println("")
+		}
 	case 401:
 		color.Println("Unauthorized. Invalid or expired token. Please do \"recime-cli login\" and try again.")
 	case 405:

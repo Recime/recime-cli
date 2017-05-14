@@ -7,9 +7,8 @@ import (
 	"strings"
 	"syscall"
 
-	"golang.org/x/crypto/ssh/terminal"
-
 	"github.com/Recime/recime-cli/shared"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 // Login validates the user
