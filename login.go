@@ -9,7 +9,7 @@ import (
 
 	"golang.org/x/crypto/ssh/terminal"
 
-	"./shared"
+	"github.com/Recime/recime-cli/shared"
 )
 
 // Login validates the user

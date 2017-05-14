@@ -461,8 +461,6 @@ func Deploy() {
 
 	resp, err := http.DefaultClient.Do(req)
 
-	bar.BarEnd = "Completed."
-
 	check(err)
 
 	defer resp.Body.Close()
