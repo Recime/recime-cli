@@ -305,7 +305,7 @@ func removeScript(dir string) {
 
 	delete(data, "scripts")
 
-	err = ioutil.WriteFile(pkgFilePath, MarshalIndent(data), os.ModePerm)
+	err = ioutil.WriteFile(pkgFilePath, marshalIndent(data), os.ModePerm)
 
 	check(err)
 }
@@ -365,13 +365,15 @@ func printError(msg string) {
 
 // Deploy deploys the bot
 func Deploy() {
-	uid := GetUID()
+	uid := UID{}
+
+	id := uid.Get()
 
 	token := renewToken()
 
 	fmt.Println("Creating bot package to deploy into \"Recime\" cloud.")
 
-	pkgPath, err := preparePackage(uid)
+	pkgPath, err := preparePackage(id)
 
 	if err != nil {
 		color := color.New(color.FgHiRed)
@@ -425,7 +427,7 @@ func Deploy() {
 	}
 
 	d := &deployer{
-		ID:    uid,
+		ID:    id,
 		Token: token.ID,
 	}
 

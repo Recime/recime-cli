@@ -15,7 +15,8 @@ import (
 
 //Run runs the bot in a local node server.
 func Run(watch bool) {
-	uid := GetUID()
+	uid := UID{}
+	id := uid.Get()
 
 	tokens := strings.Split(template, "/")
 	fileName := tokens[len(tokens)-1]
@@ -75,7 +76,7 @@ func Run(watch bool) {
 		watchDir(filepath.ToSlash(wd), botdir)
 	}
 
-	config := []shared.Config{shared.Config{Key: "BOT_UNIQUE_ID", Value: uid}}
+	config := []shared.Config{shared.Config{Key: "BOT_UNIQUE_ID", Value: id}}
 
 	_config := shared.Config{}
 	// Add config user config

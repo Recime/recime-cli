@@ -18,7 +18,7 @@ type User struct {
 }
 
 // Guard validates the account against recime cloud
-func Guard(user User) {
+func (u *User) Guard(user User) {
 	if user.Email == "" {
 		console := color.New(color.FgHiRed)
 		console.Println("User is not logged in. Please run \"recime-cli login\" to get started.")

@@ -1,20 +1,22 @@
 package main
 
 import (
-	"bytes"
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
 
+	"github.com/Recime/recime-cli/shared"
 	"github.com/fatih/color"
-
-	"./shared"
 )
 
-//CreateUID creates md5 hash with bot name and author
-func CreateUID(name string, author string) string {
+// Defines UID
+type UID struct {
+}
+
+//Create creates md5 hash with bot name and author
+func (u *UID) Create(name string, author string) string {
 	uid := author + ";" + name
 
 	_data := []byte(uid)
@@ -24,8 +26,8 @@ func CreateUID(name string, author string) string {
 	return uid
 }
 
-// GetUID gets the uid for the package.
-func GetUID() string {
+// Get gets the uid for the package.
+func (u *UID) Get() string {
 	wd, err := os.Getwd()
 
 	var data map[string]interface{}
@@ -53,20 +55,7 @@ func GetUID() string {
 
 	name := data["name"].(string)
 
-	uid := CreateUID(name, t.Email)
+	uid := u.Create(name, t.Email)
 
 	return uid
-}
-
-// MarshalIndent marshals the given object
-func MarshalIndent(data map[string]interface{}) []byte {
-	asset, err := json.MarshalIndent(data, "", "\t")
-
-	check(err)
-
-	asset = bytes.Replace(asset, []byte("\\u003c"), []byte("<"), -1)
-	asset = bytes.Replace(asset, []byte("\\u003e"), []byte(">"), -1)
-	asset = bytes.Replace(asset, []byte("\\u0026"), []byte("&"), -1)
-
-	return asset
 }

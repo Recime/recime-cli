@@ -110,7 +110,7 @@ func (p *pkg) sync(source string, dest string) {
 			deps[key] = value
 		}
 
-		ioutil.WriteFile(fp, MarshalIndent(meta), os.ModePerm)
+		ioutil.WriteFile(fp, marshalIndent(meta), os.ModePerm)
 	}
 
 }

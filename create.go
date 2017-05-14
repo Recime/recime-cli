@@ -106,7 +106,7 @@ func Create(folder string, lang string) {
 
 	filePath := fmt.Sprintf("%s/package.json", templateDir)
 
-	err = ioutil.WriteFile(filePath, MarshalIndent(data), os.ModePerm)
+	err = ioutil.WriteFile(filePath, marshalIndent(data), os.ModePerm)
 
 	check(err)
 

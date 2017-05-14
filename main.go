@@ -14,6 +14,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
@@ -228,4 +230,17 @@ func check(e error) {
 	if e != nil {
 		panic(e)
 	}
+}
+
+// MarshalIndent marshals the given object
+func marshalIndent(data map[string]interface{}) []byte {
+	asset, err := json.MarshalIndent(data, "", "\t")
+
+	check(err)
+
+	asset = bytes.Replace(asset, []byte("\\u003c"), []byte("<"), -1)
+	asset = bytes.Replace(asset, []byte("\\u003e"), []byte(">"), -1)
+	asset = bytes.Replace(asset, []byte("\\u0026"), []byte("&"), -1)
+
+	return asset
 }
