@@ -9,10 +9,9 @@ import (
 
 	"github.com/Recime/recime-cli/shared"
 	"github.com/fatih/color"
-	"github.com/mitchellh/go-homedir"
 )
 
-//Defines UID
+//UID Defines unique ID operartions
 type UID struct {
 }
 
@@ -29,11 +28,11 @@ func (u *UID) Create(name string, author string) string {
 
 // Get gets the uid for the package.
 func (u *UID) Get() string {
-	home, _ := homedir.Dir()
+	wd, err := os.Getwd()
 
 	var data map[string]interface{}
 
-	buff, err := ioutil.ReadFile(home + "/package.json")
+	buff, err := ioutil.ReadFile(wd + "/package.json")
 
 	check(err)
 
@@ -45,7 +44,7 @@ func (u *UID) Get() string {
 
 	token, err := t.Validate()
 
-	if len(token.ID) > 0 {
+	if len(token.ID) == 0 {
 		console := color.New(color.FgHiRed)
 		console.Println("User is not logged in. Please run \"recime-cli login\" to get started.")
 		fmt.Println("")

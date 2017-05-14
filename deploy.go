@@ -25,6 +25,7 @@ import (
 	"strings"
 	"time"
 
+	"encoding/xml"
 	"path/filepath"
 
 	"github.com/Recime/recime-cli/lib"
@@ -221,8 +222,6 @@ func (d *deployer) UploadIcon() {
 	}
 
 	check(json.Unmarshal(dat, &result))
-
-	fmt.Println(result.URL)
 
 	reader := bytes.NewReader(icon)
 
@@ -467,9 +466,22 @@ func Deploy() {
 
 	defer resp.Body.Close()
 
-	_, err = ioutil.ReadAll(resp.Body)
+	bar.Finish()
 
-	check(err)
+	dat, err = ioutil.ReadAll(resp.Body)
+
+	var xmlResult struct {
+		XMLName xml.Name `xml:"Error"`
+		Code    string   `xml:"Code"`
+		Message string   `xml:"Message"`
+	}
+
+	xml.Unmarshal(dat, &xmlResult)
+
+	if len(xmlResult.Message) > 0 {
+		printError(xmlResult.Message)
+		return
+	}
 
 	fmt.Println("")
 	fmt.Println("Updating  \"icon.png\" from source folder.")
