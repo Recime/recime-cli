@@ -26,7 +26,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 
-	"./shared"
+	"github.com/Recime/recime-cli/shared"
 )
 
 func checkMainFolder() {

@@ -40,9 +40,9 @@ import (
 
 	"errors"
 
-	pb "./deployment"
+	pb "github.com/Recime/recime-cli/deployment"
 
-	"./shared"
+	"github.com/Recime/recime-cli/shared"
 )
 
 const (
