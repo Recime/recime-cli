@@ -9,9 +9,10 @@ import (
 
 	"github.com/Recime/recime-cli/shared"
 	"github.com/fatih/color"
+	"github.com/mitchellh/go-homedir"
 )
 
-// Defines UID
+//Defines UID
 type UID struct {
 }
 
@@ -28,11 +29,11 @@ func (u *UID) Create(name string, author string) string {
 
 // Get gets the uid for the package.
 func (u *UID) Get() string {
-	wd, err := os.Getwd()
+	home, _ := homedir.Dir()
 
 	var data map[string]interface{}
 
-	buff, err := ioutil.ReadFile(wd + "/package.json")
+	buff, err := ioutil.ReadFile(home + "/package.json")
 
 	check(err)
 
