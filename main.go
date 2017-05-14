@@ -22,10 +22,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Recime/recime-cli/cmd"
 	"github.com/fatih/color"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
+
+	"./shared"
 )
 
 func checkMainFolder() {
@@ -33,7 +34,7 @@ func checkMainFolder() {
 
 	check(err)
 
-	home = filepath.ToSlash(home) + "/recime-cli"
+	home = fmt.Sprintf("%v/recime-cli-%v", filepath.ToSlash(home), Version)
 
 	_, err = os.Stat(home)
 
@@ -54,16 +55,15 @@ func main() {
 
 	checkMainFolder()
 
+	token := shared.Token{Source: apiEndpoint}
+	token.Renew()
+
 	var cmdLogin = &cobra.Command{
 		Use:   "login",
 		Short: "Logs into your Recime account",
 		Long:  `Logs into your Recime account. You need to create and verify your account from https://recime.io in order to get started.`,
 		Run: func(_ *cobra.Command, args []string) {
-			options := map[string]interface{}{
-				"in":   os.Stdin,
-				"base": apiEndpoint,
-			}
-			cmd.Login(options)
+			Login(os.Stdin)
 		},
 	}
 
@@ -115,7 +115,7 @@ func main() {
 				if pattern.MatchString(args[0]) {
 					pair := strings.Split(args[0], "=")
 
-					config := cmd.Config{Key: pair[0], Value: pair[1], Source: apiEndpoint}
+					config := shared.Config{Key: pair[0], Value: pair[1], Source: apiEndpoint}
 
 					config.Save()
 
@@ -138,7 +138,7 @@ func main() {
 		Long:  "Removes a config var",
 		Run: func(_ *cobra.Command, args []string) {
 			if len(args) == 1 {
-				config := cmd.Config{
+				config := shared.Config{
 					Key: args[0],
 				}
 
@@ -222,4 +222,10 @@ Copyright %d Recime, Inc.
 	fmt.Println("")
 	fmt.Println("For any questions and feedback, please reach us at hello@recime.io.")
 	fmt.Println("")
+}
+
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
 }

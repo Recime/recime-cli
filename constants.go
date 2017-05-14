@@ -19,8 +19,7 @@ const SiteURL = "https://recime.io"
 // Version 1.2.6
 const Version = "1.2.6"
 
-const baseURL = "https://developer.recime.io"
-const apiEndpoint = baseURL + "/api"
+const apiEndpoint = "https://api.recime.io/v1"
 const template = "https://github.com/Recime/recime-bot-template/archive/1.0.8.zip"
 const es6BotTemplate = "https://github.com/Recime/recime-bot-es6-template/archive/1.0.2.zip"
 const typescriptBotTemplate = "https://github.com/Recime/recime-bot-typescript-template/archive/1.0.3.zip"

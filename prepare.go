@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"bytes"
@@ -7,6 +7,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+
+	"github.com/fatih/color"
+
+	"./shared"
 )
 
 //CreateUID creates md5 hash with bot name and author
@@ -34,15 +38,22 @@ func GetUID() string {
 		panic(err)
 	}
 
-	user, err := GetStoredUser()
+	t := shared.Token{}
 
-	Guard(user)
+	token, err := t.Validate()
+
+	if len(token.ID) > 0 {
+		console := color.New(color.FgHiRed)
+		console.Println("User is not logged in. Please run \"recime-cli login\" to get started.")
+		fmt.Println("")
+		os.Exit(1)
+	}
 
 	check(err)
 
 	name := data["name"].(string)
 
-	uid := CreateUID(name, user.Email)
+	uid := CreateUID(name, t.Email)
 
 	return uid
 }

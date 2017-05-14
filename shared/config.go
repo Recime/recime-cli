@@ -1,4 +1,4 @@
-package cmd
+package shared
 
 import (
 	"encoding/json"
@@ -112,3 +112,4 @@ func (c *Config) saveDataToFile(data map[string]string) {
 
 	file.Write(jsonBody)
 }
+

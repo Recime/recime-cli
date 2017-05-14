@@ -76,7 +76,6 @@ func Run(watch bool) {
 	}
 
 	config := []cmd.Config{cmd.Config{Key: "BOT_UNIQUE_ID", Value: uid}}
-	config = append(config, cmd.Config{Key: "BASE_URL", Value: baseURL})
 
 	_config := cmd.Config{}
 	// Add config user config

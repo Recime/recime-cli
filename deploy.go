@@ -40,14 +40,16 @@ import (
 
 	"errors"
 
-	pb "github.com/Recime/recime-cli/pb"
+	pb "./deployment"
+
+	"./shared"
 )
 
 const (
-	address   = "deployer.recime.io"
-	port      = 3000
-	bucket    = "recime-io"
-	singedURL = apiEndpoint + "/signedurl"
+	address    = "ec2-52-36-237-55.us-west-2.compute.amazonaws.com"
+	port       = 3000
+	bucket     = "recime-io"
+	botBaseURL = apiEndpoint + "/bots"
 )
 
 // PrintStatus outputs formatted status.
@@ -60,34 +62,23 @@ func printRemoteStatus(status string) {
 	}
 }
 
-// Resource contains the bucket information.
-type resource struct {
-	Key    string `json:"key"`
-	Bucket string `json:"bucket"`
-}
-
 type bot struct {
-	ID       string       `json:"uid"`
-	Type     string       `json:"fileType"`
-	Name     string       `json:"name"`
-	Title    string       `json:"title"`
-	Author   string       `json:"author"`
-	Desc     string       `json:"description"`
-	Version  string       `json:"version"`
-	Owner    string       `json:"owner"`
-	Config   []cmd.Config `json:"config"`
-	Icon     []byte       `json:"icon"`
-	Resource *resource    `json:"resource"`
+	Name    string            `json:"name"`
+	Title   string            `json:"title"`
+	Author  string            `json:"author"`
+	Desc    string            `json:"description"`
+	Version string            `json:"version"`
+	Owner   string            `json:"owner"`
+	Config  map[string]string `json:"config"`
 }
 
 type deployer struct {
-	ID          string
-	UserID      string
-	Environment map[string]string
+	ID    string
+	Token string
 }
 
-// Prepare prepares the bot for deploy.
-func (d *deployer) Prepare() {
+// Deploy deployes the bot.
+func (d *deployer) Deploy() {
 	target := fmt.Sprintf("%s:%v", address, port)
 
 	connection, err := grpc.Dial(
@@ -106,9 +97,8 @@ func (d *deployer) Prepare() {
 	client := pb.NewDeployerClient(connection)
 
 	deployRequest := &pb.DeployRequest{
-		UserId:      d.UserID,
-		BotId:       d.ID,
-		Environment: d.Environment,
+		Token: d.Token,
+		BotId: d.ID,
 	}
 
 	stream, err := client.Deploy(context.Background(), deployRequest)
@@ -130,6 +120,7 @@ func (d *deployer) Prepare() {
 		if err == io.EOF {
 			break
 		}
+
 		if err != nil {
 			fmt.Println(fmt.Sprintf("\x1b[31;1mFatal: %v\x1b[0m", err))
 			os.Exit(1)
@@ -159,31 +150,61 @@ func (d *deployer) Prepare() {
 
 		os.Exit(1)
 	}
+
 }
 
-// Deploy deploys the bot in aws lambda.
-func (d *deployer) Deploy(b bot) []byte {
-	uid := b.ID
+// Register registers the bot.
+func (d *deployer) UpdateMetadata(b bot) []byte {
+	uid := d.ID
 
 	jsonBody, err := json.Marshal(b)
 
 	check(err)
 
-	url := fmt.Sprintf("%s/bot/register/%s", apiEndpoint, uid)
+	url := fmt.Sprintf("%s/%s", botBaseURL, uid)
 
-	r := bytes.NewBuffer(jsonBody)
+	dat := sendRequest(url, d.Token, bytes.NewBuffer(jsonBody))
 
-	resp, err := http.Post(url, "application/json; charset=utf-8", r)
+	return dat
+}
+
+func (d *deployer) printMetadata() {
+	uid := d.ID
+
+	client := &http.Client{}
+
+	url := fmt.Sprintf("%s/%s", botBaseURL, uid)
+
+	req, err := http.NewRequest("GET", url, nil)
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", d.Token))
+
+	resp, err := client.Do(req)
 
 	check(err)
 
 	defer resp.Body.Close()
 
-	bytes, err := ioutil.ReadAll(resp.Body)
+	dat, err := ioutil.ReadAll(resp.Body)
 
-	check(err)
+	var result struct {
+		Region string `json:"region"`
+		ID     string `json:"id"`
+	}
 
-	return bytes
+	json.Unmarshal(dat, &result)
+
+	if len(result.ID) > 0 {
+		console := color.New(color.FgHiMagenta)
+
+		fmt.Println("")
+
+		console.Println(fmt.Sprintf("https://%s-bot.recime.io/%s/v1", result.Region, result.ID))
+
+		fmt.Println("")
+
+		fmt.Println("INFO: Success!")
+	}
 }
 
 // UploadIcon uploads the icon from bot folder.
@@ -192,19 +213,21 @@ func (d *deployer) UploadIcon() {
 
 	icon, size := readFile(fmt.Sprintf("%s/icon.png", wd))
 
-	source := fmt.Sprintf("%s/bot/icon", apiEndpoint)
+	requestURL := fmt.Sprintf("%v/%v/uploads/icon", botBaseURL, d.ID)
 
-	jsonBody, err := json.Marshal(&bot{
-		ID: d.ID,
-	})
+	dat := sendRequest(requestURL, d.Token, nil)
 
-	response := sendRequest(source, bytes.NewBuffer(jsonBody))
+	var result struct {
+		URL string `json:"url"`
+	}
 
-	signedURL := response["url"].(string)
+	check(json.Unmarshal(dat, &result))
+
+	fmt.Println(result.URL)
 
 	reader := bytes.NewReader(icon)
 
-	req, err := http.NewRequest("PUT", signedURL, reader)
+	req, err := http.NewRequest("PUT", result.URL, reader)
 
 	req.ContentLength = size
 
@@ -289,22 +312,48 @@ func removeScript(dir string) {
 }
 
 // SendRequest sends POST request
-func sendRequest(url string, body io.Reader) map[string]interface{} {
-	res, err := http.Post(url, "application/json; charset=utf-8", body)
+func sendRequest(url string, token string, body io.Reader) []byte {
+	client := &http.Client{}
+
+	req, err := http.NewRequest("POST", url, body)
+
+	if len(token) > 0 {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
+	}
+
+	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
+
+	s.Start()
+
+	res, err := client.Do(req)
 
 	check(err)
 
-	var data map[string]interface{}
+	defer res.Body.Close()
+
+	s.Stop()
 
 	bytes, err := ioutil.ReadAll(res.Body)
 
 	check(err)
 
-	json.Unmarshal(bytes, &data)
+	color := color.New(color.FgHiRed)
 
-	defer res.Body.Close()
+	if res.StatusCode >= 200 && res.StatusCode < 300 {
+		return bytes
+	}
 
-	return data
+	switch res.StatusCode {
+	case 400:
+		color.Println("Bad Request.")
+	case 401:
+		color.Println("Unauthorized. Invalid or expired token. Please do \"recime-cli login\" and try again.")
+	case 405:
+		color.Println("The operation is not allowed in your subscription.")
+	}
+	os.Exit(1)
+
+	return nil
 }
 
 func printError(msg string) {
@@ -315,61 +364,23 @@ func printError(msg string) {
 	}
 }
 
-func guard(uid string, owner string) {
-	source := fmt.Sprintf("%s/bot/status", apiEndpoint)
-
-	jsonBody, err := json.Marshal(&bot{
-		ID:      uid,
-		Owner:   owner,
-		Version: Version,
-	})
-
-	res, err := http.Post(source, "application/json; charset=utf-8", bytes.NewBuffer(jsonBody))
-
-	check(err)
-
-	var data struct {
-		ID      string `json:"uid"`
-		Message string `json:"message"`
-	}
-
-	bytes, err := ioutil.ReadAll(res.Body)
-
-	defer res.Body.Close()
-
-	check(err)
-
-	json.Unmarshal(bytes, &data)
-
-	if len(data.Message) > 0 {
-		printError(data.Message)
-
-		fmt.Println("")
-
-		os.Exit(1)
-	}
-}
-
 // Deploy deploys the bot
 func Deploy() {
 	uid := cmd.GetUID()
-	user, err := cmd.GetStoredUser()
 
-	guard(uid, user.Email)
+	token := renewToken()
 
 	fmt.Println("Creating bot package to deploy into \"Recime\" cloud.")
 
 	pkgPath, err := preparePackage(uid)
 
 	if err != nil {
+		color := color.New(color.FgHiRed)
+		color.Println(err)
 		return
 	}
 
 	buffer, size := readFile(pkgPath)
-
-	fileType := http.DetectContentType(buffer)
-
-	var config []cmd.Config
 
 	wd, err := os.Getwd()
 
@@ -377,16 +388,13 @@ func Deploy() {
 
 	_config := cmd.Config{}
 
-	env := make(map[string]string)
+	cfg := make(map[string]string)
 
 	// open config.json
 	reader, err := _config.Open(wd)
 
 	if err == nil {
-		env = _config.Get(reader)
-		for key, value := range env {
-			config = append(config, cmd.Config{Key: key, Value: value})
-		}
+		cfg = _config.Get(reader)
 	}
 
 	var data map[string]interface{}
@@ -399,15 +407,40 @@ func Deploy() {
 		panic(err)
 	}
 
-	r := &resource{
-		Key: fmt.Sprintf("bot/%s", uid),
+	fmt.Println("Updating metadata information.")
+
+	_bot := bot{
+		Author:  data["author"].(string),
+		Version: Version,
+		Owner:   token.Email,
+		Config:  cfg,
+		Name:    data["name"].(string),
 	}
 
-	jsonBody, err := json.Marshal(r)
+	if title, ok := data["title"].(string); ok {
+		_bot.Title = title
+	}
 
-	response := sendRequest(singedURL, bytes.NewBuffer(jsonBody))
+	if desc, ok := data["description"].(string); ok {
+		_bot.Desc = desc
+	}
 
-	signedURL := response["url"].(string)
+	d := &deployer{
+		ID:    uid,
+		Token: token.ID,
+	}
+
+	d.UpdateMetadata(_bot)
+
+	botUploadRequestURL := fmt.Sprintf("%v/%v/uploads/bot", botBaseURL, uid)
+
+	dat := sendRequest(botUploadRequestURL, token.ID, nil)
+
+	var uploadResult struct {
+		URL string `json:"url"`
+	}
+
+	check(json.Unmarshal(dat, &uploadResult))
 
 	bar := bar.New(len(buffer))
 
@@ -421,7 +454,7 @@ func Deploy() {
 
 	proxy := NewReader(buffer, bar)
 
-	req, err := http.NewRequest("PUT", signedURL, proxy)
+	req, err := http.NewRequest("PUT", uploadResult.URL, proxy)
 
 	req.ContentLength = size
 
@@ -429,77 +462,30 @@ func Deploy() {
 
 	resp, err := http.DefaultClient.Do(req)
 
-	check(err)
-
-	_, err = ioutil.ReadAll(resp.Body)
+	bar.BarEnd = "Completed."
 
 	check(err)
 
 	defer resp.Body.Close()
 
-	b := bot{
-		Author:  data["author"].(string),
-		ID:      uid,
-		Type:    fileType,
-		Version: Version,
-		Owner:   user.Email,
-		Config:  config,
-		Name:    data["name"].(string),
-	}
+	_, err = ioutil.ReadAll(resp.Body)
 
-	d := &deployer{
-		ID:          b.ID,
-		UserID:      user.ID,
-		Environment: env,
-	}
-
-	d.Prepare()
+	check(err)
 
 	fmt.Println("")
-	fmt.Println("Registering the bot and creating the API endpoint.")
+	fmt.Println("Updating  \"icon.png\" from source folder.")
 
 	d.UploadIcon()
 
-	if title, ok := data["title"].(string); ok {
-		b.Title = title
-	}
+	fmt.Println("")
+	fmt.Println("")
 
-	if desc, ok := data["description"].(string); ok {
-		b.Desc = desc
-	}
+	fmt.Println("Starting deployment...")
+	fmt.Println("")
 
-	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
+	d.Deploy()
 
-	s.Start()
-
-	bytes := d.Deploy(b)
-
-	s.Stop()
-
-	var result struct {
-		Name    string `json:"name"`
-		ID      string `json:"uid"`
-		Message string `json:"message"`
-		URI     string `json:"uri"`
-	}
-
-	json.Unmarshal(bytes, &result)
-
-	if len(result.ID) > 0 {
-		console := color.New(color.FgHiMagenta)
-
-		fmt.Println("")
-
-		console.Println(result.URI)
-
-		fmt.Println("")
-
-		fmt.Println("INFO: Success!")
-
-		return
-	}
-
-	printError(result.Message)
+	d.printMetadata()
 }
 
 func readFile(path string) ([]byte, int64) {
@@ -519,4 +505,9 @@ func readFile(path string) ([]byte, int64) {
 	file.Read(buffer)
 
 	return buffer, size
+}
+
+func renewToken() shared.Token {
+	token := shared.Token{Source: apiEndpoint}
+	return token.Renew()
 }
