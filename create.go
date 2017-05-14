@@ -24,18 +24,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Recime/recime-cli/cmd"
-	"github.com/Recime/recime-cli/util"
+	"github.com/Recime/recime-cli/lib"
 	"github.com/briandowns/spinner"
 	homedir "github.com/mitchellh/go-homedir"
 )
 
 // Create Generates the bot
 func Create(folder string, lang string) {
-	user, err := cmd.GetStoredUser()
-
-	cmd.Guard(user)
-
 	h := &httpClient{}
 
 	home, err := homedir.Dir()
@@ -97,7 +92,7 @@ func Create(folder string, lang string) {
 
 	readFromStdin(data)
 
-	data["author"] = fmt.Sprintf("%s <%s>", user.Company, user.Email)
+	// data["author"] = fmt.Sprintf("%s <%s>", user.Company, user.Email)
 
 	name := data["title"].(string)
 
@@ -111,7 +106,7 @@ func Create(folder string, lang string) {
 
 	filePath := fmt.Sprintf("%s/package.json", templateDir)
 
-	err = ioutil.WriteFile(filePath, cmd.MarshalIndent(data), os.ModePerm)
+	err = ioutil.WriteFile(filePath, MarshalIndent(data), os.ModePerm)
 
 	check(err)
 

@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Recime/recime-cli/cmd"
-	"github.com/Recime/recime-cli/util"
+	"github.com/Recime/recime-cli/lib"
+	"github.com/Recime/recime-cli/shared"
 
 	"github.com/howeyc/fsnotify"
 	"github.com/mitchellh/go-homedir"
@@ -15,7 +15,7 @@ import (
 
 //Run runs the bot in a local node server.
 func Run(watch bool) {
-	uid := cmd.GetUID()
+	uid := GetUID()
 
 	tokens := strings.Split(template, "/")
 	fileName := tokens[len(tokens)-1]
@@ -65,7 +65,7 @@ func Run(watch bool) {
 
 	fmt.Println("INFO: Building...")
 
-	if cmd.Build(botdir) != nil {
+	if Build(botdir) != nil {
 		return
 	}
 
@@ -75,16 +75,16 @@ func Run(watch bool) {
 		watchDir(filepath.ToSlash(wd), botdir)
 	}
 
-	config := []cmd.Config{cmd.Config{Key: "BOT_UNIQUE_ID", Value: uid}}
+	config := []shared.Config{shared.Config{Key: "BOT_UNIQUE_ID", Value: uid}}
 
-	_config := cmd.Config{}
+	_config := shared.Config{}
 	// Add config user config
 	reader, _ := _config.Open(wd)
 
 	vars := _config.Get(reader)
 
 	for key, value := range vars {
-		config = append(config, cmd.Config{Key: key, Value: value})
+		config = append(config, shared.Config{Key: key, Value: value})
 	}
 
 	sh = &shell{
@@ -119,7 +119,7 @@ func watchDir(dir string, targetDir string) {
 						fmt.Println("INFO: File change event.")
 
 						util.CopyFile(ev.Name, targetFile)
-						cmd.Build(targetDir)
+						Build(targetDir)
 
 						fmt.Println("----")
 					}

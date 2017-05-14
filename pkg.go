@@ -7,8 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	"github.com/Recime/recime-cli/cmd"
 )
 
 type dependency struct {
@@ -112,7 +110,7 @@ func (p *pkg) sync(source string, dest string) {
 			deps[key] = value
 		}
 
-		ioutil.WriteFile(fp, cmd.MarshalIndent(meta), os.ModePerm)
+		ioutil.WriteFile(fp, MarshalIndent(meta), os.ModePerm)
 	}
 
 }

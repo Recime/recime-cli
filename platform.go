@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Recime/recime-cli/shared"
 	"github.com/fatih/color"
 
 	"strings"
-
-	"github.com/Recime/recime-cli/cmd"
 )
 
 type platform struct {
@@ -17,7 +16,7 @@ type platform struct {
 
 func (p *platform) set(key string, value string) {
 	if len(value) > 0 {
-		config := cmd.Config{Key: key, Value: value, Source: apiEndpoint}
+		config := shared.Config{Key: key, Value: value, Source: apiEndpoint}
 		config.Save()
 
 		fmt.Println("")

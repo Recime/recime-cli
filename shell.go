@@ -5,11 +5,11 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/Recime/recime-cli/cmd"
+	"github.com/Recime/recime-cli/shared"
 )
 
 type shell struct {
-	config []cmd.Config
+	config []shared.Config
 }
 
 func (sh *shell) execute(wd string, arg ...string) {

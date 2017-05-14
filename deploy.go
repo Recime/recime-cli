@@ -27,8 +27,7 @@ import (
 
 	"path/filepath"
 
-	"github.com/Recime/recime-cli/cmd"
-	"github.com/Recime/recime-cli/util"
+	"github.com/Recime/recime-cli/lib"
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 
@@ -271,7 +270,7 @@ func preparePackage(uid string) (string, error) {
 
 	sh.execute(botdir, "install")
 
-	if cmd.Build(botdir) != nil {
+	if Build(botdir) != nil {
 		return "", errors.New("Build failed")
 	}
 
@@ -306,7 +305,7 @@ func removeScript(dir string) {
 
 	delete(data, "scripts")
 
-	err = ioutil.WriteFile(pkgFilePath, cmd.MarshalIndent(data), os.ModePerm)
+	err = ioutil.WriteFile(pkgFilePath, MarshalIndent(data), os.ModePerm)
 
 	check(err)
 }
@@ -366,7 +365,7 @@ func printError(msg string) {
 
 // Deploy deploys the bot
 func Deploy() {
-	uid := cmd.GetUID()
+	uid := GetUID()
 
 	token := renewToken()
 
@@ -386,7 +385,7 @@ func Deploy() {
 
 	check(err)
 
-	_config := cmd.Config{}
+	_config := shared.Config{}
 
 	cfg := make(map[string]string)
 
