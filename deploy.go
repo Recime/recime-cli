@@ -445,7 +445,7 @@ func Deploy() {
 
 	d.UpdateMetadata(_bot)
 
-	botUploadRequestURL := fmt.Sprintf("%v/%v/uploads/bot", botBaseURL, uid)
+	botUploadRequestURL := fmt.Sprintf("%v/%v/uploads/bot", botBaseURL, id)
 
 	dat := sendRequest(botUploadRequestURL, token.ID, nil)
 
@@ -501,7 +501,6 @@ func Deploy() {
 
 	d.UploadIcon()
 
-	fmt.Println("")
 	fmt.Println("")
 
 	fmt.Println("Starting deployment...")
