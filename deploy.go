@@ -199,7 +199,9 @@ func (d *deployer) printMetadata() {
 
 		fmt.Println("")
 
-		console.Println(fmt.Sprintf("https://%s-bot.recime.io/%s/v1", result.Region, result.ID))
+		region := map[bool]string{true: "", false: fmt.Sprintf("%s-", result.Region)}[result.Region == "us-west-2"]
+
+		console.Println(fmt.Sprintf("https://%sbot.recime.io/%s/v1", region, result.ID))
 
 		fmt.Println("")
 
