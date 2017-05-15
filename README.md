@@ -10,7 +10,7 @@ The `Recime Command Line Tool` allows you to scaffold your bot from terminal. It
 Install [Homebrew](http://brew.sh/)  by pasting the below command at a Terminal prompt:
 
 
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    /usr/bin/ru by -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 
 
 To install all the Go and Recime CLI, just run the following command, Homebrew takes care of the rest for you:

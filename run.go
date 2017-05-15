@@ -49,7 +49,7 @@ func Run(watch bool) {
 
 	check(err)
 
-	botdir := fmt.Sprintf("%s/%s", templatedir, uid)
+	botdir := fmt.Sprintf("%s/%s", templatedir, id)
 
 	util.CopyDir(filepath.ToSlash(wd), botdir)
 
