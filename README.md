@@ -50,13 +50,11 @@ go get -u github.com/recime/recime-cli
 The following commands are currently available in the `Recime Command Line Tool`:
 
 ```bash
-  build       Builds the bot module
   config      Initializes bot config vars
   create      Scaffolds the bot from an interactive prompt
   deploy      Deploys the bot to Recime cloud
   login       Logs into your Recime account
-  platform    Initializes Platform
-  plugins     Installs third-party plugins
+  platform    Configures the Platform
   run         Runs the bot locally
 ```
 
