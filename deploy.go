@@ -122,8 +122,11 @@ func (d *deployer) Deploy() {
 		}
 
 		if err != nil {
-			fmt.Println(fmt.Sprintf("\x1b[31;1mFatal: %v\x1b[0m", err))
-			os.Exit(1)
+			if resp != nil {
+				fmt.Println(fmt.Sprintf("\x1b[31;1mFatal: %v\x1b[0m", err))
+				os.Exit(1)
+			}
+			break
 		}
 
 		if resp.Code == 0 {
@@ -363,7 +366,12 @@ func sendRequest(url string, token string, body io.Reader) []byte {
 		color.Println("Unauthorized. Invalid or expired token. Please do \"recime-cli login\" and try again.")
 	case 405:
 		color.Println("The operation is not allowed in your subscription.")
+	case 500:
+		color.Println("Internal server error.")
 	}
+
+	fmt.Println("")
+
 	os.Exit(1)
 
 	return nil
