@@ -36,7 +36,6 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
 
 	"errors"
 
@@ -83,8 +82,8 @@ func (d *deployer) Deploy() {
 
 	connection, err := grpc.Dial(
 		target,
-		grpc.WithBackoffMaxDelay(10*time.Second),
-		grpc.WithKeepaliveParams(keepalive.ClientParameters{Time: 5 * time.Second}),
+		// grpc.WithBackoffMaxDelay(10*time.Second),
+		// grpc.WithKeepaliveParams(keepalive.ClientParameters{Time: 5 * time.Second}),
 		grpc.WithInsecure())
 
 	if err != nil {
