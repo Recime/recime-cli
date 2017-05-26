@@ -96,14 +96,18 @@ func (t *Token) read() Token {
 	dir, _ := homedir.Dir()
 
 	path := filepath.Join(dir, filepath.Join(".recime", "netrc"))
+	
+	var result Token
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return result
+	}
 
 	reader, err := os.OpenFile(path, os.O_RDONLY|os.O_CREATE, 0600)
 
 	check(err)
 
 	dat, _ := ioutil.ReadAll(reader)
-
-	var result Token
 
 	if len(dat) > 0 {
 		json.Unmarshal(dat, &result)
