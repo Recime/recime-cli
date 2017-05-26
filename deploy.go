@@ -45,7 +45,7 @@ import (
 )
 
 const (
-	address    = "ec2-52-36-237-55.us-west-2.compute.amazonaws.com"
+	address    = "agent-v1.recime.io"
 	port       = 3000
 	bucket     = "recime-io"
 	botBaseURL = apiEndpoint + "/bots"
@@ -433,7 +433,7 @@ func Deploy() {
 
 	_bot := bot{
 		Author:  data["author"].(string),
-		Version: Version,
+		Version: data["version"].(string),
 		Owner:   token.Email,
 		Config:  cfg,
 		Name:    data["name"].(string),

@@ -2,11 +2,11 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 
 	"github.com/Recime/recime-cli/shared"
-	"github.com/fatih/color"
 
 	"strings"
 )
@@ -14,45 +14,64 @@ import (
 type platform struct {
 }
 
-func (p *platform) set(key string, value string) {
+func (p *platform) set(key string, value string) error {
 	if len(value) > 0 {
 		config := shared.Config{Key: key, Value: value, Source: apiEndpoint}
 		config.Save()
-
-		fmt.Println("")
-		fmt.Println("INFO: Platform Configured Successfully. \r\nPlease do \"recime-cli deploy\" for changes to take effect.")
 	} else {
-		red := color.New(color.FgRed).Add(color.Bold)
-		red.Println("ERROR: Invalid Page Token! Please verify input and try again.")
+		return errors.New("Invalid config property")
 	}
+	return nil
 }
 
-func (p *platform) processInput(key string, title string) {
+func (p *platform) processInput(key string, title string) error {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	fmt.Println(title)
+	fmt.Println(fmt.Sprintf("%s (Press \"Enter\" to continue):", title))
 
 	scanner.Scan()
 
-	p.set(key, scanner.Text())
+	return p.set(key, scanner.Text())
 }
 
 // Prepare prepares the bot for deploy.
 func (p *platform) install(name string) {
 	key := fmt.Sprintf("RECIME_%v_ACCESS_TOKEN", strings.ToUpper(name))
 
+	var err error
+
 	switch strings.ToLower(name) {
 	case "facebook":
-		p.processInput(key, "Page access token:")
+		err = p.processInput(key, "Page access token")
 	case "telegram":
-		p.processInput(key, "Telegram access key:")
+		err = p.processInput(key, "Telegram access key")
 	case "wechat":
-		p.processInput(key, "WeChat access token:")
+		err = p.processInput(key, "WeChat access token")
 	case "slack":
-		p.processInput(key, "Slack oAuth access token:")
+		{
+			fmt.Println("Please enter Slack credentials")
+			m := map[string]string{
+				"RECIME_SLACK_CLIENT_ID":     "Client ID",
+				"RECIME_SLACK_CLIENT_SECRET": "Client Secret",
+			}
+			for key, value := range m {
+				err = p.processInput(key, value)
+				if err != nil {
+					break
+				}
+			}
+		}
 	case "viber":
-		p.processInput(key, "Viber authentication token:")
+		err = p.processInput(key, "Viber authentication token:")
 	default:
 		panic("ERROR: Unsupported Platform.")
 	}
+
+	if err != nil {
+		printError(err.Error())
+		return
+	}
+
+	fmt.Println("")
+	fmt.Println("INFO: Platform Configured Successfully. \r\nPlease do \"recime-cli deploy\" for changes to take effect.")
 }
