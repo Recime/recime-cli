@@ -37,7 +37,7 @@ func Create(folder string, lang string) {
 
 	check(err)
 
-	home = fmt.Sprintf("%s/recime-cli", filepath.ToSlash(home))
+	home = fmt.Sprintf("%v/recime-cli-%v", filepath.ToSlash(home), Version)
 
 	fileName := filepath.ToSlash(fmt.Sprintf("%s/recime-bot-%s-template.zip", home, lang))
 
