@@ -43,9 +43,12 @@ This will install all the dependencies, configure path and install the CLI acces
 `Recime Command Line Tool` is built using Go. Therefore, if you have go tools installs then type the following command to install:
 
 ```
-go get -u github.com/recime/recime-cli 
+go get -v -u github.com/recime/recime-cli 
 
 ```
+
+Plese make sure that `go` is installed and **GOROOT** and **GO_PATH** is configured correctly and you will need go 1.6+ to install `recime-cli`.
+
 
 The following commands are currently available in the `Recime Command Line Tool`:
 
