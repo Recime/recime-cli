@@ -454,6 +454,8 @@ func Deploy() {
 
 	d.UpdateMetadata(_bot)
 
+	createFBGettingStarted(cfg["RECIME_FACEBOOK_ACCESS_TOKEN"])
+
 	botUploadRequestURL := fmt.Sprintf("%v/%v/uploads/bot", botBaseURL, id)
 
 	dat := sendRequest(botUploadRequestURL, token.ID, nil)

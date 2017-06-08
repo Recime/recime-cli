@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -43,6 +44,45 @@ func checkMainFolder() {
 	if os.IsNotExist(err) {
 		err = os.Mkdir(home, os.ModePerm)
 		check(err)
+	}
+}
+
+func createFBGettingStarted(token string) {
+	if len(token) == 0 {
+		return
+	}
+	fmt.Println("Creating FB getting started...")
+
+	var payload map[string]string
+
+	wd, _ := os.Getwd()
+
+	path := fmt.Sprintf("%v/welcome.json", wd)
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return
+	}
+
+	buff, _ := ioutil.ReadFile(path)
+
+	if err := json.Unmarshal(buff, &payload); err != nil {
+		return
+	}
+
+	h := httpClient{}
+
+	url := fmt.Sprintf("https://graph.facebook.com/v2.6/me/messenger_profile?access_token=%v", token)
+
+	dat := h.post(url, map[string]interface{}{
+		"get_started": payload,
+	})
+
+	var result map[string]string
+
+	json.Unmarshal(dat, &result)
+
+	if len(result["result"]) > 0 && result["result"] == "success" {
+		fmt.Println("")
 	}
 }
 

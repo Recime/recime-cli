@@ -84,6 +84,8 @@ func Run(watch bool) {
 
 	vars := _config.Get(reader)
 
+	createFBGettingStarted(vars["RECIME_FACEBOOK_ACCESS_TOKEN"])
+
 	for key, value := range vars {
 		config = append(config, shared.Config{Key: key, Value: value})
 	}

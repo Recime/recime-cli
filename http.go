@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 )
@@ -33,4 +36,22 @@ func (h *httpClient) download(url string, fileName string) {
 		fmt.Println("Error while downloading", url, "-", err)
 		return
 	}
+}
+
+func (h *httpClient) post(url string, data map[string]interface{}) []byte {
+	jsonBody, err := json.Marshal(data)
+
+	check(err)
+
+	r := bytes.NewBuffer(jsonBody)
+
+	resp, err := http.Post(url, "application/json; charset=utf-8", r)
+
+	check(err)
+
+	defer resp.Body.Close()
+
+	dat, _ := ioutil.ReadAll(resp.Body)
+
+	return dat
 }
