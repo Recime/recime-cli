@@ -348,6 +348,8 @@ func sendRequest(url string, token string, body io.Reader) []byte {
 	switch res.StatusCode {
 	case 401:
 		color.Println("Unauthorized. Invalid or expired token. Please do \"recime-cli login\" and try again.")
+	case 403:
+		color.Println("Invalid Token. Please do \"recime-cli login\" and try again.")
 	case 500:
 		color.Println("Internal server error.")
 	default:
