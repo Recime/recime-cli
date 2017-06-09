@@ -51,7 +51,6 @@ func createFBGettingStarted(token string) {
 	if len(token) == 0 {
 		return
 	}
-	fmt.Println("Creating FB getting started...")
 
 	var payload map[string]string
 
@@ -62,6 +61,8 @@ func createFBGettingStarted(token string) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return
 	}
+
+	fmt.Println("Creating FB getting started...")
 
 	buff, _ := ioutil.ReadFile(path)
 

@@ -346,27 +346,27 @@ func sendRequest(url string, token string, body io.Reader) []byte {
 	}
 
 	switch res.StatusCode {
-	case 400:
-		{
-			type err struct {
-				Message string `json:"message"`
-			}
-			var result []err
-
-			json.Unmarshal(dat, &result)
-
-			for _, value := range result {
-				printError(value.Message)
-			}
-
-			color.Println("")
-		}
 	case 401:
 		color.Println("Unauthorized. Invalid or expired token. Please do \"recime-cli login\" and try again.")
-	case 405:
-		color.Println("The operation is not allowed in your subscription.")
 	case 500:
 		color.Println("Internal server error.")
+	default:
+		{
+			if res.StatusCode >= 400 && res.StatusCode < 500 {
+				type err struct {
+					Message string `json:"message"`
+				}
+				var result []err
+
+				json.Unmarshal(dat, &result)
+
+				for _, value := range result {
+					printError(value.Message)
+				}
+
+				color.Println("")
+			}
+		}
 	}
 
 	fmt.Println("")
