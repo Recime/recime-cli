@@ -32,6 +32,13 @@ import (
 	"github.com/Recime/recime-cli/shared"
 )
 
+type fbRequest struct {
+	path    string
+	summary string
+	token   string
+	payload map[string]interface{}
+}
+
 func checkMainFolder() {
 	home, err := homedir.Dir()
 
@@ -62,7 +69,7 @@ func createFBGettingStarted(token string) {
 		return
 	}
 
-	fmt.Println("Creating FB getting started...")
+	fmt.Println("Creating FB getting started screen from \"welcome.json\"")
 
 	buff, _ := ioutil.ReadFile(path)
 
@@ -70,20 +77,52 @@ func createFBGettingStarted(token string) {
 		return
 	}
 
+	fbGraphRequest(token, map[string]interface{}{
+		"get_started": payload,
+	})
+}
+
+func createFBPersistentMenu(token string) {
+	if len(token) == 0 {
+		return
+	}
+
+	var payload map[string]interface{}
+
+	wd, _ := os.Getwd()
+
+	path := fmt.Sprintf("%v/menu.json", wd)
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return
+	}
+
+	fmt.Println("Creating FB persistent menu from \"menu.json\"")
+
+	buff, _ := ioutil.ReadFile(path)
+
+	if err := json.Unmarshal(buff, &payload); err != nil {
+		return
+	}
+
+	fbGraphRequest(token, map[string]interface{}{
+		"persistent_menu": []interface{}{payload},
+	})
+}
+
+func fbGraphRequest(token string, payload map[string]interface{}) {
 	h := httpClient{}
 
 	url := fmt.Sprintf("https://graph.facebook.com/v2.6/me/messenger_profile?access_token=%v", token)
 
-	dat := h.post(url, map[string]interface{}{
-		"get_started": payload,
-	})
+	dat := h.post(url, payload)
 
 	var result map[string]string
 
 	json.Unmarshal(dat, &result)
 
 	if len(result["result"]) > 0 && result["result"] == "success" {
-		fmt.Println("")
+		fmt.Println("-")
 	}
 }
 

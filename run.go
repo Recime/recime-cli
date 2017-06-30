@@ -84,6 +84,7 @@ func Run(watch bool) {
 
 	vars := _config.Get(reader)
 
+	createFBPersistentMenu(vars["RECIME_FACEBOOK_ACCESS_TOKEN"])
 	createFBGettingStarted(vars["RECIME_FACEBOOK_ACCESS_TOKEN"])
 
 	for key, value := range vars {
