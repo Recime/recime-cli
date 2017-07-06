@@ -27,9 +27,7 @@ func (u *UID) Create(name string, author string) string {
 }
 
 // Get gets the uid for the package.
-func (u *UID) Get() string {
-	wd, err := os.Getwd()
-
+func (u *UID) Get(wd string) string {
 	var data map[string]interface{}
 
 	buff, err := ioutil.ReadFile(wd + "/package.json")

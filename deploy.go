@@ -45,10 +45,9 @@ import (
 )
 
 const (
-	address    = "agent-v1.recime.io"
-	port       = 3000
-	bucket     = "recime-io"
-	botBaseURL = apiEndpoint + "/bots"
+	address = "agent-v1.recime.io"
+	port    = 3000
+	bucket  = "recime-io"
 )
 
 // PrintStatus outputs formatted status.
@@ -59,16 +58,6 @@ func printRemoteStatus(status string) {
 	} else {
 		fmt.Print(status)
 	}
-}
-
-type bot struct {
-	Name    string            `json:"name"`
-	Title   string            `json:"title"`
-	Author  string            `json:"author"`
-	Desc    string            `json:"description"`
-	Version string            `json:"version"`
-	Owner   string            `json:"owner"`
-	Config  map[string]string `json:"config"`
 }
 
 type deployer struct {
@@ -212,8 +201,7 @@ func (d *deployer) printMetadata() {
 }
 
 // UploadIcon uploads the icon from bot folder.
-func (d *deployer) UploadIcon() {
-	wd, _ := os.Getwd()
+func (d *deployer) UploadIcon(wd string) {
 
 	icon, size := readFile(fmt.Sprintf("%s/icon.png", wd))
 
@@ -390,7 +378,11 @@ func printError(msg string) {
 func Deploy() {
 	uid := UID{}
 
-	id := uid.Get()
+	wd, err := os.Getwd()
+
+	check(err)
+
+	id := uid.Get(wd)
 
 	token := renewToken()
 
@@ -404,11 +396,7 @@ func Deploy() {
 		return
 	}
 
-	buffer, size := readFile(pkgPath)
-
-	wd, err := os.Getwd()
-
-	check(err)
+	syncConfigVars(id, token.ID)
 
 	_config := shared.Config{}
 
@@ -469,6 +457,8 @@ func Deploy() {
 
 	check(json.Unmarshal(dat, &uploadResult))
 
+	buffer, size := readFile(pkgPath)
+
 	bar := bar.New(len(buffer))
 
 	bar.ShowCounters = false
@@ -513,7 +503,7 @@ func Deploy() {
 	fmt.Println("")
 	fmt.Println("Updating  \"icon.png\" from source folder.")
 
-	d.UploadIcon()
+	d.UploadIcon(wd)
 
 	fmt.Println("")
 

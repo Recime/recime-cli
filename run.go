@@ -16,7 +16,12 @@ import (
 //Run runs the bot in a local node server.
 func Run(watch bool) {
 	uid := UID{}
-	id := uid.Get()
+
+	wd, err := os.Getwd()
+
+	check(err)
+
+	id := uid.Get(wd)
 
 	tokens := strings.Split(template, "/")
 	fileName := tokens[len(tokens)-1]
@@ -44,10 +49,6 @@ func Run(watch bool) {
 	util.Unzip(zipName, home)
 
 	templatedir := fmt.Sprintf("%s/%s", home, fileName)
-
-	wd, err := os.Getwd()
-
-	check(err)
 
 	botdir := fmt.Sprintf("%s/%s", templatedir, id)
 
@@ -86,6 +87,8 @@ func Run(watch bool) {
 
 	createFBPersistentMenu(vars["RECIME_FACEBOOK_ACCESS_TOKEN"])
 	createFBGettingStarted(vars["RECIME_FACEBOOK_ACCESS_TOKEN"])
+
+	syncConfigVars(id, renewToken().ID)
 
 	for key, value := range vars {
 		config = append(config, shared.Config{Key: key, Value: value})

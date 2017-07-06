@@ -26,8 +26,23 @@ import (
 
 	"github.com/Recime/recime-cli/lib"
 	"github.com/briandowns/spinner"
+	"github.com/fatih/color"
 	homedir "github.com/mitchellh/go-homedir"
 )
+
+const (
+	botBaseURL = apiEndpoint + "/bots"
+)
+
+type bot struct {
+	Name    string            `json:"name"`
+	Title   string            `json:"title"`
+	Author  string            `json:"author"`
+	Desc    string            `json:"description"`
+	Version string            `json:"version"`
+	Owner   string            `json:"owner"`
+	Config  map[string]string `json:"config"`
+}
 
 // Create Generates the bot
 func Create(folder string, lang string) {
@@ -112,7 +127,46 @@ func Create(folder string, lang string) {
 
 	util.CopyDir(templateDir, botDir)
 
-	fmt.Println("INFO: Bot created successfully.")
+	// sync to dashboard.
+	token := renewToken()
+
+	uid := UID{}
+	id := uid.Get(botDir)
+
+	b := bot{
+		Author:  data["author"].(string),
+		Name:    data["name"].(string),
+		Config:  make(map[string]string),
+		Owner:   token.Email,
+		Version: data["version"].(string),
+	}
+
+	if title, ok := data["title"].(string); ok {
+		b.Title = title
+	}
+
+	if desc, ok := data["description"].(string); ok {
+		b.Desc = desc
+	}
+
+	d := &deployer{
+		ID:    id,
+		Token: token.ID,
+	}
+
+	fmt.Println("Creating the experience for your dashboard...")
+
+	d.UpdateMetadata(b)
+
+	fmt.Println("Uploading  \"icon.png\" from source folder...")
+
+	d.UploadIcon(botDir)
+
+	console := color.New(color.FgHiMagenta)
+
+	console.Println("")
+	console.Println("INFO: Bot project is created successfully.")
+	console.Println("")
 }
 
 func botTemplateURL(lang string) string {
