@@ -62,7 +62,7 @@ func (p *platform) install(name string) {
 			}
 		}
 	case "viber":
-		err = p.processInput(key, "Viber authentication token:")
+		err = p.processInput(key, "Viber Auth token:")
 	default:
 		panic("ERROR: Unsupported Platform.")
 	}

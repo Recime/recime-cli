@@ -159,7 +159,7 @@ func (d *deployer) UpdateMetadata(b bot) []byte {
 	return dat
 }
 
-func (d *deployer) printMetadata() {
+func (d *deployer) finalize(cfg map[string]string) {
 	uid := d.ID
 
 	client := &http.Client{}
@@ -191,6 +191,10 @@ func (d *deployer) printMetadata() {
 		fmt.Println("")
 
 		region := map[bool]string{true: "", false: fmt.Sprintf("%s-", result.Region)}[result.Region == "us-west-2"]
+
+		endpoint := fmt.Sprintf("https://%sbot.recime.io/%s/v1", region, result.ID)
+
+		createViberIntegration(endpoint, cfg["RECIME_VIBER_ACCESS_TOKEN"])
 
 		console.Println(fmt.Sprintf("https://%sbot.recime.io/%s/v1", region, result.ID))
 
@@ -444,9 +448,6 @@ func Deploy() {
 
 	d.UpdateMetadata(_bot)
 
-	createFBPersistentMenu(cfg["RECIME_FACEBOOK_ACCESS_TOKEN"])
-	createFBGettingStarted(cfg["RECIME_FACEBOOK_ACCESS_TOKEN"])
-
 	botUploadRequestURL := fmt.Sprintf("%v/%v/uploads/bot", botBaseURL, id)
 
 	dat := sendRequest(botUploadRequestURL, token.ID, nil)
@@ -512,7 +513,10 @@ func Deploy() {
 
 	d.Deploy()
 
-	d.printMetadata()
+	createFBPersistentMenu(cfg["RECIME_FACEBOOK_ACCESS_TOKEN"])
+	createFBGettingStarted(cfg["RECIME_FACEBOOK_ACCESS_TOKEN"])
+
+	d.finalize(cfg)
 }
 
 func readFile(path string) ([]byte, int64) {

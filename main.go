@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -108,6 +109,76 @@ func createFBPersistentMenu(token string) {
 	fbGraphRequest(token, map[string]interface{}{
 		"persistent_menu": []interface{}{payload},
 	})
+}
+
+type viber struct {
+	URL        string   `json:"url"`
+	EventTypes []string `json:"event_types"`
+}
+
+func createViberIntegration(url string, token string) {
+
+	if len(token) == 0 {
+		return
+	}
+	fmt.Println("Setting up Viber integrations.")
+
+	client := &http.Client{}
+
+	v := viber{
+		URL:        url,
+		EventTypes: []string{"delivered", "seen", "failed", "subscribed", "unsubscribed", "conversation_started"},
+	}
+
+	// override
+	if len(url) == 0 {
+		wd, _ := os.Getwd()
+		path := fmt.Sprintf("%v/viber.json", wd)
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			return
+		}
+
+		buff, _ := ioutil.ReadFile(path)
+		if err := json.Unmarshal(buff, &v); err != nil {
+			return
+		}
+
+		r, _ := regexp.Compile("{{ID}}")
+
+		u := UID{}
+
+		v.URL = r.ReplaceAllString(v.URL, u.Get(wd))
+	}
+
+	jsonBody, _ := json.Marshal(v)
+
+	req, err := http.NewRequest("POST", "https://chatapi.viber.com/pa/set_webhook", bytes.NewBuffer(jsonBody))
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	req.Header.Set("X-Viber-Auth-Token", token)
+
+	resp, err := client.Do(req)
+
+	check(err)
+
+	dat, err := ioutil.ReadAll(resp.Body)
+
+	defer resp.Body.Close()
+
+	var result struct {
+		StatusMessage string `json:"status_message"`
+		Status        int    `json:"status"`
+	}
+
+	json.Unmarshal(dat, &result)
+
+	if result.StatusMessage == "ok" {
+		fmt.Println("...")
+		fmt.Println("")
+		return
+	}
+
+	fmt.Println(result)
 }
 
 func fbGraphRequest(token string, payload map[string]interface{}) {
