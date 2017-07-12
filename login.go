@@ -22,7 +22,7 @@ func Login(reader io.Reader) {
 	email := scanner.Text()
 	email = strings.TrimSpace(email)
 
-	fmt.Printf("Password:")
+	fmt.Printf("Paste your auth token from :")
 
 	bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
 
