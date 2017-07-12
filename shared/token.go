@@ -16,8 +16,11 @@ import (
 )
 
 type user struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email string `json:"email"`
+}
+
+type api struct {
+	Key string `json:"apiKey"`
 }
 
 // Token defines the token
@@ -25,18 +28,47 @@ type Token struct {
 	Source   string
 	ID       string `json:"token"`
 	ExpireAt int64  `json:"expireAt"`
-	Email    string `json:"email"`
+	User     user   `json:"user"`
 }
 
-// Lease leases a new token
-func (t *Token) Lease(email string, password string) {
-	u := user{Email: email, Password: password}
+func (t *user) currentUser(source string, token string) string {
+	client := &http.Client{}
 
-	jsonBody, err := json.Marshal(u)
+	url := fmt.Sprintf("%s/user", source)
+
+	req, err := http.NewRequest("GET", url, nil)
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
+
+	resp, err := client.Do(req)
 
 	check(err)
 
-	endpoint := fmt.Sprintf("%v/token", t.Source)
+	defer resp.Body.Close()
+
+	dat, err := ioutil.ReadAll(resp.Body)
+
+	var result struct {
+		Email string `json:"email"`
+	}
+
+	json.Unmarshal(dat, &result)
+
+	return result.Email
+
+}
+
+// Lease leases a new token
+func (t *Token) Lease(apiKey string) {
+	body := api{
+		Key: apiKey,
+	}
+
+	jsonBody, err := json.Marshal(body)
+
+	check(err)
+
+	endpoint := fmt.Sprintf("%v/token/api-key", t.Source)
 
 	s := spinner.New(spinner.CharSets[9], 100*time.Millisecond) // Build our new spinner
 
@@ -54,11 +86,13 @@ func (t *Token) Lease(email string, password string) {
 
 	check(err)
 
-	result := Token{
-		Email: email,
-	}
+	result := Token{}
 
 	json.Unmarshal(bytes, &result)
+
+	u := user{}
+
+	result.User.Email = u.currentUser(t.Source, result.ID)
 
 	s.Stop()
 
@@ -73,7 +107,7 @@ func (t *Token) Lease(email string, password string) {
 
 		fmt.Print("Logged in as: ")
 
-		color.Print(email)
+		color.Print(result.User.Email)
 
 		fmt.Println("")
 	} else {
@@ -96,7 +130,7 @@ func (t *Token) read() Token {
 	dir, _ := homedir.Dir()
 
 	path := filepath.Join(dir, filepath.Join(".recime", "netrc"))
-	
+
 	var result Token
 
 	if _, err := os.Stat(path); os.IsNotExist(err) {

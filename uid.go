@@ -53,7 +53,7 @@ func (u *UID) Get(wd string) string {
 
 	name := data["name"].(string)
 
-	uid := u.Create(name, t.Email)
+	uid := u.Create(name, t.User.Email)
 
 	return uid
 }

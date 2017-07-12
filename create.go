@@ -137,7 +137,7 @@ func Create(folder string, lang string) {
 		Author:  data["author"].(string),
 		Name:    data["name"].(string),
 		Config:  make(map[string]string),
-		Owner:   token.Email,
+		Owner:   token.User.Email,
 		Version: data["version"].(string),
 	}
 

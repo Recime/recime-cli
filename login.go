@@ -5,30 +5,21 @@ import (
 	"fmt"
 	"io"
 	"strings"
-	"syscall"
 
 	"github.com/Recime/recime-cli/shared"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
 // Login validates the user
 func Login(reader io.Reader) {
 	scanner := bufio.NewScanner(reader)
 
-	fmt.Printf("Email:")
+	fmt.Println("Paste your api key from \"console.recime.io/my_account\":")
 
 	scanner.Scan()
 
-	email := scanner.Text()
-	email = strings.TrimSpace(email)
-
-	fmt.Printf("Paste your auth token from :")
-
-	bytePassword, _ := terminal.ReadPassword(int(syscall.Stdin))
-
-	password := string(bytePassword)
-	password = strings.TrimSpace(password)
+	apiKey := scanner.Text()
+	apiKey = strings.TrimSpace(apiKey)
 
 	t := shared.Token{Source: apiEndpoint}
-	t.Lease(email, password)
+	t.Lease(apiKey)
 }

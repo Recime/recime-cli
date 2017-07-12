@@ -428,7 +428,7 @@ func Deploy() {
 	_bot := bot{
 		Author:  data["author"].(string),
 		Version: data["version"].(string),
-		Owner:   token.Email,
+		Owner:   token.User.Email,
 		Config:  cfg,
 		Name:    data["name"].(string),
 	}
