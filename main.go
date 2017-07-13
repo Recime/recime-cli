@@ -398,7 +398,6 @@ func marshalIndent(data map[string]interface{}) []byte {
 
 func printInfo(msg string) {
 	if len(msg) > 0 {
-		fmt.Println("")
 		console := color.New(color.FgHiGreen)
 		console.Print("[INFO]")
 		console.Print(" ")
