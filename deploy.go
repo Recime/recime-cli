@@ -54,7 +54,7 @@ const (
 func printRemoteStatus(status string) {
 	pattern := regexp.MustCompile(`[a-z1-9A-Z.]+`)
 	if pattern.MatchString(status) {
-		fmt.Println(fmt.Sprintf("remote ---> %v", status))
+		printInfo(fmt.Sprintf("remote ---> %v", status))
 	} else {
 		fmt.Print(status)
 	}
@@ -200,7 +200,7 @@ func (d *deployer) finalize(cfg map[string]string) {
 
 		fmt.Println("")
 
-		fmt.Println("INFO: Success!")
+		printInfo("Success!")
 	}
 }
 
@@ -370,20 +370,12 @@ func sendRequest(url string, token string, body io.Reader) []byte {
 	return nil
 }
 
-func printError(msg string) {
-	if len(msg) > 0 {
-		console := color.New(color.FgHiRed)
-		message := fmt.Sprintf("FATAL: %s", msg)
-		console.Println(message)
-	}
-}
-
 // Deploy deploys the bot
 func Deploy() {
 	token := renewToken()
 
 	if len(token.User.Email) == 0 {
-		printError("Authentication flow updated please login again to continue, please checkout \"https://docs.recime.io/preparation.html\" for further information.")
+		printError("Please re-login to continue. Refer to \"https://docs.recime.io/preparation.html\" for further information.")
 		return
 	}
 

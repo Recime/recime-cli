@@ -54,7 +54,8 @@ func Run(watch bool) {
 
 	util.CopyDir(filepath.ToSlash(wd), botdir)
 
-	fmt.Println("INFO: Installing Dependencies...")
+	printInfo("Installing Dependencies...")
+	fmt.Println("")
 
 	sh := &shell{}
 
@@ -65,13 +66,13 @@ func Run(watch bool) {
 	sh.execute(templatedir, "install")
 	sh.execute(botdir, "install")
 
-	fmt.Println("INFO: Building...")
+	printInfo("Building package...")
 
 	if Build(botdir) != nil {
 		return
 	}
 
-	fmt.Println("INFO: Starting...")
+	printInfo("Starting server...")
 
 	if watch {
 		watchDir(filepath.ToSlash(wd), botdir)
@@ -123,7 +124,7 @@ func watchDir(dir string, targetDir string) {
 					} else {
 						targetFile := fmt.Sprintf("%s/%s", targetDir, fileInfo.Name())
 
-						fmt.Println("INFO: File change event.")
+						printInfo("File change event.")
 
 						util.CopyFile(ev.Name, targetFile)
 						Build(targetDir)

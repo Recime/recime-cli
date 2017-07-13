@@ -395,3 +395,25 @@ func marshalIndent(data map[string]interface{}) []byte {
 
 	return asset
 }
+
+func printInfo(msg string) {
+	if len(msg) > 0 {
+		fmt.Println("")
+		console := color.New(color.FgHiGreen)
+		console.Print("[INFO]")
+		console.Print(" ")
+		console = color.New(color.FgHiWhite)
+		console.Println(msg)
+	}
+}
+
+func printError(msg string) {
+	if len(msg) > 0 {
+		fmt.Println("")
+		console := color.New(color.FgHiRed)
+		console.Print("[FATAL]")
+		console.Print(" ")
+		console = color.New(color.FgHiWhite)
+		console.Println(msg)
+	}
+}
