@@ -380,6 +380,13 @@ func printError(msg string) {
 
 // Deploy deploys the bot
 func Deploy() {
+	token := renewToken()
+
+	if len(token.User.Email) == 0 {
+		printError("Authentication flow updated please login again to continue, please checkout \"https://docs.recime.io/preparation.html\" for further information.")
+		return
+	}
+
 	uid := UID{}
 
 	wd, err := os.Getwd()
@@ -387,8 +394,6 @@ func Deploy() {
 	check(err)
 
 	id := uid.Get(wd)
-
-	token := renewToken()
 
 	fmt.Println("Creating bot package to deploy into \"Recime\" cloud.")
 

@@ -13,7 +13,7 @@ import (
 func Login(reader io.Reader) {
 	scanner := bufio.NewScanner(reader)
 
-	fmt.Println("Paste your api key from \"console.recime.io/my_account\":")
+	fmt.Println("Paste your api key from \"https://console.recime.io/my-account\":")
 
 	scanner.Scan()
 
