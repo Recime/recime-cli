@@ -117,7 +117,7 @@ func (t *Token) Lease(apiKey string) {
 		case 400:
 			color.Println("Missing/Invalid argument.")
 		case 401:
-			color.Println("Incorrect email or password.")
+			color.Println("Invalid or expired API key. Please check that you have pasted it correctly.")
 		case 403:
 			color.Println("Account is not verified.")
 		default:
