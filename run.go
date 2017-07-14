@@ -54,6 +54,7 @@ func Run(watch bool) {
 
 	util.CopyDir(filepath.ToSlash(wd), botdir)
 
+	fmt.Println("")
 	printInfo("Installing Dependencies...")
 	fmt.Println("")
 
