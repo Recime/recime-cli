@@ -42,7 +42,22 @@ func (p *platform) install(name string) {
 
 	switch strings.ToLower(name) {
 	case "facebook":
-		err = p.processInput(key, "Page access token")
+		{
+			fmt.Println("Please enter your facebook app settings")
+			m := map[string]string{
+				"RECIME_FACEBOOK_APP_ID":       "App ID",
+				"RECIME_FACEBOOK_APP_SECRET":   "App Secret",
+				"RECIME_FACEBOOK_ACCESS_TOKEN": "Page access token",
+			}
+			for key, value := range m {
+				if value != "" {
+					err = p.processInput(key, value)
+					if err != nil {
+						break
+					}
+				}
+			}
+		}
 	case "telegram":
 		err = p.processInput(key, "Telegram access key")
 	case "wechat":
@@ -55,9 +70,11 @@ func (p *platform) install(name string) {
 				"RECIME_SLACK_CLIENT_SECRET": "Client Secret",
 			}
 			for key, value := range m {
-				err = p.processInput(key, value)
-				if err != nil {
-					break
+				if value != "" {
+					err = p.processInput(key, value)
+					if err != nil {
+						break
+					}
 				}
 			}
 		}

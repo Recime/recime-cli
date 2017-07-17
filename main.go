@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -116,12 +117,12 @@ type viber struct {
 	EventTypes []string `json:"event_types"`
 }
 
-func createViberIntegration(url string, token string) {
-
+func updateViberIntegration(url string, token string) {
 	if len(token) == 0 {
 		return
 	}
-	fmt.Println("Setting up Viber integrations.")
+
+	fmt.Println("Updating Viber integrations.")
 
 	client := &http.Client{}
 
@@ -179,6 +180,62 @@ func createViberIntegration(url string, token string) {
 	}
 
 	fmt.Println(result)
+}
+
+type facebook struct {
+	AppID     string
+	AppSecret string
+	Token     string
+}
+
+func (f *facebook) process(resp *http.Response) bool {
+	dat, err := ioutil.ReadAll(resp.Body)
+
+	check(err)
+
+	var result struct {
+		Success bool `json:"success"`
+	}
+
+	json.Unmarshal(dat, &result)
+
+	return result.Success
+}
+
+func updateFBIntegration(botURL string, fb facebook) {
+	printInfo("Updating facebook integrations.")
+
+	u := UID{}
+	wd, _ := os.Getwd()
+
+	client := &http.Client{}
+
+	endpoint := fmt.Sprintf("https://graph.facebook.com/%v/subscriptions?access_token=%v|%v", fb.AppID, fb.AppID, fb.AppSecret)
+
+	resp, err := client.PostForm(endpoint, url.Values{
+		"object":       {"page"},
+		"callback_url": {botURL},
+		"fields":       {"messages,messaging_postbacks,messaging_optins,message_deliveries,message_reads"},
+		"verify_token": {u.Get(wd)},
+	})
+
+	check(err)
+
+	defer resp.Body.Close()
+
+	if fb.process(resp) {
+		subscriptionURL := fmt.Sprintf("https://graph.facebook.com/v2.6/me/subscribed_apps?access_token=%v", fb.Token)
+		resp, err = http.Post(subscriptionURL, "application/json; charset=utf-8", nil)
+
+		if err != nil {
+			printError(err.Error())
+		}
+		defer resp.Body.Close()
+
+		if fb.process(resp) {
+			fmt.Println(".")
+		}
+	}
 }
 
 func fbGraphRequest(token string, payload map[string]interface{}) {
