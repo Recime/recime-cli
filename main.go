@@ -203,6 +203,11 @@ func (f *facebook) process(resp *http.Response) bool {
 }
 
 func updateFBIntegration(botURL string, fb facebook) {
+
+	if len(fb.AppID) == 0 || len(fb.AppSecret) == 0 {
+		return
+	}
+
 	printInfo("Updating facebook integrations.")
 
 	u := UID{}
