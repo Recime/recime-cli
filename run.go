@@ -96,6 +96,9 @@ func Run(watch bool) {
 		config = append(config, shared.Config{Key: key, Value: value})
 	}
 
+	config = append(config, shared.Config{Key: "UID", Value: id})
+	config = append(config, shared.Config{Key: "HOME_DIR", Value: templatedir})
+
 	sh = &shell{
 		config: config,
 	}

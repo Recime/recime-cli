@@ -194,13 +194,14 @@ func (d *deployer) finalize(cfg map[string]string) {
 
 		endpoint := fmt.Sprintf("https://%sbot.recime.io/%s/v1", region, result.ID)
 
-		updateViberIntegration(endpoint, cfg["RECIME_VIBER_ACCESS_TOKEN"])
-
 		updateFBIntegration(endpoint, facebook{
 			AppID:     cfg["RECIME_FACEBOOK_APP_ID"],
 			AppSecret: cfg["RECIME_FACEBOOK_APP_SECRET"],
 			Token:     cfg["RECIME_FACEBOOK_ACCESS_TOKEN"],
 		})
+
+		updateTelegramIntegration(endpoint, cfg["RECIME_TELEGRAM_ACCESS_TOKEN"])
+		updateViberIntegration(endpoint, cfg["RECIME_VIBER_ACCESS_TOKEN"])
 
 		console.Println(fmt.Sprintf("https://%sbot.recime.io/%s/v1", region, result.ID))
 

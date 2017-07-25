@@ -117,6 +117,41 @@ type viber struct {
 	EventTypes []string `json:"event_types"`
 }
 
+func updateTelegramIntegration(botURL string, token string) {
+	//curl -F url=PASTE_YOUR_BOT_URL https://api.telegram.org/botPASTE_YOUR_ACCESS_TOKEN_HERE/setWebhook
+
+	fmt.Println("Updating Telegram integrations.")
+
+	if len(token) == 0 {
+		return
+	}
+
+	client := &http.Client{}
+
+	api := fmt.Sprintf("https://api.telegram.org/bot%v/setWebhook", token)
+
+	resp, err := client.PostForm(api, url.Values{
+		"url": {botURL},
+	})
+	check(err)
+
+	defer resp.Body.Close()
+
+	dat, err := ioutil.ReadAll(resp.Body)
+
+	check(err)
+
+	var result struct {
+		Success bool   `json:"ok"`
+		Message string `json:"description"`
+	}
+
+	json.Unmarshal(dat, &result)
+
+	fmt.Println(result.Message)
+	fmt.Println("")
+}
+
 func updateViberIntegration(url string, token string) {
 	if len(token) == 0 {
 		return
