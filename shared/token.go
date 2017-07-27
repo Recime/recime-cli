@@ -31,33 +31,6 @@ type Token struct {
 	User     user   `json:"user"`
 }
 
-func (t *user) currentUser(source string, token string) string {
-	client := &http.Client{}
-
-	url := fmt.Sprintf("%s/user", source)
-
-	req, err := http.NewRequest("GET", url, nil)
-
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", token))
-
-	resp, err := client.Do(req)
-
-	check(err)
-
-	defer resp.Body.Close()
-
-	dat, err := ioutil.ReadAll(resp.Body)
-
-	var result struct {
-		Email string `json:"email"`
-	}
-
-	json.Unmarshal(dat, &result)
-
-	return result.Email
-
-}
-
 // Lease leases a new token
 func (t *Token) Lease(apiKey string) {
 	body := api{
@@ -90,9 +63,9 @@ func (t *Token) Lease(apiKey string) {
 
 	json.Unmarshal(bytes, &result)
 
-	u := user{}
+	u := User{}
 
-	result.User.Email = u.currentUser(t.Source, result.ID)
+	result.User.Email = u.CurrentUser(t.Source, result.ID).Email
 
 	s.Stop()
 

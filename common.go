@@ -50,3 +50,8 @@ func syncConfigVars(uid string, token string) {
 		}
 	}
 }
+
+func renewToken() shared.Token {
+	token := shared.Token{Source: apiEndpoint}
+	return token.Renew()
+}

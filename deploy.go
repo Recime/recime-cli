@@ -404,8 +404,6 @@ func Deploy() {
 		return
 	}
 
-	syncConfigVars(id, token.ID)
-
 	_config := shared.Config{}
 
 	cfg := make(map[string]string)
@@ -540,9 +538,4 @@ func readFile(path string) ([]byte, int64) {
 	file.Read(buffer)
 
 	return buffer, size
-}
-
-func renewToken() shared.Token {
-	token := shared.Token{Source: apiEndpoint}
-	return token.Renew()
 }

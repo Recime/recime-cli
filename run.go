@@ -90,14 +90,18 @@ func Run(watch bool) {
 	createFBPersistentMenu(vars["RECIME_FACEBOOK_ACCESS_TOKEN"])
 	createFBGettingStarted(vars["RECIME_FACEBOOK_ACCESS_TOKEN"])
 
-	syncConfigVars(id, renewToken().ID)
-
 	for key, value := range vars {
 		config = append(config, shared.Config{Key: key, Value: value})
 	}
 
 	config = append(config, shared.Config{Key: "UID", Value: id})
 	config = append(config, shared.Config{Key: "HOME_DIR", Value: templatedir})
+
+	// user informaiton.
+	u := shared.User{}
+
+	apiKey := u.CurrentUser(apiEndpoint, renewToken().ID).APIKey
+	config = append(config, shared.Config{Key: "SYSTEM_RECIME_API_KEY", Value: apiKey})
 
 	sh = &shell{
 		config: config,
