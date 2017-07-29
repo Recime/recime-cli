@@ -198,6 +198,7 @@ func (d *deployer) finalize(cfg map[string]string) {
 			AppID:     cfg["RECIME_FACEBOOK_APP_ID"],
 			AppSecret: cfg["RECIME_FACEBOOK_APP_SECRET"],
 			Token:     cfg["RECIME_FACEBOOK_ACCESS_TOKEN"],
+			WitToken:  cfg["WIT_TOKEN"],
 		})
 
 		updateTelegramIntegration(endpoint, cfg["RECIME_TELEGRAM_ACCESS_TOKEN"])

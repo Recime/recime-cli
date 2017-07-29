@@ -221,6 +221,7 @@ type facebook struct {
 	AppID     string
 	AppSecret string
 	Token     string
+	WitToken  string
 }
 
 func (f *facebook) process(resp *http.Response) bool {
@@ -235,6 +236,27 @@ func (f *facebook) process(resp *http.Response) bool {
 	json.Unmarshal(dat, &result)
 
 	return result.Success
+}
+
+func (f *facebook) nlpConfigure() {
+	// configuring wit token
+	if len(f.WitToken) > 0 {
+		h := httpClient{}
+
+		nlpConfigURL := "https://graph.facebook.com/v2.8/me/nlp_configs?nlp_enabled=%v&custom_token=%v"
+
+		dat := h.post(fmt.Sprintf(nlpConfigURL, "$NLP_ENABLED", f.WitToken), map[string]interface{}{
+			"access_token": f.Token,
+		})
+
+		var result map[string]string
+
+		json.Unmarshal(dat, &result)
+
+		if len(result["result"]) > 0 && result["result"] == "success" {
+			fmt.Println("NLP configured.")
+		}
+	}
 }
 
 func updateFBIntegration(botURL string, fb facebook) {
@@ -276,6 +298,8 @@ func updateFBIntegration(botURL string, fb facebook) {
 			fmt.Println(".")
 		}
 	}
+
+	fb.nlpConfigure()
 }
 
 func fbGraphRequest(token string, payload map[string]interface{}) {
