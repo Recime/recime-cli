@@ -243,15 +243,17 @@ func (f *facebook) nlpConfigure() {
 	if len(f.WitToken) > 0 {
 		h := httpClient{}
 
-		nlpConfigURL := "https://graph.facebook.com/v2.8/me/nlp_configs?nlp_enabled=%v&custom_token=%v"
+		nlpConfigURL := "https://graph.facebook.com/v2.8/me/nlp_configs?nlp_enabled=%v&&custom_token=%v"
 
-		dat := h.post(fmt.Sprintf(nlpConfigURL, "$NLP_ENABLED", f.WitToken), map[string]interface{}{
+		dat := h.post(fmt.Sprintf(nlpConfigURL, true, f.WitToken), map[string]interface{}{
 			"access_token": f.Token,
 		})
 
 		var result map[string]string
 
 		json.Unmarshal(dat, &result)
+
+		fmt.Println(result)
 
 		if len(result["result"]) > 0 && result["result"] == "success" {
 			fmt.Println("NLP configured.")
