@@ -150,6 +150,8 @@ func updateTelegramIntegration(botURL string, token string) {
 
 	fmt.Println(result.Message)
 	fmt.Println("")
+	fmt.Println("")
+
 }
 
 func updateViberIntegration(url string, token string) {
@@ -249,13 +251,13 @@ func (f *facebook) nlpConfigure() {
 			"access_token": f.Token,
 		})
 
-		var result map[string]string
+		var result struct {
+			Success bool `json:success`
+		}
 
 		json.Unmarshal(dat, &result)
 
-		fmt.Println(result)
-
-		if len(result["result"]) > 0 && result["result"] == "success" {
+		if result.Success {
 			fmt.Println("NLP configured.")
 		}
 	}
