@@ -336,6 +336,18 @@ func main() {
 	token := shared.Token{Source: apiEndpoint}
 	token.Renew()
 
+	var rootCmd = &cobra.Command{
+		Use: "recime-cli",
+		Long: fmt.Sprintf(`Recime Command Line Interface
+Version %v
+Copyright %d Recime, Inc.
+%s`,
+			Version,
+			time.Now().Year(),
+			SiteURL,
+		),
+	}
+
 	var cmdLogin = &cobra.Command{
 		Use:   "login",
 		Short: "Logs into your Recime account",
@@ -344,6 +356,8 @@ func main() {
 			Login(os.Stdin)
 		},
 	}
+
+	rootCmd.AddCommand(cmdLogin)
 
 	var lang string
 
@@ -363,6 +377,35 @@ func main() {
 
 	cmdCreate.PersistentFlags().StringVarP(&lang, "lang", "l", "es6", "Specifies the language of the template.")
 
+	rootCmd.AddCommand(cmdCreate)
+
+	var cmdInit = &cobra.Command{
+		Use:   "init",
+		Short: "Initialized the bot project",
+		Long:  "Initializes an existing bot project to use with your account",
+		Run: func(_ *cobra.Command, args []string) {
+			wd, err := os.Getwd()
+
+			check(err)
+
+			var data map[string]interface{}
+
+			pkgFilePath := fmt.Sprintf("%s/package.json", wd)
+
+			buff, err := ioutil.ReadFile(pkgFilePath)
+
+			check(err)
+
+			if err := json.Unmarshal(buff, &data); err != nil {
+				panic(err)
+			}
+
+			initProject(wd, data)
+		},
+	}
+
+	rootCmd.AddCommand(cmdInit)
+
 	var cmdDeploy = &cobra.Command{
 		Use:   "deploy",
 		Short: "Deploys the bot to Recime cloud",
@@ -371,6 +414,8 @@ func main() {
 			Deploy()
 		},
 	}
+
+	rootCmd.AddCommand(cmdDeploy)
 
 	var cmdConfig = &cobra.Command{
 		Use:   "config",
@@ -419,10 +464,11 @@ func main() {
 				config := shared.Config{
 					Key: args[0],
 				}
-
 				if config.Remove() != nil {
 					console := color.New(color.FgHiMagenta)
-					console.Println("\r\nINFO: Config key removed successfully.\r\n")
+					fmt.Println("")
+					console.Println("INFO: Config key removed successfully.")
+					fmt.Println("")
 				}
 			} else {
 				red := color.New(color.FgRed).Add(color.Bold)
@@ -447,17 +493,7 @@ func main() {
 
 	cmdRun.PersistentFlags().BoolVarP(&watch, "watch", "w", false, "Watches the bot folder for changes")
 
-	var rootCmd = &cobra.Command{
-		Use: "recime-cli",
-		Long: fmt.Sprintf(`Recime Command Line Interface
-Version %v
-Copyright %d Recime, Inc.
-%s`,
-			Version,
-			time.Now().Year(),
-			SiteURL,
-		),
-	}
+	rootCmd.AddCommand(cmdRun)
 
 	var cmdPlatform = &cobra.Command{
 		Use:   "platform",
@@ -489,10 +525,6 @@ Copyright %d Recime, Inc.
 	cmdPlatform.AddCommand(cmdPlaformConfig)
 
 	rootCmd.AddCommand(cmdConfig)
-	rootCmd.AddCommand(cmdLogin)
-	rootCmd.AddCommand(cmdCreate)
-	rootCmd.AddCommand(cmdDeploy)
-	rootCmd.AddCommand(cmdRun)
 	rootCmd.AddCommand(cmdPlatform)
 
 	rootCmd.Execute()

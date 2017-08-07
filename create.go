@@ -127,11 +127,21 @@ func Create(folder string, lang string) {
 
 	util.CopyDir(templateDir, botDir)
 
+	initProject(botDir, data)
+
+	console := color.New(color.FgHiMagenta)
+
+	console.Println("")
+	console.Println("INFO: Bot project is created successfully.")
+	console.Println("")
+}
+
+func initProject(dir string, data map[string]interface{}) {
 	// sync to dashboard.
 	token := renewToken()
 
 	uid := UID{}
-	id := uid.Get(botDir)
+	id := uid.Get(dir)
 
 	b := bot{
 		Author:  data["author"].(string),
@@ -154,19 +164,13 @@ func Create(folder string, lang string) {
 		Token: token.ID,
 	}
 
-	fmt.Println("Creating the experience for your dashboard...")
+	fmt.Println("Initiailizng the project.")
 
 	d.UpdateMetadata(b)
 
 	fmt.Println("Uploading  \"icon.png\" from source folder...")
 
-	d.UploadIcon(botDir)
-
-	console := color.New(color.FgHiMagenta)
-
-	console.Println("")
-	console.Println("INFO: Bot project is created successfully.")
-	console.Println("")
+	d.UploadIcon(dir)
 }
 
 func botTemplateURL(lang string) string {
