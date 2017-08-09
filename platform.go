@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
 
@@ -18,8 +17,6 @@ func (p *platform) set(key string, value string) error {
 	if len(value) > 0 {
 		config := shared.Config{Key: key, Value: value, Source: apiEndpoint}
 		config.Save()
-	} else {
-		return errors.New("Invalid config property")
 	}
 	return nil
 }
@@ -34,6 +31,16 @@ func (p *platform) processInput(key string, title string) error {
 	return p.set(key, scanner.Text())
 }
 
+type keyMap struct {
+	m    map[string]string
+	keys []string
+}
+
+func (k *keyMap) set(key string, value string) {
+	k.m[key] = value
+	k.keys = append(k.keys, key)
+}
+
 // Prepare prepares the bot for deploy.
 func (p *platform) install(name string) {
 	key := fmt.Sprintf("RECIME_%v_ACCESS_TOKEN", strings.ToUpper(name))
@@ -44,18 +51,15 @@ func (p *platform) install(name string) {
 	case "facebook":
 		{
 			fmt.Println("Please enter your facebook app settings")
-			m := map[string]string{
-				"RECIME_FACEBOOK_APP_ID":       "App ID",
-				"RECIME_FACEBOOK_APP_SECRET":   "App Secret",
-				"RECIME_FACEBOOK_ACCESS_TOKEN": "Page access token",
-			}
-			for key, value := range m {
-				if value != "" {
-					err = p.processInput(key, value)
-					if err != nil {
-						break
-					}
-				}
+
+			k := &keyMap{m: make(map[string]string)}
+
+			k.set("RECIME_FACEBOOK_APP_ID", "App ID")
+			k.set("RECIME_FACEBOOK_APP_SECRET", "App Secret")
+			k.set("RECIME_FACEBOOK_ACCESS_TOKEN", "Page access token")
+
+			for _, key := range k.keys {
+				err = p.processInput(key, k.m[key])
 			}
 		}
 	case "telegram":
@@ -65,17 +69,14 @@ func (p *platform) install(name string) {
 	case "slack":
 		{
 			fmt.Println("Please enter Slack credentials")
-			m := map[string]string{
-				"RECIME_SLACK_CLIENT_ID":     "Client ID",
-				"RECIME_SLACK_CLIENT_SECRET": "Client Secret",
-			}
-			for key, value := range m {
-				if value != "" {
-					err = p.processInput(key, value)
-					if err != nil {
-						break
-					}
-				}
+
+			k := &keyMap{m: make(map[string]string)}
+
+			k.set("RECIME_SLACK_CLIENT_ID", "Client ID")
+			k.set("RECIME_SLACK_CLIENT_SECRET", "Client Secret")
+
+			for _, key := range k.keys {
+				err = p.processInput(key, k.m[key])
 			}
 		}
 	case "viber":
