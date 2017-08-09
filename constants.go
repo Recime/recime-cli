@@ -16,10 +16,10 @@ package main
 // SiteURL Site URL
 const SiteURL = "https://recime.io"
 
-// Version 1.4.2
-const Version = "1.4.2"
+// Version 1.4.3
+const Version = "1.4.3"
 
 const apiEndpoint = "https://api.recime.io/v1"
 const template = "https://github.com/Recime/recime-bot-template/archive/1.1.1.zip"
-const es6BotTemplate = "https://github.com/Recime/recime-bot-es6-template/archive/1.0.3.zip"
+const es6BotTemplate = "https://github.com/Recime/recime-bot-es6-template/archive/1.0.4.zip"
 const typescriptBotTemplate = "https://github.com/Recime/recime-bot-typescript-template/archive/1.0.4.zip"
