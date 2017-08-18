@@ -20,9 +20,9 @@ To install all the Go and Recime CLI, just run the following command, Homebrew t
 
 This will install all the dependencies, configure path and install the CLI accessible globally. Once installation is complete
 
-## Other
+## Source
 
-`Recime Command Line Tool` is built using Go. Therefore, if you have go tools installs then type the following command to install:
+`Recime Command Line Tool` is built using [Go](https://golang.org/dl/). Therefore, if you have go tools installs then type the following command to install:
 
 ```
 go get -v -u github.com/recime/recime-cli 
