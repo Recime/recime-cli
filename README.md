@@ -1,3 +1,5 @@
+# This project is depricated You should use this [fork](https://github.com/Recime/nodejs-cli) instead.
+
 # Recime Command Line Tool  
 
 The `Recime Command Line Tool` allows you to scaffold your bot from terminal. It creates your account based on the email you have provided and lets you deploy it to **[Recime](https://recime.ai)** cloud.

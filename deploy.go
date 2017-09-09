@@ -47,7 +47,6 @@ import (
 const (
 	address = "agent-v1.recime.io"
 	port    = 3000
-	bucket  = "recime-io"
 )
 
 // PrintStatus outputs formatted status.
